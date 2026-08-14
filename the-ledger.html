@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Ledger — Load & Process</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap');
+
+:root{
+  --bg:#000000; --panel:#040804; --panel-alt:#081208;
+  --line:#0F3A1C; --line-soft:#0A240F;
+  --green:#00FF41; --green-bright:#8CFFB0; --green-dim:#0F9D45; --green-faint:#0A5C28;
+  --red:#FF3131; --text:#B9F5C6; --muted:#4E8F5E; --muted-dim:#2E5C3A;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;min-height:100vh;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:1080px;margin:0 auto;padding:26px 22px 60px;position:relative;z-index:2;}
+::selection{background:rgba(0,255,65,0.28);}
+
+#rain{position:fixed;inset:0;z-index:0;opacity:0.4;}
+.scanlines{position:fixed;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(0,255,65,0.02) 3px, rgba(0,0,0,0) 4px);}
+.vignette{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0,0,0,0.75) 100%);}
+@media (prefers-reduced-motion: reduce){ #rain{display:none;} }
+
+.eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--green);display:inline-flex;align-items:center;gap:8px;margin-bottom:10px;text-shadow:0 0 8px rgba(0,255,65,0.5);}
+.eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 1.4s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
+
+.topbar{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:14px;padding-bottom:20px;margin-bottom:24px;border-bottom:1px solid var(--line-soft);}
+h1{font-size:clamp(22px,3vw,30px);margin:0 0 6px;text-transform:uppercase;letter-spacing:.01em;color:var(--text);text-shadow:0 0 12px rgba(0,255,65,0.2);}
+.sub{color:var(--muted);font-size:13px;margin:0;max-width:540px;line-height:1.5;}
+
+.timeline{display:flex;align-items:center;gap:0;}
+.tl-seg{display:flex;align-items:center;}
+.tl-seg .dot{width:11px;height:11px;border-radius:50%;background:var(--panel-alt);border:2px solid var(--line);}
+.tl-seg .dot.done{background:var(--green);border-color:var(--green);box-shadow:0 0 8px rgba(0,255,65,0.6);}
+.tl-seg .dot.active{background:var(--green);border-color:var(--green);box-shadow:0 0 0 4px rgba(0,255,65,0.18);}
+.tl-line{width:26px;height:2px;background:var(--line);}
+.tl-line.done{background:var(--green);}
+
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media (max-width:860px){.cols{grid-template-columns:1fr;}}
+.right-col{display:flex;flex-direction:column;gap:20px;}
+
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:22px;box-shadow:0 0 30px rgba(0,255,65,0.03);}
+.panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+.panel h2{font-size:14px;margin:0;text-transform:uppercase;letter-spacing:.04em;color:var(--green-bright);font-weight:700;}
+.tag{font-size:10px;letter-spacing:.05em;color:var(--green);border:1px solid var(--green-faint);background:rgba(0,255,65,0.06);padding:3px 9px;border-radius:3px;text-transform:uppercase;}
+.brief{color:var(--muted);font-size:13px;line-height:1.65;margin:12px 0 16px;}
+
+.editor-chrome{border:1px solid var(--line);border-radius:4px;overflow:hidden;background:#010401;}
+.editor-titlebar{padding:9px 12px;background:var(--panel-alt);border-bottom:1px solid var(--line);font-size:11px;color:var(--muted);}
+.editor-titlebar span{color:var(--green-bright);}
+textarea{width:100%;min-height:190px;background:transparent;color:var(--green-bright);border:none;font-family:'JetBrains Mono',monospace;font-size:14px;line-height:1.65;padding:14px 16px;resize:vertical;tab-size:2;caret-color:var(--green);}
+textarea:focus{outline:none;}
+.editor-chrome:focus-within{border-color:var(--green);box-shadow:0 0 0 3px rgba(0,255,65,0.12);}
+
+.actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+button{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;border-radius:3px;cursor:pointer;padding:12px 20px;text-transform:uppercase;letter-spacing:.03em;transition:transform .15s ease,box-shadow .15s ease;border:none;}
+.btn-primary{background:var(--green);color:#001A08;border:1px solid var(--green);box-shadow:0 0 20px rgba(0,255,65,0.3);}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 28px rgba(0,255,65,0.5);}
+.btn-ghost{background:transparent;color:var(--green-bright);border:1px solid var(--line);}
+.btn-ghost:hover{border-color:var(--green-dim);background:rgba(0,255,65,0.06);}
+
+.hint-box,.error-box{margin-top:12px;font-size:12.5px;padding:11px 13px;border-radius:4px;display:none;line-height:1.6;white-space:pre-wrap;}
+.hint-box{color:var(--green-bright);background:rgba(0,255,65,0.05);border:1px solid rgba(0,255,65,0.25);}
+.hint-box::before{content:'[ HINT ] ';color:var(--green);font-weight:700;}
+.error-box{color:#FF8080;background:rgba(255,49,49,0.06);border:1px solid rgba(255,49,49,0.28);}
+.error-box::before{content:'[ ERROR ] ';color:var(--red);font-weight:700;}
+
+.ledger-table{width:100%;border-collapse:collapse;font-size:12px;}
+.ledger-table th{text-align:left;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-size:10px;padding:6px 8px;border-bottom:1px solid var(--line);}
+.ledger-table th.num, .ledger-table td.num{text-align:right;}
+.ledger-table td{padding:7px 8px;border-bottom:1px solid var(--line-soft);color:var(--green-bright);}
+.ledger-table tr:last-child td{border-bottom:none;}
+.ledger-table td.cat{color:var(--muted);}
+.ledger-note{color:var(--muted-dim);font-size:11px;margin-top:10px;line-height:1.5;}
+
+.test-list{display:flex;flex-direction:column;gap:0;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:#010401;}
+.test-row{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line-soft);font-size:12.5px;flex-wrap:wrap;}
+.test-row:last-child{border-bottom:none;}
+.test-icon{width:16px;text-align:center;font-weight:700;color:var(--muted-dim);flex-shrink:0;}
+.test-row.pass .test-icon{color:var(--green);text-shadow:0 0 6px rgba(0,255,65,0.6);}
+.test-row.fail .test-icon{color:var(--red);text-shadow:0 0 6px rgba(255,49,49,0.5);}
+.test-call{color:var(--green-bright);flex:1;min-width:150px;}
+.test-expect{color:var(--muted);}
+.test-actual{color:var(--red);width:100%;padding-left:26px;}
+
+.status-line{margin-top:14px;font-size:12.5px;color:var(--muted);text-align:center;letter-spacing:.03em;}
+.status-line.pass{color:var(--green);text-shadow:0 0 6px rgba(0,255,65,0.4);}
+
+#successOverlay{display:none;position:fixed;inset:0;background:rgba(0,4,0,0.92);backdrop-filter:blur(2px);align-items:center;justify-content:center;z-index:50;padding:20px;}
+.success-card{background:var(--panel);border:1px solid var(--green-faint);border-radius:4px;padding:36px 32px;max-width:380px;text-align:center;animation:pop .35s cubic-bezier(.2,.9,.3,1.3);box-shadow:0 0 50px rgba(0,255,65,0.12);}
+@keyframes pop{from{transform:scale(0.9);opacity:0;}to{transform:scale(1);opacity:1;}}
+.ping{width:64px;height:64px;border-radius:50%;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;background:rgba(0,255,65,0.08);border:1px solid rgba(0,255,65,0.4);position:relative;}
+.ping::before{content:'';position:absolute;inset:-8px;border-radius:50%;border:1px solid rgba(0,255,65,0.35);animation:pingring 1.6s ease-out infinite;}
+@keyframes pingring{0%{transform:scale(0.8);opacity:1;}100%{transform:scale(1.6);opacity:0;}}
+.ping-dot{width:14px;height:14px;border-radius:50%;background:var(--green);box-shadow:0 0 14px var(--green);}
+.success-card h3{font-size:20px;margin:0 0 8px;color:var(--green-bright);text-transform:uppercase;letter-spacing:.03em;text-shadow:0 0 10px rgba(0,255,65,0.4);}
+.success-card p{color:var(--muted);font-size:13.5px;line-height:1.5;margin:0 0 22px;}
+
+#doneScreen{display:none;text-align:center;padding:40px 20px;}
+.done-card{max-width:520px;margin:0 auto;background:var(--panel);border:1px solid var(--green-faint);border-radius:6px;padding:40px 34px;box-shadow:0 0 50px rgba(0,255,65,0.1);}
+.done-card h2{font-size:24px;color:var(--green-bright);text-transform:uppercase;margin:0 0 10px;text-shadow:0 0 14px rgba(0,255,65,0.35);}
+.done-card p{color:var(--muted);font-size:13.5px;line-height:1.6;margin:0 0 8px;}
+
+/* ---------------- Help widget ---------------- */
+.help-fab{
+  position:fixed; bottom:22px; right:22px; z-index:80;
+  width:56px; height:56px; border-radius:50%;
+  background:var(--green); color:#001A08; border:none; cursor:pointer;
+  font-size:22px; display:flex; align-items:center; justify-content:center;
+  box-shadow:0 0 24px rgba(0,255,65,0.45);
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+.help-fab:hover{ transform:translateY(-2px) scale(1.04); box-shadow:0 0 32px rgba(0,255,65,0.65); }
+.help-fab .fab-dot{
+  position:absolute; top:-2px; right:-2px; width:12px; height:12px; border-radius:50%;
+  background:var(--red); border:2px solid var(--bg); display:none;
+}
+.help-panel{
+  position:fixed; bottom:90px; right:22px; z-index:80;
+  width:340px; max-width:calc(100vw - 40px); height:440px; max-height:calc(100vh - 130px);
+  background:var(--panel); border:1px solid var(--green-faint); border-radius:10px;
+  display:none; flex-direction:column; overflow:hidden;
+  box-shadow:0 12px 50px rgba(0,0,0,0.6), 0 0 30px rgba(0,255,65,0.1);
+}
+.help-panel.open{ display:flex; }
+.help-head{
+  padding:12px 14px; background:var(--panel-alt); border-bottom:1px solid var(--line);
+  display:flex; align-items:center; justify-content:space-between;
+}
+.help-head .htitle{ font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--green-bright); text-transform:uppercase; letter-spacing:.04em; display:flex; align-items:center; gap:7px; }
+.help-head .htitle::before{ content:''; width:6px; height:6px; border-radius:50%; background:var(--green); box-shadow:0 0 6px var(--green); animation:blink 1.4s infinite; }
+.help-head button{ background:none; border:none; color:var(--muted); cursor:pointer; font-size:16px; padding:2px 6px; }
+.help-head button:hover{ color:var(--green-bright); }
+.help-log{ flex:1; overflow-y:auto; padding:12px 14px; display:flex; flex-direction:column; gap:10px; }
+.help-msg{ font-size:12.5px; line-height:1.55; padding:9px 11px; border-radius:6px; max-width:88%; }
+.help-msg.bot{ background:var(--panel-alt); border:1px solid var(--line); color:var(--text); align-self:flex-start; }
+.help-msg.user{ background:rgba(0,255,65,0.1); border:1px solid var(--green-faint); color:var(--green-bright); align-self:flex-end; }
+.help-inputrow{ display:flex; gap:8px; padding:10px 12px; border-top:1px solid var(--line); background:var(--panel-alt); }
+.help-inputrow input{
+  flex:1; background:#010401; border:1px solid var(--line); color:var(--green-bright);
+  font-family:'JetBrains Mono',monospace; font-size:12.5px; padding:9px 11px; border-radius:5px;
+}
+.help-inputrow input:focus{ outline:none; border-color:var(--green); }
+.help-inputrow button{
+  background:var(--green); color:#001A08; border:none; border-radius:5px; padding:0 14px;
+  font-family:'JetBrains Mono',monospace; font-weight:700; font-size:12px; cursor:pointer;
+}
+.help-inputrow button:hover{ box-shadow:0 0 14px rgba(0,255,65,0.4); }
+
+</style>
+</head>
+<body>
+<canvas id="rain"></canvas>
+<div class="scanlines"></div>
+<div class="vignette"></div>
+
+<div class="wrap">
+
+  <div class="topbar">
+    <div>
+      <div class="eyebrow">Financial Systems · Live Taster</div>
+      <h1>The Ledger — Load & Process</h1>
+      <p class="sub">A real feed of transactions is sitting on the right. Write the logic that actually reads it — no counting by eye, the numbers are there to be calculated.</p>
+    </div>
+    <div class="timeline" id="dots"></div>
+  </div>
+
+  <div id="game">
+    <div class="cols">
+      <div class="panel">
+        <div class="panel-head">
+          <h2 id="challengeTitle">totalSpend</h2>
+          <span class="tag" id="conceptTag">LOOPS</span>
+        </div>
+        <p class="brief" id="briefText"></p>
+        <div class="editor-chrome">
+          <div class="editor-titlebar"><span>root@ledger:~$</span> query.js</div>
+          <textarea id="codeInput" spellcheck="false"></textarea>
+        </div>
+        <div class="actions">
+          <button class="btn-primary" onclick="runTests()">▶ Run Query</button>
+          <button class="btn-ghost" onclick="resetChallenge()">↺ Reset</button>
+          <button class="btn-ghost" onclick="toggleHint()">💡 Hint</button>
+        </div>
+        <div class="hint-box" id="hintBox"></div>
+        <div class="error-box" id="errorBox"></div>
+      </div>
+
+      <div class="right-col">
+        <div class="panel">
+          <div class="panel-head"><h2>Data Feed — ledger</h2></div>
+          <table class="ledger-table" id="ledgerTable"></table>
+          <p class="ledger-note">This exact array is passed into your function as <code>transactions</code>. A couple of test rows use a second, hidden set of data too — so the logic has to actually work, not just match these numbers.</p>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h2>Test Console</h2></div>
+          <div class="test-list" id="testList"></div>
+          <div class="status-line" id="statusLine">awaiting query run</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="doneScreen">
+    <div class="done-card">
+      <div class="eyebrow" style="justify-content:center;">The Ledger</div>
+      <h2>Feed Processed</h2>
+      <p>Every query passed against the real ledger and against data you never saw. That's the actual job — write logic that works on the data in front of you AND the data you haven't seen yet.</p>
+      <p style="color:var(--green-bright);">The take-home Ledger has a bigger feed and trickier questions.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- SUCCESS OVERLAY -->
+<div id="successOverlay">
+  <div class="success-card">
+    <div class="ping"><div class="ping-dot"></div></div>
+    <h3 id="successTitle">Query Correct</h3>
+    <p id="successText">All checks cleared.</p>
+    <button class="btn-primary" onclick="nextChallenge()" id="nextBtn">Next Query →</button>
+  </div>
+</div>
+
+<script>
+/* ---------------- Matrix rain (shared visual language) ---------------- */
+(function(){
+  const canvas = document.getElementById('rain');
+  const ctx = canvas.getContext('2d');
+  let w, h, cols, drops;
+  const chars = "アイウエオカキクケコサシスセソ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ<>/=+*";
+  const fontSize = 15;
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function resize(){
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+    cols = Math.floor(w / fontSize);
+    drops = new Array(cols).fill(0).map(()=>Math.random()*-50);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+  function draw(){
+    ctx.fillStyle = 'rgba(0,0,0,0.06)';
+    ctx.fillRect(0,0,w,h);
+    ctx.font = fontSize + 'px JetBrains Mono, monospace';
+    for(let i=0;i<cols;i++){
+      const t = chars[Math.floor(Math.random()*chars.length)];
+      const x = i*fontSize, y = drops[i]*fontSize;
+      ctx.fillStyle = Math.random() > 0.94 ? '#CFFFDD' : 'rgba(0,255,65,0.5)';
+      ctx.fillText(t, x, y);
+      if(y > h && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    }
+  }
+  if(!reduced){ setInterval(draw, 55); }
+  else { ctx.fillStyle = '#000'; ctx.fillRect(0,0,w,h); }
+})();
+
+/* ---------------- Data ---------------- */
+const LEDGER = [
+  {id:1, category:"groceries", amount:120},
+  {id:2, category:"payroll",   amount:4500},
+  {id:3, category:"transport", amount:75},
+  {id:4, category:"wire",      amount:15000},
+  {id:5, category:"groceries", amount:60},
+  {id:6, category:"rent",      amount:2300},
+  {id:7, category:"coffee",    amount:12},
+  {id:8, category:"payroll",   amount:8900}
+];
+const HIDDEN_SMALL = [
+  {id:101, category:"misc", amount:10},
+  {id:102, category:"misc", amount:20},
+  {id:103, category:"misc", amount:30}
+];
+const HIDDEN_THRESH = [
+  {id:201, category:"misc", amount:5},
+  {id:202, category:"misc", amount:50},
+  {id:203, category:"misc", amount:500}
+];
+
+function renderLedger(){
+  const table = document.getElementById('ledgerTable');
+  let html = "<tr><th>ID</th><th>Category</th><th class=\"num\">Amount</th></tr>";
+  LEDGER.forEach(t=>{
+    html += `<tr><td>${t.id}</td><td class="cat">${t.category}</td><td class="num">£${t.amount.toLocaleString()}</td></tr>`;
+  });
+  table.innerHTML = html;
+}
+
+/* ---------------- Challenges ---------------- */
+const CHALLENGES = [
+  {
+    fnName: "totalSpend",
+    concept: "VARIABLES · LOOPS · ACCUMULATION",
+    brief: "totalSpend(transactions) should add up the amount of every transaction in the list and return the total. Use the ledger on the right to check your logic — but the real test is whether it works on any list, not just this one.",
+    starter: `// totalSpend(transactions) should add up the amount
+// of every transaction and return the total.
+
+function totalSpend(transactions) {
+  let total = 0;
+  // TODO: loop through transactions and add each amount to total
+
+  return total;
+}`,
+    tests: [
+      { args:[LEDGER], expected: 30967, display: "totalSpend(ledger)" },
+      { args:[HIDDEN_SMALL], expected: 60, display: "totalSpend(hidden — 3 rows)" }
+    ],
+    hint: "for (let i = 0; i < transactions.length; i++) {\n  total += transactions[i].amount;\n}"
+  },
+  {
+    fnName: "sumByCategory",
+    concept: "ARRAYS · FILTERING · PARAMETERS",
+    brief: "sumByCategory(transactions, category) should add up the amount of every transaction that matches the given category, and return 0 if nothing matches.",
+    starter: `// sumByCategory(transactions, category) should total up
+// only the transactions whose category matches the one given.
+// Return 0 if nothing matches.
+
+function sumByCategory(transactions, category) {
+  let total = 0;
+  // TODO: loop through transactions, and only add the amount
+  // when transactions[i].category matches category
+
+  return total;
+}`,
+    tests: [
+      { args:[LEDGER, "groceries"], expected: 180, display: 'sumByCategory(ledger, "groceries")' },
+      { args:[LEDGER, "payroll"], expected: 13400, display: 'sumByCategory(ledger, "payroll")' },
+      { args:[LEDGER, "rent"], expected: 2300, display: 'sumByCategory(ledger, "rent")' },
+      { args:[LEDGER, "utilities"], expected: 0, display: 'sumByCategory(ledger, "utilities")' }
+    ],
+    hint: "for (let i = 0; i < transactions.length; i++) {\n  if (transactions[i].category === category) {\n    total += transactions[i].amount;\n  }\n}"
+  },
+  {
+    fnName: "countHighValue",
+    concept: "LOOPS · CONDITIONALS · COUNTING",
+    brief: "countHighValue(transactions, threshold) should return how many transactions have an amount strictly greater than the threshold.",
+    starter: `// countHighValue(transactions, threshold) should count
+// how many transactions have an amount GREATER than threshold.
+
+function countHighValue(transactions, threshold) {
+  let count = 0;
+  // TODO: loop through transactions, and count the ones
+  // whose amount is greater than threshold
+
+  return count;
+}`,
+    tests: [
+      { args:[LEDGER, 1000], expected: 4, display: "countHighValue(ledger, 1000)" },
+      { args:[LEDGER, 5000], expected: 2, display: "countHighValue(ledger, 5000)" },
+      { args:[LEDGER, 20000], expected: 0, display: "countHighValue(ledger, 20000)" },
+      { args:[HIDDEN_THRESH, 10], expected: 2, display: "countHighValue(hidden, 10)" }
+    ],
+    hint: "for (let i = 0; i < transactions.length; i++) {\n  if (transactions[i].amount > threshold) {\n    count++;\n  }\n}"
+  }
+];
+
+let current = 0;
+
+function buildDots(){
+  const dots = document.getElementById('dots');
+  dots.innerHTML = '';
+  CHALLENGES.forEach((_,i)=>{
+    const seg = document.createElement('div');
+    seg.className = 'tl-seg';
+    const d = document.createElement('div');
+    d.className = 'dot';
+    d.id = 'dot'+i;
+    seg.appendChild(d);
+    if(i < CHALLENGES.length-1){
+      const line = document.createElement('div');
+      line.className = 'tl-line';
+      line.id = 'line'+i;
+      seg.appendChild(line);
+    }
+    dots.appendChild(seg);
+  });
+}
+function refreshDots(){
+  CHALLENGES.forEach((_,i)=>{
+    document.getElementById('dot'+i).className = 'dot' + (i<current?' done':i===current?' active':'');
+    const l = document.getElementById('line'+i);
+    if(l) l.className = 'tl-line' + (i<current?' done':'');
+  });
+}
+
+function loadChallenge(idx){
+  current = idx;
+  const c = CHALLENGES[idx];
+  document.getElementById('challengeTitle').textContent = c.fnName;
+  document.getElementById('conceptTag').textContent = c.concept.split(' · ')[0];
+  document.getElementById('briefText').textContent = c.brief;
+  document.getElementById('codeInput').value = c.starter;
+  document.getElementById('hintBox').style.display = 'none';
+  document.getElementById('hintBox').textContent = c.hint;
+  document.getElementById('errorBox').style.display = 'none';
+  refreshDots();
+  renderTests(c);
+  const status = document.getElementById('statusLine');
+  status.textContent = 'awaiting query run';
+  status.className = 'status-line';
+}
+function resetChallenge(){ loadChallenge(current); }
+
+function renderTests(c){
+  const list = document.getElementById('testList');
+  list.innerHTML = '';
+  c.tests.forEach((t,i)=>{
+    const row = document.createElement('div');
+    row.className = 'test-row pending';
+    row.id = 'test-'+i;
+    row.innerHTML = `<span class="test-icon">○</span><span class="test-call">${t.display}</span><span class="test-expect">expect ${JSON.stringify(t.expected)}</span>`;
+    list.appendChild(row);
+  });
+}
+
+function toggleHint(){
+  const box = document.getElementById('hintBox');
+  box.style.display = box.style.display === 'block' ? 'none' : 'block';
+}
+
+function runTests(){
+  const c = CHALLENGES[current];
+  const src = document.getElementById('codeInput').value;
+  const errorBox = document.getElementById('errorBox');
+  errorBox.style.display = 'none';
+
+  let fn;
+  try{
+    fn = new Function(src + `\nreturn ${c.fnName};`)();
+    if(typeof fn !== 'function'){
+      throw new Error(`${c.fnName} isn't defined as a function — check the function name matches exactly.`);
+    }
+  }catch(e){
+    errorBox.textContent = e.message;
+    errorBox.style.display = 'block';
+    return;
+  }
+
+  let allPass = true;
+  c.tests.forEach((t,i)=>{
+    const row = document.getElementById('test-'+i);
+    let actual, threw = false, errMsg = '';
+    try{
+      actual = fn(...t.args);
+    }catch(e){
+      threw = true; errMsg = e.message;
+    }
+    const pass = !threw && actual === t.expected;
+    row.className = 'test-row ' + (pass ? 'pass' : 'fail');
+    row.querySelector('.test-icon').textContent = pass ? '✓' : '✗';
+    const existingActual = row.querySelector('.test-actual');
+    if(existingActual) existingActual.remove();
+    if(!pass){
+      allPass = false;
+      const span = document.createElement('span');
+      span.className = 'test-actual';
+      span.textContent = threw ? `threw: ${errMsg}` : `got ${JSON.stringify(actual)}`;
+      row.appendChild(span);
+    }
+  });
+
+  const status = document.getElementById('statusLine');
+  if(allPass){
+    status.textContent = 'all queries correct';
+    status.className = 'status-line pass';
+    showSuccess();
+  } else {
+    status.textContent = 'some queries wrong — read the rows above';
+    status.className = 'status-line';
+  }
+}
+
+function showSuccess(){
+  const isLast = current === CHALLENGES.length - 1;
+  document.getElementById('successTitle').textContent = isLast ? 'Feed Processed' : 'Query Correct';
+  document.getElementById('successText').textContent = isLast
+    ? "Every query returned the right numbers, on the ledger and on hidden data."
+    : `${CHALLENGES[current].fnName} works. One more query to write.`;
+  document.getElementById('nextBtn').textContent = isLast ? 'Finish →' : 'Next Query →';
+  document.getElementById('successOverlay').style.display = 'flex';
+}
+
+function nextChallenge(){
+  document.getElementById('successOverlay').style.display = 'none';
+  if(current === CHALLENGES.length - 1){
+    document.getElementById('game').style.display = 'none';
+    document.getElementById('doneScreen').style.display = 'block';
+  } else {
+    loadChallenge(current + 1);
+  }
+}
+
+renderLedger();
+buildDots();
+loadChallenge(0);
+</script>
+
+<!-- Help widget -->
+<button class="help-fab" id="helpFab" onclick="toggleHelp()">💬<span class="fab-dot" id="helpDot"></span></button>
+<div class="help-panel" id="helpPanel">
+  <div class="help-head">
+    <span class="htitle">System Assist</span>
+    <button onclick="toggleHelp()">✕</button>
+  </div>
+  <div class="help-log" id="helpLog"></div>
+  <div class="help-inputrow">
+    <input type="text" id="helpInput" placeholder="Ask a question…" onkeydown="if(event.key==='Enter')sendHelp()">
+    <button onclick="sendHelp()">Send</button>
+  </div>
+</div>
+
+
+<script>
+
+/* ---------------- Help widget ---------------- */
+const HELP_DATA = {
+  "module": "ledger",
+  "entries": [
+    {
+      "id": "what-is-array",
+      "keywords": [
+        "what is an array",
+        "what does array mean",
+        "square brackets",
+        "array syntax"
+      ],
+      "response": "An array is a list of values in order. transactions[0] gets the first item, transactions.length tells you how many items there are in total."
+    },
+    {
+      "id": "what-is-object",
+      "keywords": [
+        "what is an object",
+        "dot notation",
+        "what does .amount mean",
+        "object property"
+      ],
+      "response": "An object holds named fields. transactions[i].amount means 'the amount field of the i-th transaction' \u2014 the dot gets you the named value out."
+    },
+    {
+      "id": "accumulator-pattern",
+      "keywords": [
+        "accumulator",
+        "running total",
+        "how to add up",
+        "keep a total",
+        "total += "
+      ],
+      "response": "Declare let total = 0; before the loop starts, then inside the loop do total += transactions[i].amount; \u2014 that adds each amount onto the running total as you go."
+    },
+    {
+      "id": "total-reset-bug",
+      "keywords": [
+        "total keeps resetting",
+        "total always small",
+        "total not adding up",
+        "total wrong every time"
+      ],
+      "response": "Check where let total = 0 is written \u2014 if it's inside the loop instead of before it, it resets to zero on every single pass, so you only ever end up with the last item's value."
+    },
+    {
+      "id": "loop-through-array",
+      "keywords": [
+        "how to loop through array",
+        "for loop array",
+        "loop transactions",
+        "iterate array"
+      ],
+      "response": "for (let i = 0; i < transactions.length; i++) { ... } \u2014 using .length means the loop always covers the whole list, however many items it has."
+    },
+    {
+      "id": "filter-with-if",
+      "keywords": [
+        "filter inside loop",
+        "only count some",
+        "matching category",
+        "if inside for loop"
+      ],
+      "response": "Put an if check inside the loop before you add to the total \u2014 if (transactions[i].category === category) { total += transactions[i].amount; } \u2014 only matching items get added."
+    },
+    {
+      "id": "totalspend-stuck",
+      "keywords": [
+        "totalspend stuck",
+        "total spend help",
+        "sum all transactions"
+      ],
+      "response": "totalSpend just needs the accumulator pattern with no filtering \u2014 add every single amount onto the running total, no if needed."
+    },
+    {
+      "id": "sumbycategory-stuck",
+      "keywords": [
+        "sumbycategory stuck",
+        "category function help",
+        "filter by category"
+      ],
+      "response": "sumByCategory needs the accumulator plus a check: only add the amount when transactions[i].category === category is true."
+    },
+    {
+      "id": "counthighvalue-stuck",
+      "keywords": [
+        "counthighvalue stuck",
+        "count function help",
+        "threshold counting"
+      ],
+      "response": "This one counts instead of sums \u2014 start let count = 0;, and inside the loop do count++; (not += amount) whenever transactions[i].amount > threshold."
+    },
+    {
+      "id": "largest-stuck",
+      "keywords": [
+        "largesttransaction stuck",
+        "biggest transaction",
+        "find the maximum",
+        "running max"
+      ],
+      "response": "Track the biggest value seen so far. Start let biggest = 0;, then inside the loop: if (transactions[i].amount > biggest) { biggest = transactions[i].amount; } \u2014 no sorting needed."
+    },
+    {
+      "id": "average-stuck",
+      "keywords": [
+        "averagetransaction stuck",
+        "average function help",
+        "rounding average"
+      ],
+      "response": "Sum everything first with the usual accumulator pattern, then divide by transactions.length, then wrap the whole thing in Math.round() to round to the nearest whole number."
+    },
+    {
+      "id": "sumbycategories-stuck",
+      "keywords": [
+        "sumbycategories stuck",
+        "multiple categories",
+        "array of categories",
+        "includes method"
+      ],
+      "response": "categories.includes(transactions[i].category) checks if that transaction's category is anywhere in your list of categories \u2014 use it inside the if, same accumulator pattern as before."
+    },
+    {
+      "id": "nan-error",
+      "keywords": [
+        "nan error",
+        "returns nan",
+        "not a number"
+      ],
+      "response": "NaN usually means a typo in a property name \u2014 like transactions[i].amout instead of .amount \u2014 so it's trying to do maths on something that doesn't exist."
+    },
+    {
+      "id": "hidden-test-fails",
+      "keywords": [
+        "hidden test fails",
+        "second test fails",
+        "works on ledger not hidden",
+        "hardcoded number"
+      ],
+      "response": "If the visible ledger test passes but the hidden one doesn't, that's usually a sign the number's been typed in directly rather than calculated \u2014 the function needs to work on any list it's given, not just this one."
+    },
+    {
+      "id": "general-stuck",
+      "keywords": [
+        "im stuck",
+        "help",
+        "dont know what to do",
+        "confused",
+        "not sure what to write",
+        "no idea"
+      ],
+      "response": "Start with the accumulator pattern (let total = 0 before the loop, update it inside), then add filtering with an if if the brief needs it. Try the Hint button, or flag a facilitator."
+    }
+  ]
+};
+const HELP_FALLBACK = "I'm not sure about that one — try rephrasing it, use the in-app Hint button, or flag a facilitator.";
+const HELP_GREETING = "Hi — ask me anything about this activity. I can help with syntax, explain an error, or nudge you on a specific challenge.";
+
+let helpOpen = false;
+let helpGreeted = false;
+
+function normalizeHelp(s){
+  return s.toLowerCase().replace(/[^\w\s]/g,' ').replace(/\s+/g,' ').trim();
+}
+const HELP_STOPWORDS = new Set(["what","does","do","is","are","the","a","an","to","of","in","on","for","and","or","i","my","how","this","that","it","me","you","your","did","doing","can","if","help","meaning","mean","means","explain","understand","understanding","know","knowing","work","working","works","use","using","used","need","needs","needed","want","wanted","wants","sure","right","correct","wrong","thing","things","stuff","way","ways","doesnt","dont","isnt","not","get","got","getting","should","would","could","will","with","when","where","why","which","who","from","have","has","had","about","some","any","just","really","actually","supposed","supposed"]);
+function scoreHelpEntry(msgNorm, msgWords, entry){
+  let best = 0;
+  entry.keywords.forEach(kw=>{
+    const kwNorm = normalizeHelp(kw);
+    let score = 0;
+    if(msgNorm.includes(kwNorm)) score += 4;
+    const kwWords = kwNorm.split(' ').filter(w=>w.length>2 && !HELP_STOPWORDS.has(w));
+    const overlap = kwWords.filter(w=>msgWords.includes(w)).length;
+    score += overlap;
+    if(score > best) best = score;
+  });
+  return best;
+}
+function findHelpResponse(userMsg){
+  const msgNorm = normalizeHelp(userMsg);
+  const msgWords = msgNorm.split(' ');
+  let bestEntry = null, bestScore = 0;
+  HELP_DATA.entries.forEach(entry=>{
+    const s = scoreHelpEntry(msgNorm, msgWords, entry);
+    if(s > bestScore){ bestScore = s; bestEntry = entry; }
+  });
+  if(bestEntry && bestScore >= 1){
+    return bestEntry.response;
+  }
+  return HELP_FALLBACK;
+}
+
+function toggleHelp(){
+  helpOpen = !helpOpen;
+  const panel = document.getElementById('helpPanel');
+  panel.classList.toggle('open', helpOpen);
+  if(helpOpen && !helpGreeted){
+    addHelpMsg(HELP_GREETING, 'bot');
+    helpGreeted = true;
+  }
+  if(helpOpen) document.getElementById('helpInput').focus();
+}
+function addHelpMsg(text, who){
+  const log = document.getElementById('helpLog');
+  const div = document.createElement('div');
+  div.className = 'help-msg ' + who;
+  div.textContent = text;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+}
+function sendHelp(){
+  const input = document.getElementById('helpInput');
+  const msg = input.value.trim();
+  if(!msg) return;
+  addHelpMsg(msg, 'user');
+  input.value = '';
+  setTimeout(()=>{
+    addHelpMsg(findHelpResponse(msg), 'bot');
+  }, 220);
+}
+
+</script>
+</body>
+</html>

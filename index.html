@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Mainframe — Financial Systems Training Terminal</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap');
+
+:root{
+  --bg:#000000; --panel:#040804; --panel-alt:#081208;
+  --line:#0F3A1C; --line-soft:#0A240F;
+  --green:#00FF41; --green-bright:#8CFFB0; --green-dim:#0F9D45; --green-faint:#0A5C28;
+  --red:#FF3131; --text:#B9F5C6; --muted:#4E8F5E; --muted-dim:#2E5C3A;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;min-height:100vh;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:1080px;margin:0 auto;padding:34px 22px 70px;position:relative;z-index:2;}
+a{color:inherit;text-decoration:none;}
+::selection{background:rgba(0,255,65,0.28);}
+
+#rain{position:fixed;inset:0;z-index:0;opacity:0.4;}
+.scanlines{position:fixed;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(0,255,65,0.02) 3px, rgba(0,0,0,0) 4px);}
+.vignette{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0,0,0,0.75) 100%);}
+@media (prefers-reduced-motion: reduce){ #rain{display:none;} }
+
+.eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--green);display:inline-flex;align-items:center;gap:8px;margin-bottom:12px;text-shadow:0 0 8px rgba(0,255,65,0.5);}
+.eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 1.4s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
+
+header{margin-bottom:34px;}
+h1{font-size:clamp(26px,4vw,38px);margin:0 0 10px;text-transform:uppercase;letter-spacing:.01em;color:var(--text);text-shadow:0 0 16px rgba(0,255,65,0.22);}
+.lead{color:var(--muted);font-size:14px;line-height:1.65;max-width:620px;margin:0;}
+
+.legend{display:flex;gap:18px;flex-wrap:wrap;margin:22px 0 6px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
+.legend span{display:inline-flex;align-items:center;gap:6px;}
+.legend .sw{width:9px;height:9px;border-radius:2px;}
+.sw.ready{background:var(--green);box-shadow:0 0 6px rgba(0,255,65,0.6);}
+.sw.soon{background:var(--muted-dim);}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:26px;}
+@media (max-width:760px){.grid{grid-template-columns:1fr;}}
+
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:24px;box-shadow:0 0 30px rgba(0,255,65,0.03);position:relative;overflow:hidden;}
+.tile.soon{opacity:.55;}
+.tile-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:6px;}
+.tile-num{font-size:11px;color:var(--muted-dim);letter-spacing:.05em;}
+.tile h2{font-size:17px;margin:2px 0 8px;text-transform:uppercase;letter-spacing:.02em;color:var(--green-bright);text-shadow:0 0 10px rgba(0,255,65,0.25);}
+.status-pill{font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;padding:3px 9px;border-radius:3px;white-space:nowrap;height:fit-content;}
+.status-pill.ready{color:var(--green);border:1px solid var(--green-faint);background:rgba(0,255,65,0.07);}
+.status-pill.soon{color:var(--muted);border:1px solid var(--line);background:var(--panel-alt);}
+
+.tile p.desc{color:var(--muted);font-size:12.5px;line-height:1.6;margin:0 0 14px;}
+
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;}
+.chip{font-size:10px;color:var(--muted);border:1px solid var(--line);background:var(--panel-alt);padding:4px 9px;border-radius:999px;text-transform:uppercase;letter-spacing:.03em;}
+
+.tile-actions{display:flex;flex-direction:column;gap:8px;}
+.action-row{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line);border-radius:4px;padding:10px 14px;font-size:12px;transition:border-color .15s ease, background .15s ease;}
+.action-row.live{border-color:var(--green-faint);}
+a.action-row:hover{background:rgba(0,255,65,0.06);border-color:var(--green-dim);}
+.action-row .label{display:flex;align-items:center;gap:8px;color:var(--green-bright);font-weight:700;text-transform:uppercase;letter-spacing:.02em;font-size:11px;}
+.action-row .time{color:var(--muted);font-size:11px;}
+.action-row.disabled{opacity:.5;cursor:not-allowed;}
+.action-row.disabled .label{color:var(--muted);}
+
+.guide-link{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;}
+.guide-link:hover{color:var(--green-bright);}
+
+footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line-soft);color:var(--muted-dim);font-size:11.5px;line-height:1.7;}
+footer b{color:var(--muted);}
+</style>
+</head>
+<body>
+<canvas id="rain"></canvas>
+<div class="scanlines"></div>
+<div class="vignette"></div>
+
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Financial Systems · Training Terminal</div>
+    <h1>The Mainframe</h1>
+    <p class="lead">Four short pieces of a financial system, each broken in a different way. Each one is a live taster you can finish in a few minutes, plus a longer take-home extension for anyone who wants to keep going. All eight are ready.</p>
+  </header>
+
+  <div class="grid">
+
+    <!-- CONSTRUCT -->
+    <div class="tile">
+      <div class="tile-head">
+        <div>
+          <div class="tile-num">01</div>
+          <h2>The Construct</h2>
+        </div>
+        <span class="status-pill ready">ready</span>
+      </div>
+      <p class="desc">Navigate a hidden rover through a maze of real JavaScript — one command at a time, then with turns, then with loops.</p>
+      <div class="chips">
+        <span class="chip">functions</span><span class="chip">sequencing</span><span class="chip">parameters</span><span class="chip">logic</span><span class="chip">loops</span>
+      </div>
+      <div class="tile-actions">
+        <a class="action-row live" href="mission-control-taster.html">
+          <span class="label">▶ Live Taster</span>
+          <span class="time">~6 min · 3 constructs + bonus</span>
+        </a>
+        <a class="action-row live" href="mission-control.html">
+          <span class="label">📘 Take-Home Extension</span>
+          <span class="time">5 constructs + bonus round</span>
+        </a>
+      </div>
+      <a class="guide-link" href="construct-guide.html">📖 Reference guide →</a>
+    </div>
+
+    <!-- VAULT -->
+    <div class="tile">
+      <div class="tile-head">
+        <div>
+          <div class="tile-num">02</div>
+          <h2>The Vault</h2>
+        </div>
+        <span class="status-pill ready">ready</span>
+      </div>
+      <p class="desc">Patch broken logic in a bank's risk-checking system. Real business rules, real functions, real tests.</p>
+      <div class="chips">
+        <span class="chip">functions</span><span class="chip">booleans</span><span class="chip">conditionals</span><span class="chip">testing</span>
+      </div>
+      <div class="tile-actions">
+        <a class="action-row live" href="the-vault.html">
+          <span class="label">▶ Live Taster</span>
+          <span class="time">~6 min · 3 challenges</span>
+        </a>
+        <a class="action-row live" href="the-vault-extended.html">
+          <span class="label">📘 Take-Home Extension</span>
+          <span class="time">~15 min · 6 challenges</span>
+        </a>
+      </div>
+      <a class="guide-link" href="vault-guide.html">📖 Reference guide →</a>
+    </div>
+
+    <!-- LEDGER -->
+    <div class="tile">
+      <div class="tile-head">
+        <div>
+          <div class="tile-num">03</div>
+          <h2>The Ledger</h2>
+        </div>
+        <span class="status-pill ready">ready</span>
+      </div>
+      <p class="desc">Load a transaction dataset and answer real questions about it — filtering, totals, and basic analysis.</p>
+      <div class="chips">
+        <span class="chip">variables</span><span class="chip">arrays</span><span class="chip">loops</span><span class="chip">data</span>
+      </div>
+      <div class="tile-actions">
+        <a class="action-row live" href="the-ledger.html">
+          <span class="label">▶ Live Taster</span>
+          <span class="time">~6 min · 3 queries</span>
+        </a>
+        <a class="action-row live" href="the-ledger-extended.html">
+          <span class="label">📘 Take-Home Extension</span>
+          <span class="time">~15 min · 6 queries</span>
+        </a>
+      </div>
+      <a class="guide-link" href="ledger-guide.html">📖 Reference guide →</a>
+    </div>
+
+    <!-- CSS SITE -->
+    <div class="tile">
+      <div class="tile-head">
+        <div>
+          <div class="tile-num">04</div>
+          <h2>The Front</h2>
+        </div>
+        <span class="status-pill ready">ready</span>
+      </div>
+      <p class="desc">Take the bones of a real page and make it look like something you'd actually want to use.</p>
+      <div class="chips">
+        <span class="chip">html</span><span class="chip">css</span><span class="chip">layout</span><span class="chip">design</span>
+      </div>
+      <div class="tile-actions">
+        <a class="action-row live" href="the-front.html">
+          <span class="label">▶ Live Taster</span>
+          <span class="time">~6 min · 3 screens</span>
+        </a>
+        <a class="action-row live" href="the-front-extended.html">
+          <span class="label">📘 Take-Home Extension</span>
+          <span class="time">~15 min · 1 continuous page</span>
+        </a>
+      </div>
+      <a class="guide-link" href="front-guide.html">📖 Reference guide →</a>
+    </div>
+
+  </div>
+
+  <footer>
+    <b>Deployment note:</b> all files sit flat in the same folder — the 8 activities, 4 participant guides, and facilitator-notes.html — so this page just links between them, no server or build step required.
+    <a href="facilitator-notes.html" style="color:var(--muted);">Facilitator notes →</a>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  const canvas = document.getElementById('rain');
+  const ctx = canvas.getContext('2d');
+  let w, h, cols, drops;
+  const chars = "アイウエオカキクケコサシスセソ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ<>/=+*";
+  const fontSize = 15;
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function resize(){
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+    cols = Math.floor(w / fontSize);
+    drops = new Array(cols).fill(0).map(()=>Math.random()*-50);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+  function draw(){
+    ctx.fillStyle = 'rgba(0,0,0,0.06)';
+    ctx.fillRect(0,0,w,h);
+    ctx.font = fontSize + 'px JetBrains Mono, monospace';
+    for(let i=0;i<cols;i++){
+      const text = chars[Math.floor(Math.random()*chars.length)];
+      const x = i*fontSize, y = drops[i]*fontSize;
+      ctx.fillStyle = Math.random() > 0.94 ? '#CFFFDD' : 'rgba(0,255,65,0.5)';
+      ctx.fillText(text, x, y);
+      if(y > h && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    }
+  }
+  if(!reduced){ setInterval(draw, 55); }
+  else { ctx.fillStyle = '#000'; ctx.fillRect(0,0,w,h); }
+})();
+</script>
+</body>
+</html>

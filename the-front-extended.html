@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Front: Extended — Style the Interface</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+:root{
+  --bg:#000000; --panel:#040804; --panel-alt:#081208;
+  --line:#0F3A1C; --line-soft:#0A240F;
+  --green:#00FF41; --green-bright:#8CFFB0; --green-dim:#0F9D45; --green-faint:#0A5C28;
+  --red:#FF3131; --text:#B9F5C6; --muted:#4E8F5E; --muted-dim:#2E5C3A;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;min-height:100vh;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:1080px;margin:0 auto;padding:26px 22px 60px;position:relative;z-index:2;}
+::selection{background:rgba(0,255,65,0.28);}
+
+#rain{position:fixed;inset:0;z-index:0;opacity:0.4;}
+.scanlines{position:fixed;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(0,255,65,0.02) 3px, rgba(0,0,0,0) 4px);}
+.vignette{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0,0,0,0.75) 100%);}
+@media (prefers-reduced-motion: reduce){ #rain{display:none;} }
+
+.eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--green);display:inline-flex;align-items:center;gap:8px;margin-bottom:10px;text-shadow:0 0 8px rgba(0,255,65,0.5);}
+.eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 1.4s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
+
+.topbar{padding-bottom:20px;margin-bottom:24px;border-bottom:1px solid var(--line-soft);}
+h1{font-size:clamp(22px,3vw,30px);margin:0 0 6px;text-transform:uppercase;letter-spacing:.01em;color:var(--text);text-shadow:0 0 12px rgba(0,255,65,0.2);}
+.sub{color:var(--muted);font-size:13px;margin:0;max-width:620px;line-height:1.5;}
+
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media (max-width:860px){.cols{grid-template-columns:1fr;}}
+.right-col{display:flex;flex-direction:column;gap:20px;}
+
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:22px;box-shadow:0 0 30px rgba(0,255,65,0.03);}
+.panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+.panel h2{font-size:14px;margin:0;text-transform:uppercase;letter-spacing:.04em;color:var(--green-bright);font-weight:700;}
+.brief{color:var(--muted);font-size:13px;line-height:1.65;margin:12px 0 12px;}
+
+.markup-ref{background:#010401;border:1px solid var(--line);border-radius:4px;padding:12px 14px;font-size:11px;color:var(--muted);line-height:1.55;margin-bottom:16px;white-space:pre;overflow-x:auto;max-height:190px;overflow-y:auto;}
+.markup-ref .tagname{color:var(--green-dim);}
+.markup-ref .cls{color:var(--green-bright);}
+
+.editor-chrome{border:1px solid var(--line);border-radius:4px;overflow:hidden;background:#010401;}
+.editor-titlebar{padding:9px 12px;background:var(--panel-alt);border-bottom:1px solid var(--line);font-size:11px;color:var(--muted);}
+.editor-titlebar span{color:var(--green-bright);}
+textarea{width:100%;min-height:340px;background:transparent;color:var(--green-bright);border:none;font-family:'JetBrains Mono',monospace;font-size:13.5px;line-height:1.6;padding:14px 16px;resize:vertical;tab-size:2;caret-color:var(--green);}
+textarea:focus{outline:none;}
+.editor-chrome:focus-within{border-color:var(--green);box-shadow:0 0 0 3px rgba(0,255,65,0.12);}
+
+.actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+button{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;border-radius:3px;cursor:pointer;padding:12px 20px;text-transform:uppercase;letter-spacing:.03em;transition:transform .15s ease,box-shadow .15s ease;border:none;}
+.btn-primary{background:var(--green);color:#001A08;border:1px solid var(--green);box-shadow:0 0 20px rgba(0,255,65,0.3);}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 28px rgba(0,255,65,0.5);}
+.btn-ghost{background:transparent;color:var(--green-bright);border:1px solid var(--line);}
+.btn-ghost:hover{border-color:var(--green-dim);background:rgba(0,255,65,0.06);}
+
+.hint-box{margin-top:12px;font-size:12.5px;padding:11px 13px;border-radius:4px;display:none;line-height:1.6;white-space:pre-wrap;color:var(--green-bright);background:rgba(0,255,65,0.05);border:1px solid rgba(0,255,65,0.25);}
+.hint-box::before{content:'[ HINT ] ';color:var(--green);font-weight:700;}
+
+.preview-frame{background:#eef1f5;border-radius:6px;overflow:hidden;border:1px solid var(--line);}
+.preview-chrome{background:#dde3ea;padding:9px 12px;display:flex;gap:6px;align-items:center;}
+.preview-chrome .pdot{width:8px;height:8px;border-radius:50%;background:#c7ced9;}
+.preview-chrome .purl{margin-left:8px;font-size:10.5px;color:#6b7684;font-family:'JetBrains Mono',monospace;}
+.preview-body{font-family:'Inter',sans-serif;min-height:280px;}
+
+.status-line{margin-top:14px;font-size:12.5px;color:var(--muted);text-align:center;letter-spacing:.03em;}
+.status-line.pass{color:var(--green);text-shadow:0 0 6px rgba(0,255,65,0.4);}
+
+.section-label{font-size:10.5px;color:var(--muted-dim);text-transform:uppercase;letter-spacing:.06em;padding:10px 14px 4px;background:#010401;}
+.test-list{display:flex;flex-direction:column;gap:0;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:#010401;}
+.test-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line-soft);font-size:12px;}
+.test-row:last-child{border-bottom:none;}
+.test-icon{width:16px;text-align:center;font-weight:700;color:var(--muted-dim);flex-shrink:0;}
+.test-row.pass .test-icon{color:var(--green);text-shadow:0 0 6px rgba(0,255,65,0.6);}
+.test-row.fail .test-icon{color:var(--red);text-shadow:0 0 6px rgba(255,49,49,0.5);}
+.test-desc{color:var(--green-bright);flex:1;}
+.test-prop{color:var(--muted);font-size:10.5px;}
+
+#doneScreen{display:none;text-align:center;padding:40px 20px;}
+.done-card{max-width:520px;margin:0 auto;background:var(--panel);border:1px solid var(--green-faint);border-radius:6px;padding:40px 34px;box-shadow:0 0 50px rgba(0,255,65,0.1);}
+.done-card h2{font-size:24px;color:var(--green-bright);text-transform:uppercase;margin:0 0 10px;text-shadow:0 0 14px rgba(0,255,65,0.35);}
+.done-card p{color:var(--muted);font-size:13.5px;line-height:1.6;margin:0 0 8px;}
+
+/* ---- the actual page being styled (persistent, not reset) ---- */
+.site-header{ }
+.site-title{ font-size:15px; color:#1a1f29; }
+.site-nav{ font-size:12px; color:#5b6472; }
+.site-nav span{ margin-right:0; }
+.page-body{ padding:24px 20px; background:#eef1f5; }
+.account-card{ background:transparent; margin-bottom:20px; }
+.account-label{ font-size:13px; color:#8892a0; margin-bottom:4px; }
+.account-balance{ font-size:18px; color:#1a1f29; }
+.account-action{
+  background:#1a1f29; color:#fff; border:none; padding:9px 16px;
+  border-radius:5px; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; cursor:default;
+}
+.txn-list{ margin:0; padding-left:20px; }
+.txn-list li{ padding:8px 0; font-size:13px; color:#1a1f29; border-bottom:1px solid #dde3ea; }
+.txn-list li:last-child{ border-bottom:none; }
+.txn-amount{ color:#1a1f29; }
+
+/* ---------------- Help widget ---------------- */
+.help-fab{
+  position:fixed; bottom:22px; right:22px; z-index:80;
+  width:56px; height:56px; border-radius:50%;
+  background:var(--green); color:#001A08; border:none; cursor:pointer;
+  font-size:22px; display:flex; align-items:center; justify-content:center;
+  box-shadow:0 0 24px rgba(0,255,65,0.45);
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+.help-fab:hover{ transform:translateY(-2px) scale(1.04); box-shadow:0 0 32px rgba(0,255,65,0.65); }
+.help-fab .fab-dot{
+  position:absolute; top:-2px; right:-2px; width:12px; height:12px; border-radius:50%;
+  background:var(--red); border:2px solid var(--bg); display:none;
+}
+.help-panel{
+  position:fixed; bottom:90px; right:22px; z-index:80;
+  width:340px; max-width:calc(100vw - 40px); height:440px; max-height:calc(100vh - 130px);
+  background:var(--panel); border:1px solid var(--green-faint); border-radius:10px;
+  display:none; flex-direction:column; overflow:hidden;
+  box-shadow:0 12px 50px rgba(0,0,0,0.6), 0 0 30px rgba(0,255,65,0.1);
+}
+.help-panel.open{ display:flex; }
+.help-head{
+  padding:12px 14px; background:var(--panel-alt); border-bottom:1px solid var(--line);
+  display:flex; align-items:center; justify-content:space-between;
+}
+.help-head .htitle{ font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--green-bright); text-transform:uppercase; letter-spacing:.04em; display:flex; align-items:center; gap:7px; }
+.help-head .htitle::before{ content:''; width:6px; height:6px; border-radius:50%; background:var(--green); box-shadow:0 0 6px var(--green); animation:blink 1.4s infinite; }
+.help-head button{ background:none; border:none; color:var(--muted); cursor:pointer; font-size:16px; padding:2px 6px; }
+.help-head button:hover{ color:var(--green-bright); }
+.help-log{ flex:1; overflow-y:auto; padding:12px 14px; display:flex; flex-direction:column; gap:10px; }
+.help-msg{ font-size:12.5px; line-height:1.55; padding:9px 11px; border-radius:6px; max-width:88%; }
+.help-msg.bot{ background:var(--panel-alt); border:1px solid var(--line); color:var(--text); align-self:flex-start; }
+.help-msg.user{ background:rgba(0,255,65,0.1); border:1px solid var(--green-faint); color:var(--green-bright); align-self:flex-end; }
+.help-inputrow{ display:flex; gap:8px; padding:10px 12px; border-top:1px solid var(--line); background:var(--panel-alt); }
+.help-inputrow input{
+  flex:1; background:#010401; border:1px solid var(--line); color:var(--green-bright);
+  font-family:'JetBrains Mono',monospace; font-size:12.5px; padding:9px 11px; border-radius:5px;
+}
+.help-inputrow input:focus{ outline:none; border-color:var(--green); }
+.help-inputrow button{
+  background:var(--green); color:#001A08; border:none; border-radius:5px; padding:0 14px;
+  font-family:'JetBrains Mono',monospace; font-weight:700; font-size:12px; cursor:pointer;
+}
+.help-inputrow button:hover{ box-shadow:0 0 14px rgba(0,255,65,0.4); }
+
+</style>
+</head>
+<body>
+<canvas id="rain"></canvas>
+<div class="scanlines"></div>
+<div class="vignette"></div>
+
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="eyebrow">Financial Systems · Take-Home Extension</div>
+    <h1>The Front: Extended — Style the Interface</h1>
+    <p class="sub">One page this time, not three separate resets — a header, navigation, the account card, and a transaction list, all in one stylesheet. Work through the sections in any order; the preview updates as you go.</p>
+  </div>
+
+  <div id="game">
+    <div class="cols">
+      <div class="panel">
+        <div class="panel-head"><h2>Briefing &amp; Stylesheet</h2></div>
+        <p class="brief">Four sections of the same page need styling — scroll the CSS editor to see all of them. Each section is checked independently in the console on the right, and nothing resets when you move between them.</p>
+        <div class="markup-ref">&lt;<span class="tagname">header</span> <span class="cls">class="site-header"</span>&gt;
+  &lt;<span class="tagname">div</span> <span class="cls">class="site-title"</span>&gt;MockBank&lt;/<span class="tagname">div</span>&gt;
+  &lt;<span class="tagname">nav</span> <span class="cls">class="site-nav"</span>&gt;
+    &lt;<span class="tagname">span</span>&gt;Overview&lt;/<span class="tagname">span</span>&gt;
+    &lt;<span class="tagname">span</span>&gt;Transfers&lt;/<span class="tagname">span</span>&gt;
+    &lt;<span class="tagname">span</span>&gt;Statements&lt;/<span class="tagname">span</span>&gt;
+  &lt;/<span class="tagname">nav</span>&gt;
+&lt;/<span class="tagname">header</span>&gt;
+
+&lt;<span class="tagname">main</span> <span class="cls">class="page-body"</span>&gt;
+  &lt;<span class="tagname">div</span> <span class="cls">class="account-card"</span>&gt;
+    &lt;<span class="tagname">div</span> <span class="cls">class="account-label"</span>&gt;Current Balance&lt;/<span class="tagname">div</span>&gt;
+    &lt;<span class="tagname">div</span> <span class="cls">class="account-balance"</span>&gt;£4,231.09&lt;/<span class="tagname">div</span>&gt;
+    &lt;<span class="tagname">button</span> <span class="cls">class="account-action"</span>&gt;Transfer&lt;/<span class="tagname">button</span>&gt;
+  &lt;/<span class="tagname">div</span>&gt;
+
+  &lt;<span class="tagname">ul</span> <span class="cls">class="txn-list"</span>&gt;
+    &lt;<span class="tagname">li</span>&gt;...&lt;<span class="tagname">span</span> <span class="cls">class="txn-amount"</span>&gt;-£42.10&lt;/<span class="tagname">span</span>&gt;&lt;/<span class="tagname">li</span>&gt;
+    &lt;<span class="tagname">li</span>&gt;...&lt;<span class="tagname">span</span> <span class="cls">class="txn-amount positive"</span>&gt;+£2,400&lt;/<span class="tagname">span</span>&gt;&lt;/<span class="tagname">li</span>&gt;
+  &lt;/<span class="tagname">ul</span>&gt;
+&lt;/<span class="tagname">main</span>&gt;</div>
+        <div class="editor-chrome">
+          <div class="editor-titlebar"><span>root@front:~$</span> style.css — scroll for all 4 sections</div>
+          <textarea id="codeInput" spellcheck="false"></textarea>
+        </div>
+        <div class="actions">
+          <button class="btn-primary" onclick="runChecks()">▶ Run Checks</button>
+          <button class="btn-ghost" onclick="resetAll()">↺ Reset</button>
+          <button class="btn-ghost" onclick="toggleHint()">💡 Hint</button>
+        </div>
+        <div class="hint-box" id="hintBox"></div>
+      </div>
+
+      <div class="right-col">
+        <div class="panel">
+          <div class="panel-head"><h2>Live Preview</h2></div>
+          <div class="preview-frame">
+            <div class="preview-chrome"><span class="pdot"></span><span class="pdot"></span><span class="pdot"></span><span class="purl">mockbank.internal/account</span></div>
+            <div class="preview-body">
+              <header class="site-header" id="pvHeader">
+                <div class="site-title">MockBank</div>
+                <nav class="site-nav" id="pvNav"><span>Overview</span><span>Transfers</span><span>Statements</span></nav>
+              </header>
+              <main class="page-body">
+                <div class="account-card" id="pvCard">
+                  <div class="account-label">Current Balance</div>
+                  <div class="account-balance" id="pvBalance">£4,231.09</div>
+                  <button class="account-action">Transfer</button>
+                </div>
+                <ul class="txn-list" id="pvList">
+                  <li><span class="txn-name">Tesco Groceries</span><span class="txn-amount">-£42.10</span></li>
+                  <li><span class="txn-name">Salary</span><span class="txn-amount positive">+£2,400.00</span></li>
+                  <li><span class="txn-name">Coffee</span><span class="txn-amount">-£3.20</span></li>
+                </ul>
+              </main>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h2>Test Console</h2></div>
+          <div class="test-list" id="testList"></div>
+          <div class="status-line" id="statusLine">awaiting check run</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="doneScreen">
+    <div class="done-card">
+      <div class="eyebrow" style="justify-content:center;">The Front</div>
+      <h2>Page Deployed</h2>
+      <p>Header, navigation, card, and transaction list — one real stylesheet, one continuous page, built section by section without losing earlier work.</p>
+    </div>
+  </div>
+
+</div>
+
+<style id="liveStyle"></style>
+
+<script>
+/* ---------------- Matrix rain (shared visual language) ---------------- */
+(function(){
+  const canvas = document.getElementById('rain');
+  const ctx = canvas.getContext('2d');
+  let w, h, cols, drops;
+  const chars = "アイウエオカキクケコサシスセソ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ<>/=+*";
+  const fontSize = 15;
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function resize(){
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+    cols = Math.floor(w / fontSize);
+    drops = new Array(cols).fill(0).map(()=>Math.random()*-50);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+  function draw(){
+    ctx.fillStyle = 'rgba(0,0,0,0.06)';
+    ctx.fillRect(0,0,w,h);
+    ctx.font = fontSize + 'px JetBrains Mono, monospace';
+    for(let i=0;i<cols;i++){
+      const t = chars[Math.floor(Math.random()*chars.length)];
+      const x = i*fontSize, y = drops[i]*fontSize;
+      ctx.fillStyle = Math.random() > 0.94 ? '#CFFFDD' : 'rgba(0,255,65,0.5)';
+      ctx.fillText(t, x, y);
+      if(y > h && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    }
+  }
+  if(!reduced){ setInterval(draw, 55); }
+  else { ctx.fillStyle = '#000'; ctx.fillRect(0,0,w,h); }
+})();
+
+/* ---------------- Sections & checks ---------------- */
+function isBoldWeight(fw){
+  if(fw === 'bold') return true;
+  const n = parseInt(fw, 10);
+  return !isNaN(n) && n >= 600;
+}
+function hasRealColor(colorStr){
+  return colorStr !== 'rgba(0, 0, 0, 0)' && colorStr !== 'transparent' && colorStr !== '';
+}
+
+const SECTIONS = [
+  {
+    label: "Section 1 — Header",
+    checks: [
+      { desc: "header uses flexbox", prop: "display", test: ()=> ['flex','inline-flex'].includes(getComputedStyle(document.getElementById('pvHeader')).display) },
+      { desc: "header has a background colour", prop: "background-color", test: ()=> hasRealColor(getComputedStyle(document.getElementById('pvHeader')).backgroundColor) },
+      { desc: "site title is bold", prop: "font-weight", test: ()=> isBoldWeight(getComputedStyle(document.querySelector('.site-title')).fontWeight) }
+    ]
+  },
+  {
+    label: "Section 2 — Navigation",
+    checks: [
+      { desc: "nav uses flexbox", prop: "display", test: ()=> ['flex','inline-flex'].includes(getComputedStyle(document.getElementById('pvNav')).display) },
+      { desc: "gap of at least 12px between items", prop: "gap", test: ()=> parseFloat(getComputedStyle(document.getElementById('pvNav')).gap || '0') >= 12 }
+    ]
+  },
+  {
+    label: "Section 3 — Account Card",
+    checks: [
+      { desc: "card has a background colour", prop: "background-color", test: ()=> hasRealColor(getComputedStyle(document.getElementById('pvCard')).backgroundColor) },
+      { desc: "corners rounded 8px or more", prop: "border-radius", test: ()=> parseFloat(getComputedStyle(document.getElementById('pvCard')).borderRadius) >= 8 },
+      { desc: "padding at least 16px on every side", prop: "padding", test: ()=>{
+          const cs = getComputedStyle(document.getElementById('pvCard'));
+          return ['paddingTop','paddingRight','paddingBottom','paddingLeft'].every(p=>parseFloat(cs[p])>=16);
+        }
+      },
+      { desc: "card is a flex row, spaced to the edges", prop: "justify-content", test: ()=> getComputedStyle(document.getElementById('pvCard')).justifyContent === 'space-between' },
+      { desc: "content vertically centred", prop: "align-items", test: ()=> getComputedStyle(document.getElementById('pvCard')).alignItems === 'center' },
+      { desc: "balance is at least 28px and bold", prop: "font-size / weight", test: ()=>{
+          const cs = getComputedStyle(document.getElementById('pvBalance'));
+          return parseFloat(cs.fontSize) >= 28 && isBoldWeight(cs.fontWeight);
+        }
+      }
+    ]
+  },
+  {
+    label: "Section 4 — Transaction List",
+    checks: [
+      { desc: "bullet points removed", prop: "list-style-type", test: ()=> getComputedStyle(document.getElementById('pvList')).listStyleType === 'none' },
+      { desc: "each row is a flex line, spaced to the edges", prop: "display / justify-content", test: ()=>{
+          const cs = getComputedStyle(document.querySelector('.txn-list li'));
+          return ['flex','inline-flex'].includes(cs.display) && cs.justifyContent === 'space-between';
+        }
+      },
+      { desc: "positive amount has a different colour", prop: "color", test: ()=>{
+          const amounts = document.querySelectorAll('.txn-amount');
+          const negColor = getComputedStyle(amounts[0]).color;
+          const posColor = getComputedStyle(amounts[1]).color;
+          return negColor !== posColor;
+        }
+      }
+    ]
+  }
+];
+
+const STARTER = `/* SECTION 1 — Header
+   .site-header: lay it out as a flex row, give it a background colour
+   .site-title: make it bold so it reads as a logo
+*/
+
+
+/* SECTION 2 — Navigation
+   .site-nav: flex row, with at least 12px of gap between the links
+*/
+
+
+/* SECTION 3 — Account Card
+   .account-card: background colour, rounded corners (8px+), padding (16px+),
+   flex row: space-between, vertically centred
+   .account-balance: at least 28px, bold
+*/
+
+
+/* SECTION 4 — Transaction List
+   .txn-list: remove the bullet points (list-style-type: none)
+   .txn-list li: flex row, space-between
+   .txn-amount.positive: give it a colour that stands out from the rest
+*/
+
+`;
+
+const HINT = `.site-header { display: flex; align-items: center; gap: 16px; background: #1a1f29; padding: 14px 20px; }
+.site-title { font-weight: 700; }
+
+.site-nav { display: flex; gap: 16px; }
+
+.account-card { background: #1a1f29; border-radius: 12px; padding: 24px; display: flex; justify-content: space-between; align-items: center; }
+.account-balance { font-size: 32px; font-weight: 700; }
+
+.txn-list { list-style-type: none; }
+.txn-list li { display: flex; justify-content: space-between; }
+.txn-amount.positive { color: #1a8a4c; }`;
+
+function applyLiveStyle(){
+  document.getElementById('liveStyle').textContent = document.getElementById('codeInput').value;
+}
+
+function renderTests(){
+  const list = document.getElementById('testList');
+  list.innerHTML = '';
+  SECTIONS.forEach((section, si)=>{
+    const label = document.createElement('div');
+    label.className = 'section-label';
+    label.textContent = section.label;
+    list.appendChild(label);
+    section.checks.forEach((chk, ci)=>{
+      const row = document.createElement('div');
+      row.className = 'test-row pending';
+      row.id = `test-${si}-${ci}`;
+      row.innerHTML = `<span class="test-icon">○</span><span class="test-desc">${chk.desc}</span><span class="test-prop">${chk.prop}</span>`;
+      list.appendChild(row);
+    });
+  });
+}
+
+function toggleHint(){
+  const box = document.getElementById('hintBox');
+  box.textContent = HINT;
+  box.style.display = box.style.display === 'block' ? 'none' : 'block';
+}
+
+function resetAll(){
+  document.getElementById('codeInput').value = STARTER;
+  document.getElementById('hintBox').style.display = 'none';
+  applyLiveStyle();
+  renderTests();
+  const status = document.getElementById('statusLine');
+  status.textContent = 'awaiting check run';
+  status.className = 'status-line';
+  document.getElementById('game').style.display = 'block';
+  document.getElementById('doneScreen').style.display = 'none';
+}
+
+function runChecks(){
+  applyLiveStyle();
+  let allPass = true;
+  SECTIONS.forEach((section, si)=>{
+    section.checks.forEach((chk, ci)=>{
+      const row = document.getElementById(`test-${si}-${ci}`);
+      let pass = false;
+      try{ pass = !!chk.test(); }catch(e){ pass = false; }
+      row.className = 'test-row ' + (pass ? 'pass' : 'fail');
+      row.querySelector('.test-icon').textContent = pass ? '✓' : '✗';
+      if(!pass) allPass = false;
+    });
+  });
+
+  const status = document.getElementById('statusLine');
+  if(allPass){
+    status.textContent = 'all checks passing';
+    status.className = 'status-line pass';
+    document.getElementById('game').style.display = 'none';
+    document.getElementById('doneScreen').style.display = 'block';
+  } else {
+    status.textContent = 'some checks failing — read the rows above';
+    status.className = 'status-line';
+  }
+}
+
+document.getElementById('codeInput').addEventListener('input', applyLiveStyle);
+
+resetAll();
+</script>
+
+<!-- Help widget -->
+<button class="help-fab" id="helpFab" onclick="toggleHelp()">💬<span class="fab-dot" id="helpDot"></span></button>
+<div class="help-panel" id="helpPanel">
+  <div class="help-head">
+    <span class="htitle">System Assist</span>
+    <button onclick="toggleHelp()">✕</button>
+  </div>
+  <div class="help-log" id="helpLog"></div>
+  <div class="help-inputrow">
+    <input type="text" id="helpInput" placeholder="Ask a question…" onkeydown="if(event.key==='Enter')sendHelp()">
+    <button onclick="sendHelp()">Send</button>
+  </div>
+</div>
+
+
+<script>
+
+/* ---------------- Help widget ---------------- */
+const HELP_DATA = {
+  "module": "front",
+  "entries": [
+    {
+      "id": "selector-syntax",
+      "keywords": [
+        "how do i target an element",
+        "css selector",
+        "dot before class name",
+        "what does .account-card mean"
+      ],
+      "response": ".account-card { property: value; } \u2014 the dot before a name matches an HTML class attribute. Without the dot, it tries to match a tag name that doesn't exist, and silently does nothing."
+    },
+    {
+      "id": "nothing-changes",
+      "keywords": [
+        "nothing changes in preview",
+        "preview not updating",
+        "css not applying",
+        "styles not showing"
+      ],
+      "response": "Check the selector spelling matches the class name exactly, including the leading dot. Also check for a missing semicolon on an earlier line \u2014 one missing semicolon can silently break every property after it in that block."
+    },
+    {
+      "id": "background-color",
+      "keywords": [
+        "how to set background",
+        "background colour property",
+        "background not showing"
+      ],
+      "response": "background: #1a1f29; (or any colour you like \u2014 named colours like 'navy' work too) sets the fill behind the element's content."
+    },
+    {
+      "id": "border-radius",
+      "keywords": [
+        "rounded corners",
+        "border radius property",
+        "how to round corners"
+      ],
+      "response": "border-radius: 12px; rounds all four corners by that amount \u2014 bigger number, more rounded."
+    },
+    {
+      "id": "padding-explain",
+      "keywords": [
+        "what is padding",
+        "padding vs margin",
+        "space inside box",
+        "space around text"
+      ],
+      "response": "padding: 24px; adds space between the content and the edge of its own box. margin does the same thing but on the outside, between this box and others nearby."
+    },
+    {
+      "id": "font-weight-bold",
+      "keywords": [
+        "how to make text bold",
+        "font weight property",
+        "bold text css"
+      ],
+      "response": "font-weight: 700; (or font-weight: bold;) makes text bold. 400 is normal weight, 700 and above reads as bold."
+    },
+    {
+      "id": "flexbox-explain",
+      "keywords": [
+        "what is flexbox",
+        "display flex meaning",
+        "how does flex work"
+      ],
+      "response": "display: flex; on a container arranges its direct children in a row instead of stacked on top of each other. It has to go on the parent, not the items inside it."
+    },
+    {
+      "id": "flex-wrong-element",
+      "keywords": [
+        "flex not working",
+        "display flex not doing anything",
+        "flex on wrong element"
+      ],
+      "response": "The single most common flexbox mistake: display: flex needs to be on the container (the parent), not on the items you're trying to lay out. Check which selector it's attached to."
+    },
+    {
+      "id": "justify-content-explain",
+      "keywords": [
+        "justify content meaning",
+        "space between explain",
+        "how to space out items"
+      ],
+      "response": "justify-content: space-between; pushes the first item to the left edge and the last to the right edge, spreading anything in between evenly."
+    },
+    {
+      "id": "align-items-explain",
+      "keywords": [
+        "align items meaning",
+        "vertically center",
+        "center items vertically"
+      ],
+      "response": "align-items: center; centres items vertically within a flex row \u2014 useful when items are different heights and you want them lined up in the middle."
+    },
+    {
+      "id": "panel-stuck",
+      "keywords": [
+        "the panel stuck",
+        "first screen help",
+        "background radius padding help"
+      ],
+      "response": "The Panel just needs three properties on .account-card: background, border-radius (8px or more), and padding (16px or more on every side)."
+    },
+    {
+      "id": "numbers-stuck",
+      "keywords": [
+        "the numbers stuck",
+        "second screen help",
+        "balance styling help"
+      ],
+      "response": "The Numbers needs .account-balance styled with font-size (28px or more) and font-weight (600 or higher, or bold)."
+    },
+    {
+      "id": "layout-stuck",
+      "keywords": [
+        "the layout stuck",
+        "third screen help",
+        "flex layout help"
+      ],
+      "response": "The Layout needs .account-card to be display: flex; with justify-content: space-between; and align-items: center; \u2014 three properties, one selector."
+    },
+    {
+      "id": "extended-sections-stuck",
+      "keywords": [
+        "extended front stuck",
+        "continuous page help",
+        "which section am i on"
+      ],
+      "response": "Scroll the CSS editor \u2014 all four sections (Header, Nav, Card, Transaction List) are listed as comments in one file. Work through them in any order; nothing you write gets erased when you move to the next one."
+    },
+    {
+      "id": "gap-property",
+      "keywords": [
+        "what does gap do",
+        "gap property meaning",
+        "space between flex items"
+      ],
+      "response": "gap: 16px; adds space between flex items without needing margin on each individual one \u2014 much simpler when you've got several items in a row."
+    },
+    {
+      "id": "general-stuck",
+      "keywords": [
+        "im stuck",
+        "help",
+        "dont know what to do",
+        "confused",
+        "not sure what to write",
+        "no idea"
+      ],
+      "response": "Look at the live preview and describe out loud what's different from what you want \u2014 that usually points straight at which property's missing. Try the Hint button, or flag a facilitator."
+    }
+  ]
+};
+const HELP_FALLBACK = "I'm not sure about that one — try rephrasing it, use the in-app Hint button, or flag a facilitator.";
+const HELP_GREETING = "Hi — ask me anything about this activity. I can help with syntax, explain an error, or nudge you on a specific challenge.";
+
+let helpOpen = false;
+let helpGreeted = false;
+
+function normalizeHelp(s){
+  return s.toLowerCase().replace(/[^\w\s]/g,' ').replace(/\s+/g,' ').trim();
+}
+const HELP_STOPWORDS = new Set(["what","does","do","is","are","the","a","an","to","of","in","on","for","and","or","i","my","how","this","that","it","me","you","your","did","doing","can","if","help","meaning","mean","means","explain","understand","understanding","know","knowing","work","working","works","use","using","used","need","needs","needed","want","wanted","wants","sure","right","correct","wrong","thing","things","stuff","way","ways","doesnt","dont","isnt","not","get","got","getting","should","would","could","will","with","when","where","why","which","who","from","have","has","had","about","some","any","just","really","actually","supposed","supposed"]);
+function scoreHelpEntry(msgNorm, msgWords, entry){
+  let best = 0;
+  entry.keywords.forEach(kw=>{
+    const kwNorm = normalizeHelp(kw);
+    let score = 0;
+    if(msgNorm.includes(kwNorm)) score += 4;
+    const kwWords = kwNorm.split(' ').filter(w=>w.length>2 && !HELP_STOPWORDS.has(w));
+    const overlap = kwWords.filter(w=>msgWords.includes(w)).length;
+    score += overlap;
+    if(score > best) best = score;
+  });
+  return best;
+}
+function findHelpResponse(userMsg){
+  const msgNorm = normalizeHelp(userMsg);
+  const msgWords = msgNorm.split(' ');
+  let bestEntry = null, bestScore = 0;
+  HELP_DATA.entries.forEach(entry=>{
+    const s = scoreHelpEntry(msgNorm, msgWords, entry);
+    if(s > bestScore){ bestScore = s; bestEntry = entry; }
+  });
+  if(bestEntry && bestScore >= 1){
+    return bestEntry.response;
+  }
+  return HELP_FALLBACK;
+}
+
+function toggleHelp(){
+  helpOpen = !helpOpen;
+  const panel = document.getElementById('helpPanel');
+  panel.classList.toggle('open', helpOpen);
+  if(helpOpen && !helpGreeted){
+    addHelpMsg(HELP_GREETING, 'bot');
+    helpGreeted = true;
+  }
+  if(helpOpen) document.getElementById('helpInput').focus();
+}
+function addHelpMsg(text, who){
+  const log = document.getElementById('helpLog');
+  const div = document.createElement('div');
+  div.className = 'help-msg ' + who;
+  div.textContent = text;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+}
+function sendHelp(){
+  const input = document.getElementById('helpInput');
+  const msg = input.value.trim();
+  if(!msg) return;
+  addHelpMsg(msg, 'user');
+  input.value = '';
+  setTimeout(()=>{
+    addHelpMsg(findHelpResponse(msg), 'bot');
+  }, 220);
+}
+
+</script>
+</body>
+</html>

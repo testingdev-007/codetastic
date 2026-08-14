@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Facilitator Notes — The Mainframe</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@400;500;600;700&display=swap');
+:root{
+  --bg:#050805; --panel:#0A0E0A; --panel-alt:#0F140F; --line:#173A22; --line-soft:#0F2417;
+  --green:#00FF41; --green-bright:#8CFFB0; --green-dim:#0F9D45; --green-faint:#0A5C28;
+  --text:#D6EFDD; --muted:#6E9C7C; --muted-dim:#3C5C46; --red:#FF6B6B; --amber:#F2A93B;
+}
+*{box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;margin:0;padding:36px 20px 70px;line-height:1.6;}
+.wrap{max-width:860px;margin:0 auto;}
+a{color:var(--green-bright);}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);margin-bottom:10px;}
+h1{font-family:'JetBrains Mono',monospace;font-size:26px;text-transform:uppercase;letter-spacing:.01em;margin:0 0 8px;color:var(--green-bright);}
+.sub{color:var(--muted);font-size:14px;margin:0 0 20px;max-width:620px;}
+h2{font-family:'JetBrains Mono',monospace;font-size:17px;text-transform:uppercase;letter-spacing:.03em;color:var(--green-bright);border-bottom:1px solid var(--line);padding-bottom:9px;margin:44px 0 16px;}
+h3{font-family:'JetBrains Mono',monospace;font-size:13px;text-transform:uppercase;letter-spacing:.03em;color:var(--green);margin:22px 0 10px;}
+p{font-size:14px;color:var(--text);}
+code{font-family:'JetBrains Mono',monospace;background:var(--panel-alt);color:var(--green-bright);padding:2px 6px;border-radius:3px;font-size:12.5px;}
+pre{background:#010401;border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--green-bright);line-height:1.6;margin:6px 0;}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:20px 22px;margin-bottom:16px;}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0;}
+th{text-align:left;color:var(--muted);text-transform:uppercase;font-size:10px;letter-spacing:.05em;padding:7px 10px;border-bottom:1px solid var(--line);}
+td{padding:9px 10px;border-bottom:1px solid var(--line-soft);vertical-align:top;}
+td code{background:transparent;padding:0;}
+.timing-bar{display:flex;height:34px;border-radius:6px;overflow:hidden;margin:14px 0;border:1px solid var(--line);}
+.seg{display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:#001A08;font-weight:700;}
+.s1{background:var(--green);flex:6;}
+.s2{background:var(--green-dim);flex:6;}
+.s3{background:var(--amber);flex:6;color:#1A1200;}
+.s4{background:var(--green-bright);flex:6;}
+.sbuf{background:var(--panel-alt);flex:1;color:var(--muted);}
+.ladder{border-left:2px solid var(--line);padding-left:16px;margin:14px 0;}
+.rung{margin-bottom:14px;}
+.rung .tier{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--amber);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;}
+.rung p{margin:0;font-size:13.5px;}
+details{background:var(--panel-alt);border:1px solid var(--line);border-radius:4px;margin-bottom:8px;overflow:hidden;}
+summary{padding:10px 14px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--green-bright);list-style:none;display:flex;align-items:center;gap:8px;}
+summary::before{content:'▶';font-size:9px;color:var(--muted-dim);transition:transform .15s ease;}
+details[open] summary::before{transform:rotate(90deg);}
+summary::-webkit-details-marker{display:none;}
+.answer-body{padding:0 14px 14px;}
+.answer-body pre{margin-top:8px;}
+.snag{border-left:3px solid var(--amber);padding:10px 14px;background:rgba(242,169,59,0.06);border-radius:0 4px 4px 0;margin-bottom:10px;font-size:13.5px;}
+.snag b{color:var(--amber);}
+.trouble{border-left:3px solid var(--red);padding:10px 14px;background:rgba(255,107,107,0.05);border-radius:0 4px 4px 0;margin-bottom:10px;font-size:13.5px;}
+.trouble b{color:var(--red);}
+.trouble .fix{color:var(--muted);display:block;margin-top:4px;}
+.linklist{display:flex;flex-direction:column;gap:6px;font-family:'JetBrains Mono',monospace;font-size:13px;}
+.linklist a{text-decoration:none;}
+.linklist a:hover{text-decoration:underline;}
+.linklist span{color:var(--muted-dim);}
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 8px;}
+.toc a{font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);border:1px solid var(--line);padding:6px 12px;border-radius:3px;text-decoration:none;}
+.toc a:hover{color:var(--green-bright);border-color:var(--green-dim);}
+footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--line-soft);font-size:12px;color:var(--muted-dim);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Facilitator Notes — Not For Participants</div>
+  <h1>Running The Mainframe</h1>
+  <p class="sub">Everything a facilitator needs in the room: what each task actually asks for, a scaffolded way to help someone stuck without just giving them the answer, the full answer key for when that's genuinely the right call, and troubleshooting for the "it's not working" moments that are actually user error, not a broken build.</p>
+
+  <div class="toc">
+    <a href="#timing">Timing</a>
+    <a href="#construct">Construct</a>
+    <a href="#vault">Vault</a>
+    <a href="#ledger">Ledger</a>
+    <a href="#front">Front</a>
+    <a href="#troubleshooting">Troubleshooting</a>
+    <a href="#files">All files</a>
+    <a href="#chat">Chat help</a>
+  </div>
+
+  <h2 id="timing">The 25-minute slot</h2>
+  <p>Four stations, roughly 6 minutes each, with a short buffer for moving between them. The Construct taster has a visible on-screen countdown set to 6 minutes — the other three don't enforce a timer, so you'll need to call time yourself.</p>
+  <div class="timing-bar">
+    <div class="seg s1">Construct ~6m</div><div class="seg sbuf"></div>
+    <div class="seg s2">Vault ~6m</div><div class="seg sbuf"></div>
+    <div class="seg s3">Ledger ~6m</div><div class="seg sbuf"></div>
+    <div class="seg s4">Front ~6m</div>
+  </div>
+  <p>Nobody needs to finish every challenge in every activity — the point is a real taste of each, not full completion. If someone's clearly engaged and close on the last challenge when time's up, let them finish; don't cut mid-flow over a minute or two.</p>
+
+  <!-- ============ CONSTRUCT ============ -->
+  <h2 id="construct">The Construct</h2>
+  <div class="card">
+    <p><b>What it is:</b> navigating a hidden rover across a grid by writing real JavaScript — <code>moveForward()</code>, <code>turnLeft()</code>, <code>turnRight()</code> — building from a single command up to a loop. Covers functions, sequencing, and loops.</p>
+    <table>
+      <tr><th>#</th><th>Task</th><th>Asks for</th></tr>
+      <tr><td>1</td><td>Wake Up</td><td>call <code>moveForward()</code> once</td></tr>
+      <tr><td>2</td><td>The Path</td><td>four <code>moveForward()</code> calls in a row</td></tr>
+      <tr><td>3</td><td>The Turn</td><td>move, turn, move again — combining direction changes</td></tr>
+      <tr><td>Bonus</td><td>The Glitch</td><td>fix a loop that runs one time too few (debugging, not new syntax)</td></tr>
+    </table>
+  </div>
+
+  <h3>Scaffolded help</h3>
+  <div class="ladder">
+    <div class="rung"><div class="tier">Tier 1 — ask, don't tell</div><p>"How many cells away is the exit? What do you think that number needs to be in your code?"</p></div>
+    <div class="rung"><div class="tier">Tier 2 — point at the tool</div><p>Point them at the in-app Hint button before adding anything yourself — it's calibrated to nudge, not solve.</p></div>
+    <div class="rung"><div class="tier">Tier 3 — narrow it down</div><p>"You've got the right idea, but count your <code>moveForward()</code> calls again — you're one short." Still make them fix it themselves.</p></div>
+  </div>
+
+  <h3>Answer key</h3>
+  <details><summary>Wake Up</summary><div class="answer-body"><pre>moveForward();</pre></div></details>
+  <details><summary>The Path</summary><div class="answer-body"><pre>moveForward();
+moveForward();
+moveForward();
+moveForward();</pre></div></details>
+  <details><summary>The Turn</summary><div class="answer-body"><pre>moveForward();
+moveForward();
+moveForward();
+turnRight();
+moveForward();
+moveForward();
+moveForward();</pre></div></details>
+  <details><summary>Bonus — The Glitch</summary><div class="answer-body"><p>Change the loop condition from <code>i &lt; 3</code> to <code>i &lt; 4</code> — the exit is 4 cells away, the loop only ran 3 times.</p></div></details>
+
+  <!-- ============ VAULT ============ -->
+  <h2 id="vault">The Vault</h2>
+  <div class="card">
+    <p><b>What it is:</b> writing real functions to patch broken business logic in a bank's risk-checking system, then running real test cases against them. Covers functions, return values, booleans, and conditionals.</p>
+    <table>
+      <tr><th>#</th><th>Function</th><th>Asks for</th></tr>
+      <tr><td>1</td><td><code>calculateTotal</code></td><td>add a flat £5 fee to an amount</td></tr>
+      <tr><td>2</td><td><code>isHighRisk</code></td><td>return true/false for amounts over £10,000</td></tr>
+      <tr><td>3</td><td><code>categoriseTransaction</code></td><td>three-way if/else banding</td></tr>
+      <tr><td colspan="3" style="color:var(--muted-dim);font-size:11px;">— take-home extension adds 3 more, see below —</td></tr>
+      <tr><td>4</td><td><code>applyLoyaltyDiscount</code></td><td>two parameters, one a boolean flag</td></tr>
+      <tr><td>5</td><td><code>calculateInterest</code></td><td>two-parameter arithmetic</td></tr>
+      <tr><td>6</td><td><code>flagSuspiciousActivity</code></td><td>compound condition with <code>&amp;&amp;</code></td></tr>
+    </table>
+  </div>
+
+  <h3>Scaffolded help</h3>
+  <div class="ladder">
+    <div class="rung"><div class="tier">Tier 1 — ask, don't tell</div><p>"What does the Test Console say your function actually returned? Is that different from what it expected?"</p></div>
+    <div class="rung"><div class="tier">Tier 2 — the usual suspects</div><p>Missing <code>return</code>, or <code>&gt;</code> vs <code>&gt;=</code> not matching the brief exactly — ask them to re-read the brief's wording once more before anything else.</p></div>
+    <div class="rung"><div class="tier">Tier 3 — narrow it down</div><p>Point at the specific failing test row and the exact value it returned vs expected — that's usually enough for someone to spot it themselves.</p></div>
+  </div>
+
+  <h3>Answer key</h3>
+  <details><summary>calculateTotal</summary><div class="answer-body"><pre>function calculateTotal(amount) {
+  return amount + 5;
+}</pre></div></details>
+  <details><summary>isHighRisk</summary><div class="answer-body"><pre>function isHighRisk(amount) {
+  return amount > 10000;
+}</pre></div></details>
+  <details><summary>categoriseTransaction</summary><div class="answer-body"><pre>function categoriseTransaction(amount) {
+  if (amount > 10000) return 'flagged';
+  if (amount >= 1000) return 'review';
+  return 'standard';
+}</pre></div></details>
+  <details><summary>applyLoyaltyDiscount (extension)</summary><div class="answer-body"><pre>function applyLoyaltyDiscount(amount, isPremium) {
+  return isPremium ? amount * 0.9 : amount;
+}</pre></div></details>
+  <details><summary>calculateInterest (extension)</summary><div class="answer-body"><pre>function calculateInterest(balance, rate) {
+  return balance * (rate / 100);
+}</pre></div></details>
+  <details><summary>flagSuspiciousActivity (extension)</summary><div class="answer-body"><pre>function flagSuspiciousActivity(amount, country) {
+  return amount > 5000 && country !== 'UK';
+}</pre></div></details>
+
+  <!-- ============ LEDGER ============ -->
+  <h2 id="ledger">The Ledger</h2>
+  <div class="card">
+    <p><b>What it is:</b> writing functions that loop through a real (visible) list of transactions to answer questions — totals, filters, counts. Each function also gets tested against a second, hidden dataset, so hardcoding the visible numbers doesn't pass. Covers variables, arrays, objects, and loops.</p>
+    <table>
+      <tr><th>#</th><th>Function</th><th>Asks for</th></tr>
+      <tr><td>1</td><td><code>totalSpend</code></td><td>accumulator pattern — sum every amount</td></tr>
+      <tr><td>2</td><td><code>sumByCategory</code></td><td>filtered sum, one category</td></tr>
+      <tr><td>3</td><td><code>countHighValue</code></td><td>filtered count against a threshold</td></tr>
+      <tr><td colspan="3" style="color:var(--muted-dim);font-size:11px;">— take-home extension adds 3 more, see below —</td></tr>
+      <tr><td>4</td><td><code>largestTransaction</code></td><td>running maximum</td></tr>
+      <tr><td>5</td><td><code>averageTransaction</code></td><td>division + rounding</td></tr>
+      <tr><td>6</td><td><code>sumByCategories</code></td><td>filter against an array of categories</td></tr>
+    </table>
+  </div>
+
+  <h3>Scaffolded help</h3>
+  <div class="ladder">
+    <div class="rung"><div class="tier">Tier 1 — ask, don't tell</div><p>"Where's your total variable declared — inside the loop, or before it?" This catches the single most common bug here on its own.</p></div>
+    <div class="rung"><div class="tier">Tier 2 — read it aloud</div><p>Get them to read their <code>if</code> condition out loud in plain English — mismatches between what they meant and what they typed usually surface immediately.</p></div>
+    <div class="rung"><div class="tier">Tier 3 — narrow it down</div><p>If the visible-ledger test passes but the hidden one fails, that's a strong sign they hardcoded a number instead of writing real logic — worth saying so directly.</p></div>
+  </div>
+
+  <h3>Answer key</h3>
+  <details><summary>totalSpend</summary><div class="answer-body"><pre>function totalSpend(transactions) {
+  let total = 0;
+  for (let i = 0; i < transactions.length; i++) {
+    total += transactions[i].amount;
+  }
+  return total;
+}</pre></div></details>
+  <details><summary>sumByCategory</summary><div class="answer-body"><pre>function sumByCategory(transactions, category) {
+  let total = 0;
+  for (let i = 0; i < transactions.length; i++) {
+    if (transactions[i].category === category) {
+      total += transactions[i].amount;
+    }
+  }
+  return total;
+}</pre></div></details>
+  <details><summary>countHighValue</summary><div class="answer-body"><pre>function countHighValue(transactions, threshold) {
+  let count = 0;
+  for (let i = 0; i < transactions.length; i++) {
+    if (transactions[i].amount > threshold) {
+      count++;
+    }
+  }
+  return count;
+}</pre></div></details>
+  <details><summary>largestTransaction (extension)</summary><div class="answer-body"><pre>function largestTransaction(transactions) {
+  let biggest = 0;
+  for (let i = 0; i < transactions.length; i++) {
+    if (transactions[i].amount > biggest) {
+      biggest = transactions[i].amount;
+    }
+  }
+  return biggest;
+}</pre></div></details>
+  <details><summary>averageTransaction (extension)</summary><div class="answer-body"><pre>function averageTransaction(transactions) {
+  let total = 0;
+  for (let i = 0; i < transactions.length; i++) {
+    total += transactions[i].amount;
+  }
+  return Math.round(total / transactions.length);
+}</pre></div></details>
+  <details><summary>sumByCategories (extension)</summary><div class="answer-body"><pre>function sumByCategories(transactions, categories) {
+  let total = 0;
+  for (let i = 0; i < transactions.length; i++) {
+    if (categories.includes(transactions[i].category)) {
+      total += transactions[i].amount;
+    }
+  }
+  return total;
+}</pre></div></details>
+
+  <!-- ============ FRONT ============ -->
+  <h2 id="front">The Front</h2>
+  <div class="card">
+    <p><b>What it is:</b> writing real CSS against a live preview to hit stated visual goals — checked by reading actual computed styles, not exact pixel matching, so any reasonable colour/sizing choice passes. Covers selectors, the box model, typography, and flexbox.</p>
+    <table>
+      <tr><th>#</th><th>Screen</th><th>Asks for</th></tr>
+      <tr><td>1</td><td>The Panel</td><td>background, rounded corners, padding</td></tr>
+      <tr><td>2</td><td>The Numbers</td><td>font-size, font-weight</td></tr>
+      <tr><td>3</td><td>The Layout</td><td>flexbox row, space-between, centred</td></tr>
+    </table>
+    <p style="margin-top:10px;">The take-home extension restructures this as <b>one continuous page</b> (header, nav, card, transaction list) instead of resetting between screens — same underlying skills, four sections instead of three, nothing wipes as you move between them.</p>
+  </div>
+
+  <h3>Scaffolded help</h3>
+  <div class="ladder">
+    <div class="rung"><div class="tier">Tier 1 — ask, don't tell</div><p>"What does the preview actually look like right now versus what you're going for?" Get them looking at the live preview, not just the code.</p></div>
+    <div class="rung"><div class="tier">Tier 2 — the usual suspects</div><p>A missing semicolon silently breaks everything after it in that block — if nothing they add seems to work, check for one missing semicolon above it.</p></div>
+    <div class="rung"><div class="tier">Tier 3 — narrow it down</div><p><code>display: flex</code> has to go on the parent (the container), not the item inside it — this is the single most common flexbox mistake in the room.</p></div>
+  </div>
+
+  <h3>Answer key</h3>
+  <details><summary>The Panel</summary><div class="answer-body"><pre>.account-card {
+  background: #1a1f29;
+  border-radius: 12px;
+  padding: 24px;
+}</pre></div></details>
+  <details><summary>The Numbers</summary><div class="answer-body"><pre>.account-balance {
+  font-size: 32px;
+  font-weight: 700;
+}</pre></div></details>
+  <details><summary>The Layout</summary><div class="answer-body"><pre>.account-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}</pre></div></details>
+  <details><summary>Extended — all 4 sections</summary><div class="answer-body"><pre>.site-header { display: flex; align-items: center; gap: 16px; background: #1a1f29; padding: 14px 20px; }
+.site-title { font-weight: 700; }
+
+.site-nav { display: flex; gap: 16px; }
+
+.account-card { background: #1a1f29; border-radius: 12px; padding: 24px; display: flex; justify-content: space-between; align-items: center; }
+.account-balance { font-size: 32px; font-weight: 700; }
+
+.txn-list { list-style-type: none; }
+.txn-list li { display: flex; justify-content: space-between; }
+.txn-amount.positive { color: #1a8a4c; }</pre></div></details>
+
+  <!-- ============ TROUBLESHOOTING ============ -->
+  <h2 id="troubleshooting">Troubleshooting — user error, not the build</h2>
+  <p>Every one of these has come up in testing and is a person doing something reasonable, not a bug in the files.</p>
+
+  <div class="trouble"><b>"I clicked Run and nothing happened."</b><span class="fix">Check the Error box beneath the buttons — a syntax error (missing bracket, missing semicolon) stops the code from running at all, and the message is usually specific enough to spot the line. If the Error box is empty too, check they actually edited the function body — an empty <code>// TODO</code> with nothing added runs fine and just does nothing.</span></div>
+  <div class="trouble"><b>"My answer looks right but it's still failing."</b><span class="fix">Almost always exact wording/case: <code>"Groceries"</code> won't match <code>"groceries"</code>, and a typo'd function name (<code>calculateTotall</code>) means the test can't find the function at all — the error message will say so directly.</span></div>
+  <div class="trouble"><b>"The page looks completely unstyled / broken, no colours, no layout."</b><span class="fix">The file was opened on its own outside the folder it came with (e.g. dragged out, or emailed as a single attachment). These are self-contained single files with no other dependencies, so this is almost always a font failing to load over a blocked network rather than a missing file — check internet access on that machine; the Google Fonts import is the only external request any of these make.</span></div>
+  <div class="trouble"><b>"I can't type in the code box."</b><span class="fix">Click directly inside the text area first — cursor focus can land on a button instead, especially on a trackpad. Not a bug, just needs a click.</span></div>
+  <div class="trouble"><b>"I hit Reset and lost my code."</b><span class="fix">Working as intended — Reset wipes back to the starter code for that challenge, not just the visuals. Worth warning the room about this once up front rather than after someone loses 4 minutes of work.</span></div>
+  <div class="trouble"><b>"The Vault/Ledger test console shows a weird value like NaN or undefined."</b><span class="fix"><code>NaN</code> usually means a maths operation happened on something that wasn't a number (often a typo'd property name, e.g. <code>transactions[i].amout</code>). <code>undefined</code> almost always means a missing <code>return</code> — the function ran, but never sent anything back.</span></div>
+  <div class="trouble"><b>"Nothing in The Front changes when I edit the CSS."</b><span class="fix">Check the selector actually matches — <code>.account-card</code> needs the dot; <code>account-card</code> without it targets a tag that doesn't exist and silently does nothing.</span></div>
+
+  <div class="snag" style="margin-top:24px;"><b>Construct taster vs. full build:</b> the taster is genuinely a different file (<code>mission-control-taster.html</code>) with only 3 of 5 constructs and a 6-minute timer. Don't hand out the full <code>mission-control.html</code> link during the live event by mistake — its timer now counts up with no deadline, which will look odd if someone's expecting a countdown.</div>
+
+  <!-- ============ FILES ============ -->
+  <h2 id="chat">Chat help</h2>
+  <div class="card">
+    <p>Each of the four live tasters has a small green chat button in the bottom-right corner ("System Assist"). Participants can type a real question in their own words and get an instant hint — the point is to take pressure off you in the room, not to replace you.</p>
+    <p><b>How it actually works:</b> there's no live AI model behind it — these are static files with no server. Each module ships with its own local knowledge base (16 entries for Construct, 15 for Vault, 15 for Ledger, 16 for Front) covering general concepts, per-challenge nudges, and common error messages. When someone types a question, it strips filler words ("what", "does", "how", "help", "meaning" — that kind of thing) and matches what's left against each entry's keyword list, then returns the best match. If nothing scores well enough, it says so honestly and points them at the in-app Hint button or a facilitator — it never invents an answer.</p>
+    <p><b>Where the content lives:</b> the actual knowledge base is baked directly into each HTML file (not loaded from a separate file at runtime) — a JSON file opened directly by double-clicking, rather than served from a website, can silently fail to load its sibling files in some browsers, so the working copy is embedded for reliability. The matching <code>construct-help.json</code> / <code>vault-help.json</code> / <code>ledger-help.json</code> / <code>front-help.json</code> files are shipped alongside as the editable source — if you want to add or tweak an entry, edit the JSON file, then it needs re-embedding into the HTML before it'll actually take effect.</p>
+    <p><b>What it's good at:</b> syntax questions, explaining an error message, nudging on a specific named challenge, and honestly saying "I don't know" for anything off-topic. <b>What it won't do:</b> write code for someone, or get pulled into small talk — it stays scoped to the activity on purpose.</p>
+  </div>
+
+  <h2 id="files">All files</h2>
+  <div class="card">
+    <div class="linklist">
+      <a href="index.html">index.html</a> <span>— the dashboard, start here</span>
+      <a href="mission-control-taster.html">mission-control-taster.html</a> <span>— Construct, live taster (6 min, chat help)</span>
+      <a href="mission-control.html">mission-control.html</a> <span>— Construct, full/take-home</span>
+      <a href="the-vault.html">the-vault.html</a> <span>— Vault, live taster (chat help)</span>
+      <a href="the-vault-extended.html">the-vault-extended.html</a> <span>— Vault, take-home</span>
+      <a href="the-ledger.html">the-ledger.html</a> <span>— Ledger, live taster (chat help)</span>
+      <a href="the-ledger-extended.html">the-ledger-extended.html</a> <span>— Ledger, take-home</span>
+      <a href="the-front.html">the-front.html</a> <span>— Front, live taster (chat help)</span>
+      <a href="the-front-extended.html">the-front-extended.html</a> <span>— Front, take-home</span>
+      <a href="construct-guide.html">construct-guide.html</a> <span>— participant reference</span>
+      <a href="vault-guide.html">vault-guide.html</a> <span>— participant reference</span>
+      <a href="ledger-guide.html">ledger-guide.html</a> <span>— participant reference</span>
+      <a href="front-guide.html">front-guide.html</a> <span>— participant reference</span>
+      <a href="construct-help.json">construct-help.json</a> <span>— chat help source, edit then re-embed</span>
+      <a href="vault-help.json">vault-help.json</a> <span>— chat help source, edit then re-embed</span>
+      <a href="ledger-help.json">ledger-help.json</a> <span>— chat help source, edit then re-embed</span>
+      <a href="front-help.json">front-help.json</a> <span>— chat help source, edit then re-embed</span>
+    </div>
+  </div>
+
+  <footer>All files are flat, self-contained HTML — no server or build step. Copy the whole folder anywhere and it works.</footer>
+</div>
+</body>
+</html>

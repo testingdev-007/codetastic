@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Vault — Write, Call, Test</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap');
+
+:root{
+  --bg:#000000; --panel:#040804; --panel-alt:#081208;
+  --line:#0F3A1C; --line-soft:#0A240F;
+  --green:#00FF41; --green-bright:#8CFFB0; --green-dim:#0F9D45; --green-faint:#0A5C28;
+  --red:#FF3131; --text:#B9F5C6; --muted:#4E8F5E; --muted-dim:#2E5C3A;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;min-height:100vh;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:1080px;margin:0 auto;padding:26px 22px 60px;position:relative;z-index:2;}
+::selection{background:rgba(0,255,65,0.28);}
+
+#rain{position:fixed;inset:0;z-index:0;opacity:0.4;}
+.scanlines{position:fixed;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(0,255,65,0.02) 3px, rgba(0,0,0,0) 4px);}
+.vignette{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0,0,0,0.75) 100%);}
+@media (prefers-reduced-motion: reduce){ #rain{display:none;} }
+
+.eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--green);display:inline-flex;align-items:center;gap:8px;margin-bottom:10px;text-shadow:0 0 8px rgba(0,255,65,0.5);}
+.eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 1.4s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
+
+.topbar{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:14px;padding-bottom:20px;margin-bottom:24px;border-bottom:1px solid var(--line-soft);}
+h1{font-size:clamp(22px,3vw,30px);margin:0 0 6px;text-transform:uppercase;letter-spacing:.01em;color:var(--text);text-shadow:0 0 12px rgba(0,255,65,0.2);}
+.sub{color:var(--muted);font-size:13px;margin:0;max-width:520px;line-height:1.5;}
+
+.timeline{display:flex;align-items:center;gap:0;}
+.tl-seg{display:flex;align-items:center;}
+.tl-seg .dot{width:11px;height:11px;border-radius:50%;background:var(--panel-alt);border:2px solid var(--line);}
+.tl-seg .dot.done{background:var(--green);border-color:var(--green);box-shadow:0 0 8px rgba(0,255,65,0.6);}
+.tl-seg .dot.active{background:var(--green);border-color:var(--green);box-shadow:0 0 0 4px rgba(0,255,65,0.18);}
+.tl-line{width:26px;height:2px;background:var(--line);}
+.tl-line.done{background:var(--green);}
+
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media (max-width:860px){.cols{grid-template-columns:1fr;}}
+
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:22px;box-shadow:0 0 30px rgba(0,255,65,0.03);}
+.panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+.panel h2{font-size:14px;margin:0;text-transform:uppercase;letter-spacing:.04em;color:var(--green-bright);font-weight:700;}
+.tag{font-size:10px;letter-spacing:.05em;color:var(--green);border:1px solid var(--green-faint);background:rgba(0,255,65,0.06);padding:3px 9px;border-radius:3px;text-transform:uppercase;}
+.brief{color:var(--muted);font-size:13px;line-height:1.65;margin:12px 0 16px;}
+
+.editor-chrome{border:1px solid var(--line);border-radius:4px;overflow:hidden;background:#010401;}
+.editor-titlebar{padding:9px 12px;background:var(--panel-alt);border-bottom:1px solid var(--line);font-size:11px;color:var(--muted);}
+.editor-titlebar span{color:var(--green-bright);}
+textarea{width:100%;min-height:170px;background:transparent;color:var(--green-bright);border:none;font-family:'JetBrains Mono',monospace;font-size:14px;line-height:1.65;padding:14px 16px;resize:vertical;tab-size:2;caret-color:var(--green);}
+textarea:focus{outline:none;}
+.editor-chrome:focus-within{border-color:var(--green);box-shadow:0 0 0 3px rgba(0,255,65,0.12);}
+
+.actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+button{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;border-radius:3px;cursor:pointer;padding:12px 20px;text-transform:uppercase;letter-spacing:.03em;transition:transform .15s ease,box-shadow .15s ease;border:none;}
+.btn-primary{background:var(--green);color:#001A08;border:1px solid var(--green);box-shadow:0 0 20px rgba(0,255,65,0.3);}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 28px rgba(0,255,65,0.5);}
+.btn-ghost{background:transparent;color:var(--green-bright);border:1px solid var(--line);}
+.btn-ghost:hover{border-color:var(--green-dim);background:rgba(0,255,65,0.06);}
+
+.hint-box,.error-box{margin-top:12px;font-size:12.5px;padding:11px 13px;border-radius:4px;display:none;line-height:1.6;white-space:pre-wrap;}
+.hint-box{color:var(--green-bright);background:rgba(0,255,65,0.05);border:1px solid rgba(0,255,65,0.25);}
+.hint-box::before{content:'[ HINT ] ';color:var(--green);font-weight:700;}
+.error-box{color:#FF8080;background:rgba(255,49,49,0.06);border:1px solid rgba(255,49,49,0.28);}
+.error-box::before{content:'[ ERROR ] ';color:var(--red);font-weight:700;}
+
+.test-list{display:flex;flex-direction:column;gap:0;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:#010401;}
+.test-row{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line-soft);font-size:12.5px;flex-wrap:wrap;}
+.test-row:last-child{border-bottom:none;}
+.test-icon{width:16px;text-align:center;font-weight:700;color:var(--muted-dim);flex-shrink:0;}
+.test-row.pass .test-icon{color:var(--green);text-shadow:0 0 6px rgba(0,255,65,0.6);}
+.test-row.fail .test-icon{color:var(--red);text-shadow:0 0 6px rgba(255,49,49,0.5);}
+.test-call{color:var(--green-bright);flex:1;min-width:150px;}
+.test-expect{color:var(--muted);}
+.test-actual{color:var(--red);width:100%;padding-left:26px;}
+
+.status-line{margin-top:14px;font-size:12.5px;color:var(--muted);text-align:center;letter-spacing:.03em;}
+.status-line.pass{color:var(--green);text-shadow:0 0 6px rgba(0,255,65,0.4);}
+
+#successOverlay{display:none;position:fixed;inset:0;background:rgba(0,4,0,0.92);backdrop-filter:blur(2px);align-items:center;justify-content:center;z-index:50;padding:20px;}
+.success-card{background:var(--panel);border:1px solid var(--green-faint);border-radius:4px;padding:36px 32px;max-width:380px;text-align:center;animation:pop .35s cubic-bezier(.2,.9,.3,1.3);box-shadow:0 0 50px rgba(0,255,65,0.12);}
+@keyframes pop{from{transform:scale(0.9);opacity:0;}to{transform:scale(1);opacity:1;}}
+.ping{width:64px;height:64px;border-radius:50%;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;background:rgba(0,255,65,0.08);border:1px solid rgba(0,255,65,0.4);position:relative;}
+.ping::before{content:'';position:absolute;inset:-8px;border-radius:50%;border:1px solid rgba(0,255,65,0.35);animation:pingring 1.6s ease-out infinite;}
+@keyframes pingring{0%{transform:scale(0.8);opacity:1;}100%{transform:scale(1.6);opacity:0;}}
+.ping-dot{width:14px;height:14px;border-radius:50%;background:var(--green);box-shadow:0 0 14px var(--green);}
+.success-card h3{font-size:20px;margin:0 0 8px;color:var(--green-bright);text-transform:uppercase;letter-spacing:.03em;text-shadow:0 0 10px rgba(0,255,65,0.4);}
+.success-card p{color:var(--muted);font-size:13.5px;line-height:1.5;margin:0 0 22px;}
+
+#doneScreen{display:none;text-align:center;padding:40px 20px;}
+.done-card{max-width:520px;margin:0 auto;background:var(--panel);border:1px solid var(--green-faint);border-radius:6px;padding:40px 34px;box-shadow:0 0 50px rgba(0,255,65,0.1);}
+.done-card h2{font-size:24px;color:var(--green-bright);text-transform:uppercase;margin:0 0 10px;text-shadow:0 0 14px rgba(0,255,65,0.35);}
+.done-card p{color:var(--muted);font-size:13.5px;line-height:1.6;margin:0 0 8px;}
+
+/* ---------------- Help widget ---------------- */
+.help-fab{
+  position:fixed; bottom:22px; right:22px; z-index:80;
+  width:56px; height:56px; border-radius:50%;
+  background:var(--green); color:#001A08; border:none; cursor:pointer;
+  font-size:22px; display:flex; align-items:center; justify-content:center;
+  box-shadow:0 0 24px rgba(0,255,65,0.45);
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+.help-fab:hover{ transform:translateY(-2px) scale(1.04); box-shadow:0 0 32px rgba(0,255,65,0.65); }
+.help-fab .fab-dot{
+  position:absolute; top:-2px; right:-2px; width:12px; height:12px; border-radius:50%;
+  background:var(--red); border:2px solid var(--bg); display:none;
+}
+.help-panel{
+  position:fixed; bottom:90px; right:22px; z-index:80;
+  width:340px; max-width:calc(100vw - 40px); height:440px; max-height:calc(100vh - 130px);
+  background:var(--panel); border:1px solid var(--green-faint); border-radius:10px;
+  display:none; flex-direction:column; overflow:hidden;
+  box-shadow:0 12px 50px rgba(0,0,0,0.6), 0 0 30px rgba(0,255,65,0.1);
+}
+.help-panel.open{ display:flex; }
+.help-head{
+  padding:12px 14px; background:var(--panel-alt); border-bottom:1px solid var(--line);
+  display:flex; align-items:center; justify-content:space-between;
+}
+.help-head .htitle{ font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--green-bright); text-transform:uppercase; letter-spacing:.04em; display:flex; align-items:center; gap:7px; }
+.help-head .htitle::before{ content:''; width:6px; height:6px; border-radius:50%; background:var(--green); box-shadow:0 0 6px var(--green); animation:blink 1.4s infinite; }
+.help-head button{ background:none; border:none; color:var(--muted); cursor:pointer; font-size:16px; padding:2px 6px; }
+.help-head button:hover{ color:var(--green-bright); }
+.help-log{ flex:1; overflow-y:auto; padding:12px 14px; display:flex; flex-direction:column; gap:10px; }
+.help-msg{ font-size:12.5px; line-height:1.55; padding:9px 11px; border-radius:6px; max-width:88%; }
+.help-msg.bot{ background:var(--panel-alt); border:1px solid var(--line); color:var(--text); align-self:flex-start; }
+.help-msg.user{ background:rgba(0,255,65,0.1); border:1px solid var(--green-faint); color:var(--green-bright); align-self:flex-end; }
+.help-inputrow{ display:flex; gap:8px; padding:10px 12px; border-top:1px solid var(--line); background:var(--panel-alt); }
+.help-inputrow input{
+  flex:1; background:#010401; border:1px solid var(--line); color:var(--green-bright);
+  font-family:'JetBrains Mono',monospace; font-size:12.5px; padding:9px 11px; border-radius:5px;
+}
+.help-inputrow input:focus{ outline:none; border-color:var(--green); }
+.help-inputrow button{
+  background:var(--green); color:#001A08; border:none; border-radius:5px; padding:0 14px;
+  font-family:'JetBrains Mono',monospace; font-weight:700; font-size:12px; cursor:pointer;
+}
+.help-inputrow button:hover{ box-shadow:0 0 14px rgba(0,255,65,0.4); }
+
+</style>
+</head>
+<body>
+<canvas id="rain"></canvas>
+<div class="scanlines"></div>
+<div class="vignette"></div>
+
+<div class="wrap">
+
+  <div class="topbar">
+    <div>
+      <div class="eyebrow">Financial Systems · Live Taster</div>
+      <h1>The Vault — Write, Call, Test</h1>
+      <p class="sub">Three small pieces of a bank's risk-checking system are broken — the logic is missing. Write the function, then run it against real test cases to see if it actually works.</p>
+    </div>
+    <div class="timeline" id="dots"></div>
+  </div>
+
+  <div id="game">
+    <div class="cols">
+      <div class="panel">
+        <div class="panel-head">
+          <h2 id="challengeTitle">calculateTotal</h2>
+          <span class="tag" id="conceptTag">FUNCTIONS</span>
+        </div>
+        <p class="brief" id="briefText"></p>
+        <div class="editor-chrome">
+          <div class="editor-titlebar"><span>root@vault:~$</span> risk.js</div>
+          <textarea id="codeInput" spellcheck="false"></textarea>
+        </div>
+        <div class="actions">
+          <button class="btn-primary" onclick="runTests()">▶ Run Tests</button>
+          <button class="btn-ghost" onclick="resetChallenge()">↺ Reset</button>
+          <button class="btn-ghost" onclick="toggleHint()">💡 Hint</button>
+        </div>
+        <div class="hint-box" id="hintBox"></div>
+        <div class="error-box" id="errorBox"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Test Console</h2>
+        </div>
+        <div class="test-list" id="testList"></div>
+        <div class="status-line" id="statusLine">awaiting test run</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="doneScreen">
+    <div class="done-card">
+      <div class="eyebrow" style="justify-content:center;">The Vault</div>
+      <h2>All 3 patched</h2>
+      <p>Every function passed its tests. That's the actual day-to-day loop for a lot of dev roles — read a rule, write the logic, run the tests, fix what fails.</p>
+      <p style="color:var(--green-bright);">The take-home Vault has more scenarios waiting, with trickier edge cases.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- SUCCESS OVERLAY -->
+<div id="successOverlay">
+  <div class="success-card">
+    <div class="ping"><div class="ping-dot"></div></div>
+    <h3 id="successTitle">Tests Passing</h3>
+    <p id="successText">All checks cleared.</p>
+    <button class="btn-primary" onclick="nextChallenge()" id="nextBtn">Deploy →</button>
+  </div>
+</div>
+
+<script>
+/* ---------------- Matrix rain (shared visual language with Construct) ---------------- */
+(function(){
+  const canvas = document.getElementById('rain');
+  const ctx = canvas.getContext('2d');
+  let w, h, cols, drops;
+  const chars = "アイウエオカキクケコサシスセソ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ<>/=+*";
+  const fontSize = 15;
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function resize(){
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+    cols = Math.floor(w / fontSize);
+    drops = new Array(cols).fill(0).map(()=>Math.random()*-50);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+  function draw(){
+    ctx.fillStyle = 'rgba(0,0,0,0.06)';
+    ctx.fillRect(0,0,w,h);
+    ctx.font = fontSize + 'px JetBrains Mono, monospace';
+    for(let i=0;i<cols;i++){
+      const text = chars[Math.floor(Math.random()*chars.length)];
+      const x = i*fontSize, y = drops[i]*fontSize;
+      ctx.fillStyle = Math.random() > 0.94 ? '#CFFFDD' : 'rgba(0,255,65,0.5)';
+      ctx.fillText(text, x, y);
+      if(y > h && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    }
+  }
+  if(!reduced){ setInterval(draw, 55); }
+  else { ctx.fillStyle = '#000'; ctx.fillRect(0,0,w,h); }
+})();
+
+/* ---------------- Challenges ---------------- */
+const CHALLENGES = [
+  {
+    fnName: "calculateTotal",
+    concept: "FUNCTIONS · RETURN VALUES",
+    brief: "Every transfer carries a flat £5 processing fee. Write calculateTotal(amount) so it returns the transaction amount plus that fee.",
+    starter: `// calculateTotal(amount) should return the transaction
+// amount plus a flat £5 processing fee.
+
+function calculateTotal(amount) {
+  // TODO: return amount plus the fee
+}`,
+    tests: [
+      {args:[100], expected:105},
+      {args:[250], expected:255},
+      {args:[0], expected:5}
+    ],
+    hint: "return amount + 5;"
+  },
+  {
+    fnName: "isHighRisk",
+    concept: "BOOLEANS · COMPARISON",
+    brief: "Compliance flags any transaction strictly over £10,000 for manual review. Write isHighRisk(amount) so it returns true or false.",
+    starter: `// isHighRisk(amount) should return true if the amount
+// is OVER £10,000, and false otherwise.
+
+function isHighRisk(amount) {
+  // TODO
+}`,
+    tests: [
+      {args:[15000], expected:true},
+      {args:[5000], expected:false},
+      {args:[10000], expected:false}
+    ],
+    hint: "return amount > 10000;"
+  },
+  {
+    fnName: "categoriseTransaction",
+    concept: "CONDITIONALS · MULTIPLE BRANCHES",
+    brief: "The risk system sorts every transaction into one of three bands: 'flagged' if over £10,000, 'review' if £1,000 or more, otherwise 'standard'. Write categoriseTransaction(amount) to return the right band.",
+    starter: `// categoriseTransaction(amount) should return:
+//   'flagged'  if amount > 10000
+//   'review'   if amount >= 1000
+//   'standard' otherwise
+
+function categoriseTransaction(amount) {
+  // TODO
+}`,
+    tests: [
+      {args:[15000], expected:"flagged"},
+      {args:[5000], expected:"review"},
+      {args:[1000], expected:"review"},
+      {args:[500], expected:"standard"}
+    ],
+    hint: "if (amount > 10000) return 'flagged';\nif (amount >= 1000) return 'review';\nreturn 'standard';"
+  }
+];
+
+let current = 0;
+
+function buildDots(){
+  const dots = document.getElementById('dots');
+  dots.innerHTML = '';
+  CHALLENGES.forEach((_,i)=>{
+    const seg = document.createElement('div');
+    seg.className = 'tl-seg';
+    const d = document.createElement('div');
+    d.className = 'dot';
+    d.id = 'dot'+i;
+    seg.appendChild(d);
+    if(i < CHALLENGES.length-1){
+      const line = document.createElement('div');
+      line.className = 'tl-line';
+      line.id = 'line'+i;
+      seg.appendChild(line);
+    }
+    dots.appendChild(seg);
+  });
+}
+function refreshDots(){
+  CHALLENGES.forEach((_,i)=>{
+    document.getElementById('dot'+i).className = 'dot' + (i<current?' done':i===current?' active':'');
+    const l = document.getElementById('line'+i);
+    if(l) l.className = 'tl-line' + (i<current?' done':'');
+  });
+}
+
+function loadChallenge(idx){
+  current = idx;
+  const c = CHALLENGES[idx];
+  document.getElementById('challengeTitle').textContent = c.fnName;
+  document.getElementById('conceptTag').textContent = c.concept;
+  document.getElementById('briefText').textContent = c.brief;
+  document.getElementById('codeInput').value = c.starter;
+  document.getElementById('hintBox').style.display = 'none';
+  document.getElementById('hintBox').textContent = c.hint;
+  document.getElementById('errorBox').style.display = 'none';
+  refreshDots();
+  renderTests(c);
+  const status = document.getElementById('statusLine');
+  status.textContent = 'awaiting test run';
+  status.className = 'status-line';
+}
+function resetChallenge(){ loadChallenge(current); }
+
+function renderTests(c){
+  const list = document.getElementById('testList');
+  list.innerHTML = '';
+  c.tests.forEach((t,i)=>{
+    const row = document.createElement('div');
+    row.className = 'test-row pending';
+    row.id = 'test-'+i;
+    row.innerHTML = `<span class="test-icon">○</span><span class="test-call">${c.fnName}(${t.args.map(a=>JSON.stringify(a)).join(', ')})</span><span class="test-expect">expect ${JSON.stringify(t.expected)}</span>`;
+    list.appendChild(row);
+  });
+}
+
+function toggleHint(){
+  const box = document.getElementById('hintBox');
+  box.style.display = box.style.display === 'block' ? 'none' : 'block';
+}
+
+function runTests(){
+  const c = CHALLENGES[current];
+  const src = document.getElementById('codeInput').value;
+  const errorBox = document.getElementById('errorBox');
+  errorBox.style.display = 'none';
+
+  let fn;
+  try{
+    fn = new Function(src + `\nreturn ${c.fnName};`)();
+    if(typeof fn !== 'function'){
+      throw new Error(`${c.fnName} isn't defined as a function — check the function name matches exactly.`);
+    }
+  }catch(e){
+    errorBox.textContent = e.message;
+    errorBox.style.display = 'block';
+    return;
+  }
+
+  let allPass = true;
+  c.tests.forEach((t,i)=>{
+    const row = document.getElementById('test-'+i);
+    let actual, threw = false, errMsg = '';
+    try{
+      actual = fn(...t.args);
+    }catch(e){
+      threw = true; errMsg = e.message;
+    }
+    const pass = !threw && actual === t.expected;
+    row.className = 'test-row ' + (pass ? 'pass' : 'fail');
+    row.querySelector('.test-icon').textContent = pass ? '✓' : '✗';
+    const existingActual = row.querySelector('.test-actual');
+    if(existingActual) existingActual.remove();
+    if(!pass){
+      allPass = false;
+      const span = document.createElement('span');
+      span.className = 'test-actual';
+      span.textContent = threw ? `threw: ${errMsg}` : `got ${JSON.stringify(actual)}`;
+      row.appendChild(span);
+    }
+  });
+
+  const status = document.getElementById('statusLine');
+  if(allPass){
+    status.textContent = 'all tests passing';
+    status.className = 'status-line pass';
+    showSuccess();
+  } else {
+    status.textContent = 'some tests failing — read the rows above';
+    status.className = 'status-line';
+  }
+}
+
+function showSuccess(){
+  const isLast = current === CHALLENGES.length - 1;
+  document.getElementById('successTitle').textContent = isLast ? 'Vault Secured' : 'Tests Passing';
+  document.getElementById('successText').textContent = isLast
+    ? 'All three functions deployed and passing.'
+    : `${CHALLENGES[current].fnName} is solid. One more piece to patch.`;
+  document.getElementById('nextBtn').textContent = isLast ? 'Finish →' : 'Deploy →';
+  document.getElementById('successOverlay').style.display = 'flex';
+}
+
+function nextChallenge(){
+  document.getElementById('successOverlay').style.display = 'none';
+  if(current === CHALLENGES.length - 1){
+    document.getElementById('game').style.display = 'none';
+    document.getElementById('doneScreen').style.display = 'block';
+  } else {
+    loadChallenge(current + 1);
+  }
+}
+
+buildDots();
+loadChallenge(0);
+</script>
+
+<!-- Help widget -->
+<button class="help-fab" id="helpFab" onclick="toggleHelp()">💬<span class="fab-dot" id="helpDot"></span></button>
+<div class="help-panel" id="helpPanel">
+  <div class="help-head">
+    <span class="htitle">System Assist</span>
+    <button onclick="toggleHelp()">✕</button>
+  </div>
+  <div class="help-log" id="helpLog"></div>
+  <div class="help-inputrow">
+    <input type="text" id="helpInput" placeholder="Ask a question…" onkeydown="if(event.key==='Enter')sendHelp()">
+    <button onclick="sendHelp()">Send</button>
+  </div>
+</div>
+
+
+<script>
+
+/* ---------------- Help widget ---------------- */
+const HELP_DATA = {
+  "module": "vault",
+  "entries": [
+    {
+      "id": "what-is-function-def",
+      "keywords": [
+        "how do i write a function",
+        "define a function",
+        "function syntax",
+        "writing a function",
+        "what does function mean"
+      ],
+      "response": "function name(parameter) { return something; } \u2014 the name is what you call it by, the parameter is the input, and return sends a value back out. Nothing after return runs."
+    },
+    {
+      "id": "missing-return",
+      "keywords": [
+        "undefined",
+        "returns undefined",
+        "forgot return",
+        "nothing comes back",
+        "no return value"
+      ],
+      "response": "If a test shows 'got undefined', your function ran but never hit a return statement \u2014 the logic might be right, it's just not being sent back. Add return in front of the value."
+    },
+    {
+      "id": "boolean-explain",
+      "keywords": [
+        "what is a boolean",
+        "true false",
+        "what does boolean mean",
+        "return true or false"
+      ],
+      "response": "A boolean is just true or false. A comparison like amount > 10000 already produces one \u2014 you can return it directly, no need for an if statement just to say 'if this is true, return true'."
+    },
+    {
+      "id": "comparison-operators",
+      "keywords": [
+        "greater than",
+        "less than",
+        "what does gte mean",
+        ">= meaning",
+        "over or equal",
+        "strictly over"
+      ],
+      "response": "> means strictly greater than (10000 itself doesn't count). >= means greater than or equal to (10000 itself does count). Read the brief's exact wording \u2014 'over' and 'or more' mean different things here."
+    },
+    {
+      "id": "if-else-syntax",
+      "keywords": [
+        "if else syntax",
+        "how does if else work",
+        "multiple conditions",
+        "if else if",
+        "conditional chain"
+      ],
+      "response": "if (condition) { return x; } if (otherCondition) { return y; } return z; \u2014 checks run top to bottom, and the first one that matches wins. Put the most specific condition first."
+    },
+    {
+      "id": "calculatetotal-stuck",
+      "keywords": [
+        "calculatetotal stuck",
+        "total function help",
+        "fee function",
+        "flat fee"
+      ],
+      "response": "calculateTotal just needs amount plus the flat \u00a35 fee: return amount + 5;"
+    },
+    {
+      "id": "ishighrisk-stuck",
+      "keywords": [
+        "ishighrisk stuck",
+        "high risk function",
+        "risk threshold"
+      ],
+      "response": "isHighRisk needs a single comparison, returned directly: return amount > 10000; \u2014 no if statement needed."
+    },
+    {
+      "id": "categorise-stuck",
+      "keywords": [
+        "categorisetransaction stuck",
+        "categorise function",
+        "three bands",
+        "flagged review standard"
+      ],
+      "response": "Check the most extreme case first: if it's flagged-level, return 'flagged' immediately. Otherwise check review-level. Otherwise it's standard \u2014 that's your three branches, in that order."
+    },
+    {
+      "id": "loyalty-discount-stuck",
+      "keywords": [
+        "applyloyaltydiscount stuck",
+        "loyalty discount",
+        "ispremium",
+        "two parameters"
+      ],
+      "response": "This one takes two inputs \u2014 amount and isPremium. Since isPremium is already true or false, you can use it directly: return isPremium ? amount * 0.9 : amount;"
+    },
+    {
+      "id": "interest-stuck",
+      "keywords": [
+        "calculateinterest stuck",
+        "interest function",
+        "simple interest"
+      ],
+      "response": "calculateInterest is balance multiplied by (rate divided by 100) \u2014 rate is given as a whole number like 5, meaning 5%, so it needs dividing by 100 first."
+    },
+    {
+      "id": "suspicious-stuck",
+      "keywords": [
+        "flagsuspiciousactivity stuck",
+        "suspicious function",
+        "compound condition",
+        "and logic"
+      ],
+      "response": "This one needs both conditions true at once \u2014 use &&. amount > 5000 && country !== 'UK' \u2014 both sides have to be true for the whole thing to be true."
+    },
+    {
+      "id": "test-console-explain",
+      "keywords": [
+        "what does the test console show",
+        "how do tests work",
+        "what is a test",
+        "pass fail meaning"
+      ],
+      "response": "Each row calls your function with specific input and checks whether what it actually returns matches what's expected. A red cross shows you exactly what your function returned, so compare that against what it should have been."
+    },
+    {
+      "id": "case-sensitive",
+      "keywords": [
+        "case sensitive",
+        "capital letters matter",
+        "uppercase lowercase"
+      ],
+      "response": "Text comparisons in JavaScript are case-sensitive \u2014 'Flagged' and 'flagged' are different values. Match the exact spelling and capitalisation shown in the brief."
+    },
+    {
+      "id": "function-name-typo",
+      "keywords": [
+        "function not found",
+        "isn't defined as a function",
+        "wrong function name",
+        "typo in function name"
+      ],
+      "response": "The function name in your code has to match exactly what's expected \u2014 check for typos, and make sure you haven't accidentally renamed it while editing."
+    },
+    {
+      "id": "general-stuck",
+      "keywords": [
+        "im stuck",
+        "help",
+        "dont know what to do",
+        "confused",
+        "not sure what to write",
+        "no idea"
+      ],
+      "response": "Read the brief once more, slowly \u2014 it states the exact rule you need to translate into code. Then try the Hint button. If you're still stuck, flag a facilitator."
+    }
+  ]
+};
+const HELP_FALLBACK = "I'm not sure about that one — try rephrasing it, use the in-app Hint button, or flag a facilitator.";
+const HELP_GREETING = "Hi — ask me anything about this activity. I can help with syntax, explain an error, or nudge you on a specific challenge.";
+
+let helpOpen = false;
+let helpGreeted = false;
+
+function normalizeHelp(s){
+  return s.toLowerCase().replace(/[^\w\s]/g,' ').replace(/\s+/g,' ').trim();
+}
+const HELP_STOPWORDS = new Set(["what","does","do","is","are","the","a","an","to","of","in","on","for","and","or","i","my","how","this","that","it","me","you","your","did","doing","can","if","help","meaning","mean","means","explain","understand","understanding","know","knowing","work","working","works","use","using","used","need","needs","needed","want","wanted","wants","sure","right","correct","wrong","thing","things","stuff","way","ways","doesnt","dont","isnt","not","get","got","getting","should","would","could","will","with","when","where","why","which","who","from","have","has","had","about","some","any","just","really","actually","supposed","supposed"]);
+function scoreHelpEntry(msgNorm, msgWords, entry){
+  let best = 0;
+  entry.keywords.forEach(kw=>{
+    const kwNorm = normalizeHelp(kw);
+    let score = 0;
+    if(msgNorm.includes(kwNorm)) score += 4;
+    const kwWords = kwNorm.split(' ').filter(w=>w.length>2 && !HELP_STOPWORDS.has(w));
+    const overlap = kwWords.filter(w=>msgWords.includes(w)).length;
+    score += overlap;
+    if(score > best) best = score;
+  });
+  return best;
+}
+function findHelpResponse(userMsg){
+  const msgNorm = normalizeHelp(userMsg);
+  const msgWords = msgNorm.split(' ');
+  let bestEntry = null, bestScore = 0;
+  HELP_DATA.entries.forEach(entry=>{
+    const s = scoreHelpEntry(msgNorm, msgWords, entry);
+    if(s > bestScore){ bestScore = s; bestEntry = entry; }
+  });
+  if(bestEntry && bestScore >= 1){
+    return bestEntry.response;
+  }
+  return HELP_FALLBACK;
+}
+
+function toggleHelp(){
+  helpOpen = !helpOpen;
+  const panel = document.getElementById('helpPanel');
+  panel.classList.toggle('open', helpOpen);
+  if(helpOpen && !helpGreeted){
+    addHelpMsg(HELP_GREETING, 'bot');
+    helpGreeted = true;
+  }
+  if(helpOpen) document.getElementById('helpInput').focus();
+}
+function addHelpMsg(text, who){
+  const log = document.getElementById('helpLog');
+  const div = document.createElement('div');
+  div.className = 'help-msg ' + who;
+  div.textContent = text;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+}
+function sendHelp(){
+  const input = document.getElementById('helpInput');
+  const msg = input.value.trim();
+  if(!msg) return;
+  addHelpMsg(msg, 'user');
+  input.value = '';
+  setTimeout(()=>{
+    addHelpMsg(findHelpResponse(msg), 'bot');
+  }, 220);
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guide — The Front</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@400;500;600;700&display=swap');
+:root{
+  --bg:#050805; --panel:#0A0E0A; --panel-alt:#0F140F; --line:#173A22; --line-soft:#0F2417;
+  --green:#00FF41; --green-bright:#8CFFB0; --green-dim:#0F9D45; --green-faint:#0A5C28;
+  --text:#D6EFDD; --muted:#6E9C7C; --muted-dim:#3C5C46; --red:#FF6B6B;
+}
+*{box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;margin:0;padding:36px 20px 70px;line-height:1.6;}
+.wrap{max-width:760px;margin:0 auto;}
+a{color:var(--green-bright);}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--green);margin-bottom:10px;}
+h1{font-family:'JetBrains Mono',monospace;font-size:26px;text-transform:uppercase;letter-spacing:.01em;margin:0 0 8px;color:var(--green-bright);}
+.sub{color:var(--muted);font-size:14px;margin:0 0 30px;}
+h2{font-family:'JetBrains Mono',monospace;font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:var(--green-bright);border-bottom:1px solid var(--line);padding-bottom:8px;margin:36px 0 16px;}
+p{font-size:14.5px;color:var(--text);}
+code{font-family:'JetBrains Mono',monospace;background:var(--panel-alt);color:var(--green-bright);padding:2px 6px;border-radius:3px;font-size:13px;}
+pre{background:#010401;border:1px solid var(--line);border-radius:6px;padding:14px 16px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--green-bright);line-height:1.6;}
+pre .cm{color:var(--muted-dim);}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:16px 18px;margin-bottom:14px;}
+.card h3{font-family:'JetBrains Mono',monospace;font-size:12.5px;text-transform:uppercase;letter-spacing:.03em;color:var(--green);margin:0 0 8px;}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0;}
+th{text-align:left;color:var(--muted);text-transform:uppercase;font-size:10.5px;letter-spacing:.05em;padding:6px 10px;border-bottom:1px solid var(--line);}
+td{padding:8px 10px;border-bottom:1px solid var(--line-soft);}
+td code{background:transparent;padding:0;}
+.mistake{border-left:3px solid var(--red);padding:10px 14px;background:rgba(255,107,107,0.05);border-radius:0 4px 4px 0;margin-bottom:10px;font-size:13.5px;}
+.mistake b{color:var(--red);}
+.boxdemo{background:#eef1f5;border-radius:6px;padding:20px;margin:12px 0;}
+.boxdemo .box{background:#1a1f29;color:#fff;border-radius:10px;padding:18px;font-family:'JetBrains Mono',monospace;font-size:12px;text-align:center;border:2px dashed #4FE3C1;}
+footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--line-soft);font-size:12px;color:var(--muted-dim);}
+footer a{color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Guide · Reference</div>
+  <h1>The Front</h1>
+  <p class="sub">CSS selectors, the box model, and flexbox — the general syntax, with generic examples rather than the account card itself.</p>
+
+  <h2>Targeting an element</h2>
+  <p>A class selector starts with a dot and matches the HTML's <code>class</code> attribute. Everything between the braces is a property/value pair, ending in a semicolon.</p>
+  <pre>.my-box {
+  background: #1a1f29;
+  padding: 20px;
+}</pre>
+  <div class="mistake"><b>Common mistake:</b> forgetting the semicolon between properties, or the dot before a class name — <code>my-box</code> without the dot targets an element literally named <code>my-box</code>, which doesn't exist.</div>
+
+  <h2>The box model</h2>
+  <div class="boxdemo"><div class="box">padding pushes this text<br>away from the edges</div></div>
+  <table>
+    <tr><th>Property</th><th>What it controls</th></tr>
+    <tr><td><code>background</code></td><td>fill colour behind the content</td></tr>
+    <tr><td><code>padding</code></td><td>space between the content and the edge of the box</td></tr>
+    <tr><td><code>border-radius</code></td><td>how rounded the corners are (in px)</td></tr>
+    <tr><td><code>margin</code></td><td>space outside the box, between it and other elements</td></tr>
+  </table>
+  <pre>.card {
+  background: #1a1f29;
+  border-radius: 12px;
+  padding: 24px;
+}</pre>
+
+  <h2>Typography</h2>
+  <table>
+    <tr><th>Property</th><th>What it controls</th></tr>
+    <tr><td><code>font-size</code></td><td>text size, usually in px</td></tr>
+    <tr><td><code>font-weight</code></td><td>thickness — <code>400</code> normal, <code>700</code> or <code>bold</code> is bold</td></tr>
+    <tr><td><code>color</code></td><td>text colour (not background)</td></tr>
+  </table>
+
+  <h2>Flexbox — real layout</h2>
+  <p>Turning an element into a flex container changes how its <i>children</i> are arranged — in a row by default, instead of stacked.</p>
+  <pre>.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}</pre>
+  <table>
+    <tr><th>Property</th><th>What it does</th></tr>
+    <tr><td><code>display: flex</code></td><td>turns on flex layout for this element's children</td></tr>
+    <tr><td><code>justify-content</code></td><td>spacing along the row — <code>space-between</code> pushes items to both edges</td></tr>
+    <tr><td><code>align-items: center</code></td><td>vertically centres items within the row</td></tr>
+    <tr><td><code>gap</code></td><td>space between items, without needing margin on each one</td></tr>
+  </table>
+  <div class="mistake"><b>Common mistake:</b> setting <code>display: flex</code> on the wrong element — it needs to go on the <i>parent</i> (the container), not the items inside it.</div>
+
+  <footer>Part of <a href="index.html">The Mainframe</a> — financial systems training terminal.</footer>
+</div>
+</body>
+</html>
