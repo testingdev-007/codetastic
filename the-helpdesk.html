@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Helpdesk — Fix It Live</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+:root{
+  --bg:#F6F7F9; --surface:#FFFFFF; --surface-alt:#F1F3F6;
+  --border:#E4E7EC; --border-strong:#D0D5DD;
+  --text:#101828; --text-secondary:#475467; --text-muted:#98A2B3;
+  --accent:#4F46E5; --accent-hover:#4338CA; --accent-bg:#EEF2FF; --accent-border:#C7D2FE;
+  --success:#12B76A; --success-bg:#ECFDF3; --success-border:#A6F4C5;
+  --warning:#F79009; --warning-bg:#FFFAEB;
+  --danger:#F04438; --danger-bg:#FEF3F2; --danger-border:#FDA29B;
+  --shadow-sm: 0 1px 2px rgba(16,24,40,0.05);
+  --shadow-md: 0 4px 12px rgba(16,24,40,0.06);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:1180px;margin:0 auto;padding:32px 24px 60px;}
+code, .mono{font-family:'JetBrains Mono',monospace;}
+
+.eyebrow{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);font-weight:600;display:inline-flex;align-items:center;gap:7px;margin-bottom:10px;}
+.eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--success);}
+
+.topbar{padding-bottom:22px;margin-bottom:24px;border-bottom:1px solid var(--border);}
+h1{font-size:26px;margin:0 0 8px;font-weight:700;letter-spacing:-0.01em;color:var(--text);}
+.sub{color:var(--text-secondary);font-size:14px;margin:0;max-width:700px;line-height:1.6;}
+
+.cols{display:grid;grid-template-columns:0.85fr 1.15fr;gap:20px;}
+@media (max-width:940px){.cols{grid-template-columns:1fr;}}
+.right-col{display:flex;flex-direction:column;gap:20px;}
+
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;box-shadow:var(--shadow-sm);}
+.panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.panel h2{font-size:13px;margin:0;text-transform:uppercase;letter-spacing:.04em;color:var(--text-secondary);font-weight:700;}
+
+.chat-panel{height:600px;display:flex;flex-direction:column;}
+.chat-log{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding:2px 2px 8px;}
+.chat-msg{font-size:13px;line-height:1.6;padding:11px 13px;border-radius:10px;max-width:92%;}
+.chat-msg.bot{background:var(--surface-alt);color:var(--text);align-self:flex-start;border:1px solid var(--border);}
+.chat-msg.user{background:var(--accent);color:#fff;align-self:flex-end;}
+.chat-msg pre{background:#0D1117;color:#E6EDF3;border-radius:6px;padding:10px 12px;margin:8px 0 0;font-size:12px;overflow-x:auto;white-space:pre-wrap;font-family:'JetBrains Mono',monospace;}
+.chat-msg .btn-row{display:flex;gap:8px;margin-top:8px;}
+.chat-msg .mini-btn{font-size:11px;font-weight:600;background:#fff;color:var(--accent);border:1px solid var(--accent-border);padding:5px 10px;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;}
+.chat-msg .mini-btn:hover{background:var(--accent-bg);}
+.chat-msg .mini-btn.copied{color:var(--success);border-color:var(--success-border);background:var(--success-bg);}
+.chat-inputrow{display:flex;gap:8px;padding-top:12px;border-top:1px solid var(--border);margin-top:12px;}
+.chat-inputrow input{flex:1;background:var(--surface-alt);border:1px solid var(--border);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;padding:10px 13px;border-radius:8px;}
+.chat-inputrow input:focus{outline:none;border-color:var(--accent);background:#fff;}
+.chat-inputrow button{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:0 18px;font-weight:600;font-size:13px;cursor:pointer;}
+.chat-inputrow button:hover{background:var(--accent-hover);}
+
+.preview-frame{background:var(--surface-alt);border-radius:10px;overflow:hidden;border:1px solid var(--border);}
+.preview-chrome{background:#fff;padding:9px 14px;display:flex;gap:6px;align-items:center;border-bottom:1px solid var(--border);}
+.preview-chrome .pdot{width:8px;height:8px;border-radius:50%;background:var(--border-strong);}
+.preview-chrome .purl{margin-left:8px;font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;}
+.preview-chrome .live-badge{margin-left:auto;font-size:10px;font-weight:700;color:var(--success);background:var(--success-bg);border:1px solid var(--success-border);padding:2px 8px;border-radius:20px;letter-spacing:.03em;text-transform:uppercase;}
+#appFrame{width:100%;height:360px;border:none;display:block;background:#fff;}
+
+.editor-chrome{border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.editor-titlebar{padding:9px 14px;background:var(--surface-alt);border-bottom:1px solid var(--border);font-size:12px;color:var(--text-secondary);display:flex;justify-content:space-between;align-items:center;}
+.editor-titlebar span.path{color:var(--text);font-weight:600;font-family:'JetBrains Mono',monospace;}
+textarea{width:100%;min-height:220px;background:#0D1117;color:#E6EDF3;border:none;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.65;padding:14px 16px;resize:vertical;tab-size:2;}
+textarea:focus{outline:none;}
+
+.actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+button.btn-primary{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-radius:8px;cursor:pointer;padding:11px 20px;background:var(--accent);color:#fff;border:1px solid var(--accent);box-shadow:var(--shadow-sm);}
+button.btn-primary:hover{background:var(--accent-hover);border-color:var(--accent-hover);}
+button.btn-ghost{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-radius:8px;cursor:pointer;padding:11px 20px;background:#fff;color:var(--text-secondary);border:1px solid var(--border-strong);}
+button.btn-ghost:hover{background:var(--surface-alt);color:var(--text);}
+
+.bug-list{display:flex;flex-direction:column;gap:0;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.bug-row{display:flex;align-items:center;gap:11px;padding:12px 14px;border-bottom:1px solid var(--border);font-size:13.5px;background:#fff;}
+.bug-row:last-child{border-bottom:none;}
+.bug-row.fixed{background:var(--success-bg);}
+.bug-icon{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:700;border:1.5px solid var(--border-strong);color:transparent;}
+.bug-row.fixed .bug-icon{background:var(--success);border-color:var(--success);color:#fff;}
+.bug-desc{color:var(--text);flex:1;}
+.bug-row.fixed .bug-desc{color:var(--text-secondary);text-decoration:line-through;}
+
+.status-line{margin-top:14px;font-size:13px;color:var(--text-secondary);text-align:center;}
+.status-line.pass{color:var(--success);font-weight:600;}
+
+#doneScreen{display:none;text-align:center;padding:50px 20px;}
+.done-card{max-width:520px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:44px 38px;box-shadow:var(--shadow-md);}
+.done-card .check-badge{width:56px;height:56px;border-radius:50%;background:var(--success);color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 18px;}
+.done-card h2{font-size:22px;color:var(--text);margin:0 0 12px;font-weight:700;}
+.done-card p{color:var(--text-secondary);font-size:14px;line-height:1.6;margin:0 0 8px;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="eyebrow">Financial Systems · Live Taster</div>
+    <h1>The Helpdesk — Fix It Live</h1>
+    <p class="sub">You don't need any coding experience for this — genuinely none. The banking app on the right is broken in five ways. Play with it, tell the chat what's wrong in your own words, and it'll show you exactly what to change — and exactly where to find it.</p>
+  </div>
+
+  <div id="game">
+    <div class="cols">
+      <div class="panel chat-panel">
+        <div class="panel-head"><h2>Support Chat</h2></div>
+        <div class="chat-log" id="chatLog"></div>
+        <div class="chat-inputrow">
+          <input type="text" id="chatInput" placeholder="Tell me what's wrong…" onkeydown="if(event.key==='Enter')sendChat()">
+          <button onclick="sendChat()">Send</button>
+        </div>
+      </div>
+
+      <div class="right-col">
+        <div class="panel">
+          <div class="panel-head"><h2>Live Banking App</h2></div>
+          <div class="preview-frame">
+            <div class="preview-chrome"><span class="pdot"></span><span class="pdot"></span><span class="pdot"></span><span class="purl">mockbank.internal/dashboard</span><span class="live-badge">● Live</span></div>
+            <iframe id="appFrame"></iframe>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h2>Code Window</h2></div>
+          <div class="editor-chrome">
+            <div class="editor-titlebar"><span class="path">bank.js</span><span>updates live as you type</span></div>
+            <textarea id="codeInput" spellcheck="false"></textarea>
+          </div>
+          <div class="actions">
+            <button class="btn-primary" onclick="checkFixes()">✓ Check My Fixes</button>
+            <button class="btn-ghost" onclick="resetApp()">↺ Reset App</button>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h2>Known Issues</h2></div>
+          <div class="bug-list" id="bugList"></div>
+          <div class="status-line" id="statusLine">try the app, then ask chat about anything that looks wrong</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="doneScreen">
+    <div class="done-card">
+      <div class="check-badge">✓</div>
+      <h2>All 5 Issues Resolved</h2>
+      <p>That's the actual job for a lot of support and junior dev roles — a user describes a symptom in plain English, you translate that into the specific line that's wrong, and you verify the fix actually works.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const APP_SHELL = `<!DOCTYPE html><html><head><style>
+body{font-family:sans-serif;background:#f9fafb;color:#101828;padding:20px;margin:0;}
+.app{max-width:340px;margin:0 auto;}
+h2{text-align:center;font-size:13px;color:#667085;font-weight:600;margin:0 0 4px;text-transform:uppercase;letter-spacing:.04em;}
+.balwrap{text-align:center;font-size:28px;color:#101828;font-weight:700;margin-bottom:16px;}
+.controls{display:flex;flex-direction:column;gap:8px;}
+.row{display:flex;gap:8px;}
+input{flex:1;padding:9px;border-radius:6px;border:1px solid #d0d5dd;background:#fff;color:#101828;font-size:13px;}
+button{padding:9px 14px;border-radius:6px;border:none;background:#4F46E5;color:#fff;cursor:pointer;font-weight:600;font-size:13px;}
+.txn-list{margin-top:16px;font-size:12.5px;color:#475467;border-top:1px solid #e4e7ec;padding-top:10px;}
+.txn-list div{padding:5px 0;border-bottom:1px solid #f1f3f6;}
+</style></head><body>
+<div class="app">
+  <h2>Current Balance</h2>
+  <div class="balwrap">£<span id="balance">500</span></div>
+  <div class="controls">
+    <div class="row"><input id="depositAmt" type="number" placeholder="Amount"><button onclick="handleDeposit()">Deposit</button></div>
+    <div class="row"><input id="withdrawAmt" type="number" placeholder="Amount"><button onclick="handleWithdraw()">Withdraw</button></div>
+    <div class="row"><input id="transferAmt" type="number" placeholder="Amount"><button onclick="handleTransfer()">Transfer</button></div>
+  </div>
+  <div class="txn-list" id="txnList"></div>
+</div>
+</body></html>`;
+
+const STARTER_SCRIPT = `let balance = 500.2 - 0.1 - 0.1;
+let transactions = ["Opening balance: £500"];
+
+function renderBalance(){
+  document.getElementById('balance').textContent = balance;
+}
+
+function renderTransactions(){
+  const list = document.getElementById('txnList');
+  list.innerHTML = '';
+  for (let i = 0; i < transactions.length - 1; i++) {
+    const div = document.createElement('div');
+    div.textContent = transactions[i];
+    list.appendChild(div);
+  }
+}
+
+function handleDeposit(){
+  const amt = Number(document.getElementById('depositAmt').value);
+  if (!amt) return;
+  balance = amt;
+  transactions.push('Deposited £' + amt);
+  renderBalance();
+  renderTransactions();
+}
+
+function handelWithdraw(){
+  const amt = Number(document.getElementById('withdrawAmt').value);
+  if (!amt) return;
+  balance -= amt;
+  transactions.push('Withdrew £' + amt);
+  renderBalance();
+  renderTransactions();
+}
+
+function handleTransfer(){
+  const amt = Number(document.getElementById('transferAmt').value);
+  balance -= amt;
+  transactions.push('Transferred £' + amt);
+  renderBalance();
+  renderTransactions();
+}
+
+renderBalance();
+renderTransactions();`;
+
+const BUGS = [
+  { id:'deposit', desc:'Deposits don\u2019t add to the balance correctly' },
+  { id:'withdraw', desc:'The Withdraw button does nothing' },
+  { id:'txnlist', desc:'The most recent transaction is missing from the list' },
+  { id:'validation', desc:'Transfers can push the balance negative' },
+  { id:'rounding', desc:'The balance displays a long, broken-looking number' }
+];
+
+function renderBugList(fixedSet){
+  const list = document.getElementById('bugList');
+  list.innerHTML = '';
+  BUGS.forEach(b=>{
+    const row = document.createElement('div');
+    row.className = 'bug-row' + (fixedSet.has(b.id) ? ' fixed' : '');
+    row.innerHTML = `<span class="bug-icon">${fixedSet.has(b.id) ? '\u2713' : ''}</span><span class="bug-desc">${b.desc}</span>`;
+    list.appendChild(row);
+  });
+}
+
+let debounceTimer = null;
+
+function loadApp(){
+  document.getElementById('codeInput').value = STARTER_SCRIPT;
+  renderBugList(new Set());
+  document.getElementById('statusLine').textContent = 'try the app, then ask chat about anything that looks wrong';
+  document.getElementById('statusLine').className = 'status-line';
+  document.getElementById('game').style.display = 'block';
+  document.getElementById('doneScreen').style.display = 'none';
+  buildFrame(STARTER_SCRIPT, false);
+}
+function resetApp(){ loadApp(); }
+
+function buildFrame(scriptText, runCheck){
+  const frame = document.getElementById('appFrame');
+  frame.onload = () => {
+    try{
+      const doc = frame.contentDocument;
+      const scriptEl = doc.createElement('script');
+      scriptEl.textContent = scriptText;
+      doc.body.appendChild(scriptEl);
+    }catch(e){
+      const status = document.getElementById('statusLine');
+      status.textContent = "That code couldn't run — check for a missing bracket or quote.";
+      status.className = 'status-line';
+      return;
+    }
+    if(runCheck){ setTimeout(runAllChecks, 30); }
+  };
+  frame.srcdoc = APP_SHELL;
+}
+
+document.getElementById('codeInput').addEventListener('input', () => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    buildFrame(document.getElementById('codeInput').value, false);
+  }, 500);
+});
+
+function checkFixes(){
+  const scriptText = document.getElementById('codeInput').value;
+  clearTimeout(debounceTimer);
+  buildFrame(scriptText, true);
+  document.getElementById('statusLine').textContent = 'checking…';
+  document.getElementById('statusLine').className = 'status-line';
+}
+
+function runAllChecks(){
+  const frame = document.getElementById('appFrame');
+  let win, doc;
+  try{
+    win = frame.contentWindow;
+    doc = frame.contentDocument;
+  }catch(e){
+    return;
+  }
+  const fixed = new Set();
+
+  function getBalance(){ return Number(doc.getElementById('balance').textContent); }
+  function setAndClick(inputId, value, btnLabel){
+    doc.getElementById(inputId).value = value;
+    const buttons = doc.querySelectorAll('button');
+    for(const b of buttons){ if(b.textContent.trim() === btnLabel){ b.click(); return true; } }
+    return false;
+  }
+
+  try{
+    const initialDisplay = doc.getElementById('balance').textContent;
+    const decimals = initialDisplay.includes('.') ? initialDisplay.split('.')[1].length : 0;
+    if(decimals <= 2){
+      fixed.add('rounding');
+    }
+
+    const start = getBalance();
+    setAndClick('depositAmt', 100, 'Deposit');
+    const afterFirst = getBalance();
+    setAndClick('depositAmt', 50, 'Deposit');
+    const afterSecond = getBalance();
+    if(afterFirst === start + 100 && afterSecond === afterFirst + 50){
+      fixed.add('deposit');
+    }
+
+    const beforeWithdraw = getBalance();
+    const clicked = setAndClick('withdrawAmt', 30, 'Withdraw');
+    const afterWithdraw = getBalance();
+    if(clicked && afterWithdraw === beforeWithdraw - 30){
+      fixed.add('withdraw');
+    }
+
+    const rows = doc.querySelectorAll('#txnList div');
+    if(rows.length >= 4){
+      fixed.add('txnlist');
+    }
+
+    const beforeBadTransfer = getBalance();
+    setAndClick('transferAmt', -50, 'Transfer');
+    const afterNegative = getBalance();
+    setAndClick('transferAmt', 999999, 'Transfer');
+    const afterOver = getBalance();
+    if(afterNegative === beforeBadTransfer && afterOver === beforeBadTransfer){
+      fixed.add('validation');
+    }
+  }catch(e){
+    // a thrown error just means whatever check was running found something still broken
+  }
+
+  renderBugList(fixed);
+  const status = document.getElementById('statusLine');
+  if(fixed.size === BUGS.length){
+    status.textContent = 'all 5 issues resolved';
+    status.className = 'status-line pass';
+    document.getElementById('game').style.display = 'none';
+    document.getElementById('doneScreen').style.display = 'block';
+  } else {
+    status.textContent = `${fixed.size} of ${BUGS.length} fixed so far`;
+    status.className = 'status-line';
+  }
+}
+
+function highlightInCode(searchText){
+  const ta = document.getElementById('codeInput');
+  const idx = ta.value.indexOf(searchText);
+  if(idx === -1) return false;
+  ta.focus();
+  ta.setSelectionRange(idx, idx + searchText.length);
+  const before = ta.value.slice(0, idx);
+  const lineNum = before.split('\n').length;
+  const totalLines = ta.value.split('\n').length;
+  const approxLineHeight = ta.scrollHeight / totalLines;
+  ta.scrollTop = Math.max(0, (lineNum - 3) * approxLineHeight);
+  return true;
+}
+
+const HELP_ENTRIES = [
+  {
+    keywords: ["deposit doesn't add", "deposit resets balance", "deposit not adding", "balance wrong after deposit", "deposit overwrites", "deposit replaces"],
+    reply: "Looks like handleDeposit() is replacing your balance instead of adding to it. Here's the line to find:",
+    code: "balance = amt;",
+    fixCode: "balance += amt;"
+  },
+  {
+    keywords: ["withdraw doesn't work", "withdraw button broken", "nothing happens when i withdraw", "withdraw not working", "cant withdraw", "withdraw button does nothing"],
+    reply: "The Withdraw button is looking for a function called handleWithdraw(), but it's actually spelled differently. Here's the line to find:",
+    code: "function handelWithdraw(){",
+    fixCode: "function handleWithdraw(){"
+  },
+  {
+    keywords: ["last transaction missing", "transaction list wrong", "history not showing everything", "one transaction missing", "list is missing", "not all transactions show"],
+    reply: "The list is stopping one transaction early. Here's the line to find:",
+    code: "for (let i = 0; i < transactions.length - 1; i++) {",
+    fixCode: "for (let i = 0; i < transactions.length; i++) {"
+  },
+  {
+    keywords: ["transfer negative amount", "balance goes negative", "transfer too much", "no validation on transfer", "overdraft", "transfer more than i have", "negative balance"],
+    reply: "handleTransfer() doesn't check the amount at all before taking it out. Here's the line to find:",
+    code: "const amt = Number(document.getElementById('transferAmt').value);\n  balance -= amt;",
+    fixCode: "const amt = Number(document.getElementById('transferAmt').value);\n  if (amt > 0 && amt <= balance) {\n    balance -= amt;\n  } else {\n    alert('Enter a valid amount');\n    return;\n  }"
+  },
+  {
+    keywords: ["balance shows weird number", "too many decimal places", "balance looks broken", "ugly number", "long decimal", "balance has loads of numbers", "weird decimals"],
+    reply: "JavaScript maths can produce long decimal numbers like 30.299999999999997. Here's the line to find:",
+    code: "document.getElementById('balance').textContent = balance;",
+    fixCode: "document.getElementById('balance').textContent = balance.toFixed(2);"
+  }
+];
+const CHAT_FALLBACK = "I'm not totally sure which issue that is — try each part of the app (deposit, withdraw, transfer) and tell me exactly what looks or acts wrong.";
+const CHAT_GREETING = "Hi! I'm the support chat for this app. Try the buttons on the right, then tell me anything that looks or behaves wrong — I'll show you exactly what to change.";
+
+function normalizeChat(s){
+  return s.toLowerCase().replace(/[^\w\s]/g,' ').replace(/\s+/g,' ').trim();
+}
+const CHAT_STOPWORDS = new Set(["what","does","do","is","are","the","a","an","to","of","in","on","for","and","or","i","my","how","this","that","it","me","you","your","did","doing","can","if","when","doesnt","dont","isnt","not","get","got","with"]);
+function scoreEntry(msgNorm, msgWords, entry){
+  let best = 0;
+  entry.keywords.forEach(kw=>{
+    const kwNorm = normalizeChat(kw);
+    let score = 0;
+    if(msgNorm.includes(kwNorm)) score += 4;
+    const kwWords = kwNorm.split(' ').filter(w=>w.length>2 && !CHAT_STOPWORDS.has(w));
+    score += kwWords.filter(w=>msgWords.includes(w)).length;
+    if(score > best) best = score;
+  });
+  return best;
+}
+function findFix(userMsg){
+  const msgNorm = normalizeChat(userMsg);
+  const msgWords = msgNorm.split(' ');
+  let bestEntry = null, bestScore = 0;
+  HELP_ENTRIES.forEach(entry=>{
+    const s = scoreEntry(msgNorm, msgWords, entry);
+    if(s > bestScore){ bestScore = s; bestEntry = entry; }
+  });
+  return (bestEntry && bestScore >= 1) ? bestEntry : null;
+}
+
+function addChatMsg(html, who){
+  const log = document.getElementById('chatLog');
+  const div = document.createElement('div');
+  div.className = 'chat-msg ' + who;
+  div.innerHTML = html;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+}
+function escapeHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+let fixCounter = 0;
+function sendChat(){
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if(!msg) return;
+  addChatMsg(escapeHtml(msg), 'user');
+  input.value = '';
+  setTimeout(()=>{
+    const match = findFix(msg);
+    if(match){
+      fixCounter++;
+      const varName = 'fix' + fixCounter;
+      window[varName] = match;
+      const html = `${match.reply}<pre>${escapeHtml(match.code)}</pre>Change it to:<pre>${escapeHtml(match.fixCode)}</pre>
+        <div class="btn-row">
+          <button class="mini-btn" onclick="showInCode('${varName}', this)">Show me in the code</button>
+          <button class="mini-btn" onclick="copyFix('${varName}', this)">Copy fix</button>
+        </div>`;
+      addChatMsg(html, 'bot');
+    } else {
+      addChatMsg(escapeHtml(CHAT_FALLBACK), 'bot');
+    }
+  }, 250);
+}
+function showInCode(varName, btn){
+  const match = window[varName];
+  const found = highlightInCode(match.code);
+  const old = btn.textContent;
+  btn.textContent = found ? 'Found it \u2191' : 'Already changed?';
+  setTimeout(()=>{ btn.textContent = old; }, 1500);
+}
+function copyFix(varName, btn){
+  const match = window[varName];
+  navigator.clipboard.writeText(match.fixCode).then(()=>{
+    const old = btn.textContent;
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent = old; btn.classList.remove('copied'); }, 1500);
+  }).catch(()=>{});
+}
+
+addChatMsg(escapeHtml(CHAT_GREETING), 'bot');
+loadApp();
+</script>
+</body>
+</html>

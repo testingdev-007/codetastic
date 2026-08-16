@@ -3,86 +3,81 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Mainframe — Financial Systems Training Terminal</title>
+<title>The Mainframe — Financial Systems Training Hub</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 :root{
-  --bg:#000000; --panel:#040804; --panel-alt:#081208;
-  --line:#0F3A1C; --line-soft:#0A240F;
-  --green:#00FF41; --green-bright:#8CFFB0; --green-dim:#0F9D45; --green-faint:#0A5C28;
-  --red:#FF3131; --text:#B9F5C6; --muted:#4E8F5E; --muted-dim:#2E5C3A;
+  --bg:#F6F7F9; --surface:#FFFFFF; --surface-alt:#F1F3F6;
+  --border:#E4E7EC; --border-strong:#D0D5DD;
+  --text:#101828; --text-secondary:#475467; --text-muted:#98A2B3;
+  --accent:#4F46E5; --accent-hover:#4338CA; --accent-bg:#EEF2FF; --accent-border:#C7D2FE;
+  --success:#12B76A; --success-bg:#ECFDF3; --success-border:#A6F4C5;
+  --shadow-sm: 0 1px 2px rgba(16,24,40,0.05);
+  --shadow-md: 0 4px 16px rgba(16,24,40,0.07);
 }
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;min-height:100vh;-webkit-font-smoothing:antialiased;}
-.wrap{max-width:1080px;margin:0 auto;padding:34px 22px 70px;position:relative;z-index:2;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:1080px;margin:0 auto;padding:40px 24px 70px;}
 a{color:inherit;text-decoration:none;}
-::selection{background:rgba(0,255,65,0.28);}
 
-#rain{position:fixed;inset:0;z-index:0;opacity:0.4;}
-.scanlines{position:fixed;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(0,255,65,0.02) 3px, rgba(0,0,0,0) 4px);}
-.vignette{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0,0,0,0.75) 100%);}
-@media (prefers-reduced-motion: reduce){ #rain{display:none;} }
+.eyebrow{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);font-weight:600;display:inline-flex;align-items:center;gap:8px;margin-bottom:12px;}
+.eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--success);}
 
-.eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--green);display:inline-flex;align-items:center;gap:8px;margin-bottom:12px;text-shadow:0 0 8px rgba(0,255,65,0.5);}
-.eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 1.4s infinite;}
-@keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
+header{margin-bottom:36px;}
+h1{font-size:clamp(28px,4vw,38px);margin:0 0 10px;font-weight:800;letter-spacing:-0.02em;color:var(--text);}
+.lead{color:var(--text-secondary);font-size:15px;line-height:1.65;max-width:640px;margin:0;}
 
-header{margin-bottom:34px;}
-h1{font-size:clamp(26px,4vw,38px);margin:0 0 10px;text-transform:uppercase;letter-spacing:.01em;color:var(--text);text-shadow:0 0 16px rgba(0,255,65,0.22);}
-.lead{color:var(--muted);font-size:14px;line-height:1.65;max-width:620px;margin:0;}
-
-.legend{display:flex;gap:18px;flex-wrap:wrap;margin:22px 0 6px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
-.legend span{display:inline-flex;align-items:center;gap:6px;}
-.legend .sw{width:9px;height:9px;border-radius:2px;}
-.sw.ready{background:var(--green);box-shadow:0 0 6px rgba(0,255,65,0.6);}
-.sw.soon{background:var(--muted-dim);}
+.legend{display:flex;gap:18px;flex-wrap:wrap;margin:22px 0 6px;font-size:12px;color:var(--text-secondary);font-weight:500;}
+.legend span{display:inline-flex;align-items:center;gap:7px;}
+.legend .sw{width:8px;height:8px;border-radius:50%;}
+.sw.ready{background:var(--success);}
+.sw.soon{background:var(--border-strong);}
 
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:26px;}
 @media (max-width:760px){.grid{grid-template-columns:1fr;}}
 
-.tile{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:24px;box-shadow:0 0 30px rgba(0,255,65,0.03);position:relative;overflow:hidden;}
-.tile.soon{opacity:.55;}
+.tile{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;transition:box-shadow .15s ease;}
+.tile:hover{box-shadow:var(--shadow-md);}
+.tile.soon{opacity:.6;}
 .tile-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:6px;}
-.tile-num{font-size:11px;color:var(--muted-dim);letter-spacing:.05em;}
-.tile h2{font-size:17px;margin:2px 0 8px;text-transform:uppercase;letter-spacing:.02em;color:var(--green-bright);text-shadow:0 0 10px rgba(0,255,65,0.25);}
-.status-pill{font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;padding:3px 9px;border-radius:3px;white-space:nowrap;height:fit-content;}
-.status-pill.ready{color:var(--green);border:1px solid var(--green-faint);background:rgba(0,255,65,0.07);}
-.status-pill.soon{color:var(--muted);border:1px solid var(--line);background:var(--panel-alt);}
+.tile-num{font-size:11px;color:var(--text-muted);letter-spacing:.05em;font-weight:600;}
+.tile h2{font-size:17px;margin:2px 0 8px;font-weight:700;color:var(--text);letter-spacing:-0.01em;}
+.status-pill{font-size:10px;letter-spacing:.03em;text-transform:uppercase;padding:4px 10px;border-radius:20px;white-space:nowrap;height:fit-content;font-weight:700;}
+.status-pill.ready{color:var(--success);border:1px solid var(--success-border);background:var(--success-bg);}
+.status-pill.soon{color:var(--text-muted);border:1px solid var(--border);background:var(--surface-alt);}
 
-.tile p.desc{color:var(--muted);font-size:12.5px;line-height:1.6;margin:0 0 14px;}
+.tile p.desc{color:var(--text-secondary);font-size:13px;line-height:1.6;margin:0 0 14px;}
 
 .chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;}
-.chip{font-size:10px;color:var(--muted);border:1px solid var(--line);background:var(--panel-alt);padding:4px 9px;border-radius:999px;text-transform:uppercase;letter-spacing:.03em;}
+.chip{font-size:10.5px;color:var(--text-secondary);border:1px solid var(--border);background:var(--surface-alt);padding:4px 10px;border-radius:20px;font-weight:600;}
 
 .tile-actions{display:flex;flex-direction:column;gap:8px;}
-.action-row{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line);border-radius:4px;padding:10px 14px;font-size:12px;transition:border-color .15s ease, background .15s ease;}
-.action-row.live{border-color:var(--green-faint);}
-a.action-row:hover{background:rgba(0,255,65,0.06);border-color:var(--green-dim);}
-.action-row .label{display:flex;align-items:center;gap:8px;color:var(--green-bright);font-weight:700;text-transform:uppercase;letter-spacing:.02em;font-size:11px;}
-.action-row .time{color:var(--muted);font-size:11px;}
+.action-row{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--border);border-radius:8px;padding:11px 14px;font-size:12.5px;transition:border-color .15s ease, background .15s ease;}
+.action-row.live{border-color:var(--border-strong);}
+a.action-row:hover{background:var(--accent-bg);border-color:var(--accent-border);}
+.action-row .label{display:flex;align-items:center;gap:8px;color:var(--accent);font-weight:700;font-size:12.5px;}
+.action-row .time{color:var(--text-muted);font-size:11.5px;}
 .action-row.disabled{opacity:.5;cursor:not-allowed;}
-.action-row.disabled .label{color:var(--muted);}
+.action-row.disabled .label{color:var(--text-muted);}
 
-.guide-link{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;}
-.guide-link:hover{color:var(--green-bright);}
+.guide-link{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:12px;color:var(--text-secondary);font-weight:600;}
+.guide-link:hover{color:var(--accent);}
 
-footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line-soft);color:var(--muted-dim);font-size:11.5px;line-height:1.7;}
-footer b{color:var(--muted);}
+footer{margin-top:44px;padding-top:22px;border-top:1px solid var(--border);color:var(--text-muted);font-size:12px;line-height:1.7;}
+footer b{color:var(--text-secondary);}
+footer a{color:var(--accent);font-weight:600;}
 </style>
 </head>
 <body>
-<canvas id="rain"></canvas>
-<div class="scanlines"></div>
-<div class="vignette"></div>
 
 <div class="wrap">
 
   <header>
-    <div class="eyebrow">Financial Systems · Training Terminal</div>
+    <div class="eyebrow">Financial Systems · Training Hub</div>
     <h1>The Mainframe</h1>
-    <p class="lead">Four short pieces of a financial system, each broken in a different way. Each one is a live taster you can finish in a few minutes, plus a longer take-home extension for anyone who wants to keep going. All eight are ready.</p>
+    <p class="lead">Five short pieces of a financial system, each broken in a different way. Four are live tasters with take-home extensions for anyone who wants to keep going; the fifth, The Helpdesk, is a standalone debugging exercise. All nine builds are ready.</p>
   </header>
 
   <div class="grid">
@@ -191,47 +186,35 @@ footer b{color:var(--muted);}
       <a class="guide-link" href="front-guide.html">📖 Reference guide →</a>
     </div>
 
+    <!-- HELPDESK -->
+    <div class="tile" style="grid-column: 1 / -1;">
+      <div class="tile-head">
+        <div>
+          <div class="tile-num">05</div>
+          <h2>The Helpdesk</h2>
+        </div>
+        <span class="status-pill ready">ready</span>
+      </div>
+      <p class="desc">A live banking app is broken in five ways. Describe what's wrong to the support chat, get the exact fix, paste it into the code window, and watch it apply live.</p>
+      <div class="chips">
+        <span class="chip">debugging</span><span class="chip">reading code</span><span class="chip">real fixes</span><span class="chip">support workflow</span>
+      </div>
+      <div class="tile-actions">
+        <a class="action-row live" href="the-helpdesk.html">
+          <span class="label">▶ Live Taster</span>
+          <span class="time">~6 min · 5 known issues</span>
+        </a>
+      </div>
+    </div>
+
   </div>
 
   <footer>
-    <b>Deployment note:</b> all files sit flat in the same folder — the 8 activities, 4 participant guides, and facilitator-notes.html — so this page just links between them, no server or build step required.
+    <b>Deployment note:</b> all files sit flat in the same folder — the 9 activities (including The Helpdesk), 4 participant guides, and facilitator-notes.html — so this page just links between them, no server or build step required.
     <a href="facilitator-notes.html" style="color:var(--muted);">Facilitator notes →</a>
   </footer>
 
 </div>
 
-<script>
-(function(){
-  const canvas = document.getElementById('rain');
-  const ctx = canvas.getContext('2d');
-  let w, h, cols, drops;
-  const chars = "アイウエオカキクケコサシスセソ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ<>/=+*";
-  const fontSize = 15;
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  function resize(){
-    w = canvas.width = window.innerWidth;
-    h = canvas.height = window.innerHeight;
-    cols = Math.floor(w / fontSize);
-    drops = new Array(cols).fill(0).map(()=>Math.random()*-50);
-  }
-  window.addEventListener('resize', resize);
-  resize();
-  function draw(){
-    ctx.fillStyle = 'rgba(0,0,0,0.06)';
-    ctx.fillRect(0,0,w,h);
-    ctx.font = fontSize + 'px JetBrains Mono, monospace';
-    for(let i=0;i<cols;i++){
-      const text = chars[Math.floor(Math.random()*chars.length)];
-      const x = i*fontSize, y = drops[i]*fontSize;
-      ctx.fillStyle = Math.random() > 0.94 ? '#CFFFDD' : 'rgba(0,255,65,0.5)';
-      ctx.fillText(text, x, y);
-      if(y > h && Math.random() > 0.975) drops[i] = 0;
-      drops[i]++;
-    }
-  }
-  if(!reduced){ setInterval(draw, 55); }
-  else { ctx.fillStyle = '#000'; ctx.fillRect(0,0,w,h); }
-})();
-</script>
 </body>
 </html>

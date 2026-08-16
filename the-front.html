@@ -5,169 +5,161 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Front — Style the Interface</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@400;500;600;700&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 :root{
-  --bg:#000000; --panel:#040804; --panel-alt:#081208;
-  --line:#0F3A1C; --line-soft:#0A240F;
-  --green:#00FF41; --green-bright:#8CFFB0; --green-dim:#0F9D45; --green-faint:#0A5C28;
-  --red:#FF3131; --text:#B9F5C6; --muted:#4E8F5E; --muted-dim:#2E5C3A;
+  --bg:#F6F7F9; --surface:#FFFFFF; --surface-alt:#F1F3F6;
+  --border:#E4E7EC; --border-strong:#D0D5DD;
+  --text:#101828; --text-secondary:#475467; --text-muted:#98A2B3;
+  --accent:#4F46E5; --accent-hover:#4338CA; --accent-bg:#EEF2FF; --accent-border:#C7D2FE;
+  --success:#12B76A; --success-bg:#ECFDF3; --success-border:#A6F4C5;
+  --warning:#F79009; --warning-bg:#FFFAEB;
+  --danger:#F04438; --danger-bg:#FEF3F2; --danger-border:#FDA29B;
+  --shadow-sm: 0 1px 2px rgba(16,24,40,0.05);
+  --shadow-md: 0 4px 12px rgba(16,24,40,0.06);
 }
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;min-height:100vh;-webkit-font-smoothing:antialiased;}
-.wrap{max-width:1080px;margin:0 auto;padding:26px 22px 60px;position:relative;z-index:2;}
-::selection{background:rgba(0,255,65,0.28);}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:1080px;margin:0 auto;padding:32px 24px 60px;}
+code,.mono{font-family:'JetBrains Mono',monospace;}
 
-#rain{position:fixed;inset:0;z-index:0;opacity:0.4;}
-.scanlines{position:fixed;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(0,255,65,0.02) 3px, rgba(0,0,0,0) 4px);}
-.vignette{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0,0,0,0.75) 100%);}
-@media (prefers-reduced-motion: reduce){ #rain{display:none;} }
+.eyebrow{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);font-weight:600;display:inline-flex;align-items:center;gap:7px;margin-bottom:10px;}
+.eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--success);}
 
-.eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--green);display:inline-flex;align-items:center;gap:8px;margin-bottom:10px;text-shadow:0 0 8px rgba(0,255,65,0.5);}
-.eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 1.4s infinite;}
-@keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
-
-.topbar{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:14px;padding-bottom:20px;margin-bottom:24px;border-bottom:1px solid var(--line-soft);}
-h1{font-size:clamp(22px,3vw,30px);margin:0 0 6px;text-transform:uppercase;letter-spacing:.01em;color:var(--text);text-shadow:0 0 12px rgba(0,255,65,0.2);}
-.sub{color:var(--muted);font-size:13px;margin:0;max-width:540px;line-height:1.5;}
+.topbar{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:14px;padding-bottom:22px;margin-bottom:24px;border-bottom:1px solid var(--border);}
+h1{font-size:26px;margin:0 0 8px;font-weight:700;letter-spacing:-0.01em;color:var(--text);}
+.sub{color:var(--text-secondary);font-size:14px;margin:0;max-width:600px;line-height:1.6;}
 
 .timeline{display:flex;align-items:center;gap:0;}
 .tl-seg{display:flex;align-items:center;}
-.tl-seg .dot{width:11px;height:11px;border-radius:50%;background:var(--panel-alt);border:2px solid var(--line);}
-.tl-seg .dot.done{background:var(--green);border-color:var(--green);box-shadow:0 0 8px rgba(0,255,65,0.6);}
-.tl-seg .dot.active{background:var(--green);border-color:var(--green);box-shadow:0 0 0 4px rgba(0,255,65,0.18);}
-.tl-line{width:26px;height:2px;background:var(--line);}
-.tl-line.done{background:var(--green);}
+.tl-seg .dot{width:10px;height:10px;border-radius:50%;background:var(--surface-alt);border:2px solid var(--border-strong);}
+.tl-seg .dot.done{background:var(--success);border-color:var(--success);}
+.tl-seg .dot.active{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-bg);}
+.tl-line{width:26px;height:2px;background:var(--border-strong);}
+.tl-line.done{background:var(--success);}
 
 .cols{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
 @media (max-width:860px){.cols{grid-template-columns:1fr;}}
 .right-col{display:flex;flex-direction:column;gap:20px;}
 
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:22px;box-shadow:0 0 30px rgba(0,255,65,0.03);}
-.panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
-.panel h2{font-size:14px;margin:0;text-transform:uppercase;letter-spacing:.04em;color:var(--green-bright);font-weight:700;}
-.tag{font-size:10px;letter-spacing:.05em;color:var(--green);border:1px solid var(--green-faint);background:rgba(0,255,65,0.06);padding:3px 9px;border-radius:3px;text-transform:uppercase;}
-.brief{color:var(--muted);font-size:13px;line-height:1.65;margin:12px 0 12px;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;box-shadow:var(--shadow-sm);}
+.panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.panel h2{font-size:13px;margin:0;text-transform:uppercase;letter-spacing:.04em;color:var(--text-secondary);font-weight:700;}
+.tag{font-size:11px;letter-spacing:.03em;color:var(--accent);border:1px solid var(--accent-border);background:var(--accent-bg);padding:3px 10px;border-radius:20px;text-transform:uppercase;font-weight:600;}
+.brief{color:var(--text-secondary);font-size:13.5px;line-height:1.65;margin:0 0 16px;}
 
-.markup-ref{background:#010401;border:1px solid var(--line);border-radius:4px;padding:12px 14px;font-size:11.5px;color:var(--muted);line-height:1.6;margin-bottom:16px;white-space:pre;overflow-x:auto;}
-.markup-ref .tagname{color:var(--green-dim);}
-.markup-ref .cls{color:var(--green-bright);}
+.worked-example{background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:10px;margin-bottom:16px;overflow:hidden;}
+.worked-example summary{padding:11px 14px;cursor:pointer;font-size:13px;color:var(--accent);font-weight:600;list-style:none;}
+.worked-example summary::-webkit-details-marker{display:none;}
+.we-body{padding:2px 14px 14px;}
+.we-body pre{background:#0D1117;border:none;border-radius:8px;padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#E6EDF3;line-height:1.65;margin:0 0 10px;white-space:pre-wrap;}
+.we-body .we-line{font-size:12.5px;color:var(--text-secondary);line-height:1.6;margin-bottom:4px;}
 
-.editor-chrome{border:1px solid var(--line);border-radius:4px;overflow:hidden;background:#010401;}
-.editor-titlebar{padding:9px 12px;background:var(--panel-alt);border-bottom:1px solid var(--line);font-size:11px;color:var(--muted);}
-.editor-titlebar span{color:var(--green-bright);}
-textarea{width:100%;min-height:170px;background:transparent;color:var(--green-bright);border:none;font-family:'JetBrains Mono',monospace;font-size:14px;line-height:1.65;padding:14px 16px;resize:vertical;tab-size:2;caret-color:var(--green);}
+.editor-chrome{border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.editor-titlebar{padding:9px 14px;background:var(--surface-alt);border-bottom:1px solid var(--border);font-size:12px;color:var(--text-secondary);display:flex;justify-content:space-between;align-items:center;}
+.editor-titlebar span{color:var(--text);font-weight:600;font-family:'JetBrains Mono',monospace;}
+textarea{width:100%;min-height:170px;background:#0D1117;color:#E6EDF3;border:none;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.65;padding:14px 16px;resize:vertical;tab-size:2;}
 textarea:focus{outline:none;}
-.editor-chrome:focus-within{border-color:var(--green);box-shadow:0 0 0 3px rgba(0,255,65,0.12);}
+.editor-chrome:focus-within{box-shadow:0 0 0 3px var(--accent-bg);}
 
 .actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
-button{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;border-radius:3px;cursor:pointer;padding:12px 20px;text-transform:uppercase;letter-spacing:.03em;transition:transform .15s ease,box-shadow .15s ease;border:none;}
-.btn-primary{background:var(--green);color:#001A08;border:1px solid var(--green);box-shadow:0 0 20px rgba(0,255,65,0.3);}
-.btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 28px rgba(0,255,65,0.5);}
-.btn-ghost{background:transparent;color:var(--green-bright);border:1px solid var(--line);}
-.btn-ghost:hover{border-color:var(--green-dim);background:rgba(0,255,65,0.06);}
+button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-radius:8px;cursor:pointer;padding:11px 20px;}
+.btn-primary{background:var(--accent);color:#fff;border:1px solid var(--accent);box-shadow:var(--shadow-sm);}
+.btn-primary:hover{background:var(--accent-hover);border-color:var(--accent-hover);}
+.btn-ghost{background:#fff;color:var(--text-secondary);border:1px solid var(--border-strong);}
+.btn-ghost:hover{background:var(--surface-alt);color:var(--text);}
 
-.hint-box,.error-box{margin-top:12px;font-size:12.5px;padding:11px 13px;border-radius:4px;display:none;line-height:1.6;white-space:pre-wrap;}
-.hint-box{color:var(--green-bright);background:rgba(0,255,65,0.05);border:1px solid rgba(0,255,65,0.25);}
-.hint-box::before{content:'[ HINT ] ';color:var(--green);font-weight:700;}
-.error-box{color:#FF8080;background:rgba(255,49,49,0.06);border:1px solid rgba(255,49,49,0.28);}
-.error-box::before{content:'[ ERROR ] ';color:var(--red);font-weight:700;}
+.hint-box{margin-top:12px;font-size:13px;padding:12px 14px;border-radius:8px;display:none;line-height:1.6;white-space:pre-wrap;color:var(--text);background:var(--accent-bg);border:1px solid var(--accent-border);}
+.error-box{margin-top:12px;font-size:13px;padding:12px 14px;border-radius:8px;display:none;line-height:1.6;white-space:pre-wrap;color:#B42318;background:var(--danger-bg);border:1px solid var(--danger-border);}
 
-.preview-frame{background:#eef1f5;border-radius:6px;overflow:hidden;border:1px solid var(--line);}
+.test-list{display:flex;flex-direction:column;gap:0;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.test-row{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border);font-size:13px;background:#fff;flex-wrap:wrap;}
+.test-row:last-child{border-bottom:none;}
+.test-icon{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;border:1.5px solid var(--border-strong);color:transparent;}
+.test-row.pass{background:var(--success-bg);}
+.test-row.pass .test-icon{background:var(--success);border-color:var(--success);color:#fff;}
+.test-row.fail .test-icon{background:var(--danger);border-color:var(--danger);color:#fff;}
+.test-call,.test-desc{color:var(--text);flex:1;font-family:'JetBrains Mono',monospace;font-size:12.5px;}
+.test-expect,.test-prop{color:var(--text-muted);font-size:11.5px;}
+.test-actual{color:#B42318;width:100%;padding-left:30px;font-size:12px;}
+
+.status-line{margin-top:14px;font-size:13px;color:var(--text-secondary);text-align:center;}
+.status-line.pass{color:var(--success);font-weight:600;}
+
+#successOverlay{display:none;position:fixed;inset:0;background:rgba(16,24,40,0.45);backdrop-filter:blur(2px);align-items:center;justify-content:center;z-index:50;padding:20px;}
+.success-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:36px 32px;max-width:380px;text-align:center;box-shadow:var(--shadow-md);}
+.ping{width:56px;height:56px;border-radius:50%;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;background:var(--success-bg);border:1px solid var(--success-border);}
+.ping-dot{width:14px;height:14px;border-radius:50%;background:var(--success);}
+.success-card h3{font-size:19px;margin:0 0 8px;color:var(--text);font-weight:700;}
+.success-card p{color:var(--text-secondary);font-size:13.5px;line-height:1.5;margin:0 0 22px;}
+
+#doneScreen{display:none;text-align:center;padding:50px 20px;}
+.done-card{max-width:520px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:44px 38px;box-shadow:var(--shadow-md);}
+.done-card h2{font-size:22px;color:var(--text);margin:0 0 10px;font-weight:700;}
+.done-card p{color:var(--text-secondary);font-size:13.5px;line-height:1.6;margin:0 0 8px;}
+
+/* chat widget */
+.help-fab{position:fixed;bottom:22px;right:22px;z-index:80;width:56px;height:56px;border-radius:50%;background:var(--accent);color:#fff;border:none;cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-md);}
+.help-fab:hover{background:var(--accent-hover);}
+.help-fab .fab-dot{position:absolute;top:-2px;right:-2px;width:12px;height:12px;border-radius:50%;background:var(--danger);border:2px solid #fff;display:none;}
+.help-panel{position:fixed;bottom:90px;right:22px;z-index:80;width:340px;max-width:calc(100vw - 40px);height:440px;max-height:calc(100vh - 130px);background:var(--surface);border:1px solid var(--border);border-radius:14px;display:none;flex-direction:column;overflow:hidden;box-shadow:0 12px 40px rgba(16,24,40,0.15);}
+.help-panel.open{display:flex;}
+.help-head{padding:12px 14px;background:var(--surface-alt);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.help-head .htitle{font-size:13px;color:var(--text);font-weight:700;display:flex;align-items:center;gap:7px;}
+.help-head .htitle::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--success);}
+.help-head button{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;padding:2px 6px;}
+.help-head button:hover{color:var(--text);}
+.help-log{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px;}
+.help-msg{font-size:12.5px;line-height:1.55;padding:9px 11px;border-radius:8px;max-width:88%;}
+.help-msg.bot{background:var(--surface-alt);border:1px solid var(--border);color:var(--text);align-self:flex-start;}
+.help-msg.user{background:var(--accent);border:1px solid var(--accent);color:#fff;align-self:flex-end;}
+.help-inputrow{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--border);background:var(--surface-alt);}
+.help-inputrow input{flex:1;background:#fff;border:1px solid var(--border);color:var(--text);font-family:'Inter',sans-serif;font-size:12.5px;padding:9px 11px;border-radius:8px;}
+.help-inputrow input:focus{outline:none;border-color:var(--accent);}
+.help-inputrow button{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:0 14px;font-weight:600;font-size:12px;}
+.help-inputrow button:hover{background:var(--accent-hover);}
+
+.markup-ref{background:var(--surface-alt);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-size:12px;color:var(--text-secondary);line-height:1.6;margin-bottom:16px;white-space:pre;overflow-x:auto;font-family:'JetBrains Mono',monospace;}
+.markup-ref .tagname{color:#7C3AED;}
+.markup-ref .cls{color:var(--accent);}
+.preview-frame{background:#eef1f5;border-radius:10px;overflow:hidden;border:1px solid var(--border);}
 .preview-chrome{background:#dde3ea;padding:9px 12px;display:flex;gap:6px;align-items:center;}
 .preview-chrome .pdot{width:8px;height:8px;border-radius:50%;background:#c7ced9;}
 .preview-chrome .purl{margin-left:8px;font-size:10.5px;color:#6b7684;font-family:'JetBrains Mono',monospace;}
-.preview-body{padding:36px 20px;display:flex;align-items:center;justify-content:center;min-height:150px;font-family:'Inter',sans-serif;}
+.preview-body{font-family:'Inter',sans-serif;min-height:150px;padding:36px 20px;display:flex;align-items:center;justify-content:center;}
+.section-label{font-size:10.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;padding:10px 14px 4px;background:var(--surface-alt);}
 
-.status-line{margin-top:14px;font-size:12.5px;color:var(--muted);text-align:center;letter-spacing:.03em;}
-.status-line.pass{color:var(--green);text-shadow:0 0 6px rgba(0,255,65,0.4);}
-
-.test-list{display:flex;flex-direction:column;gap:0;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:#010401;}
-.test-row{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line-soft);font-size:12.5px;}
-.test-row:last-child{border-bottom:none;}
-.test-icon{width:16px;text-align:center;font-weight:700;color:var(--muted-dim);flex-shrink:0;}
-.test-row.pass .test-icon{color:var(--green);text-shadow:0 0 6px rgba(0,255,65,0.6);}
-.test-row.fail .test-icon{color:var(--red);text-shadow:0 0 6px rgba(255,49,49,0.5);}
-.test-desc{color:var(--green-bright);flex:1;}
-.test-prop{color:var(--muted);font-size:11px;}
-
-#successOverlay{display:none;position:fixed;inset:0;background:rgba(0,4,0,0.92);backdrop-filter:blur(2px);align-items:center;justify-content:center;z-index:50;padding:20px;}
-.success-card{background:var(--panel);border:1px solid var(--green-faint);border-radius:4px;padding:36px 32px;max-width:380px;text-align:center;animation:pop .35s cubic-bezier(.2,.9,.3,1.3);box-shadow:0 0 50px rgba(0,255,65,0.12);}
-@keyframes pop{from{transform:scale(0.9);opacity:0;}to{transform:scale(1);opacity:1;}}
-.ping{width:64px;height:64px;border-radius:50%;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;background:rgba(0,255,65,0.08);border:1px solid rgba(0,255,65,0.4);position:relative;}
-.ping::before{content:'';position:absolute;inset:-8px;border-radius:50%;border:1px solid rgba(0,255,65,0.35);animation:pingring 1.6s ease-out infinite;}
-@keyframes pingring{0%{transform:scale(0.8);opacity:1;}100%{transform:scale(1.6);opacity:0;}}
-.ping-dot{width:14px;height:14px;border-radius:50%;background:var(--green);box-shadow:0 0 14px var(--green);}
-.success-card h3{font-size:20px;margin:0 0 8px;color:var(--green-bright);text-transform:uppercase;letter-spacing:.03em;text-shadow:0 0 10px rgba(0,255,65,0.4);}
-.success-card p{color:var(--muted);font-size:13.5px;line-height:1.5;margin:0 0 22px;}
-
-#doneScreen{display:none;text-align:center;padding:40px 20px;}
-.done-card{max-width:520px;margin:0 auto;background:var(--panel);border:1px solid var(--green-faint);border-radius:6px;padding:40px 34px;box-shadow:0 0 50px rgba(0,255,65,0.1);}
-.done-card h2{font-size:24px;color:var(--green-bright);text-transform:uppercase;margin:0 0 10px;text-shadow:0 0 14px rgba(0,255,65,0.35);}
-.done-card p{color:var(--muted);font-size:13.5px;line-height:1.6;margin:0 0 8px;}
-
-/* ---- the actual thing being styled ---- */
-.account-card{ background:transparent; }
-.account-label{ font-size:13px; color:#8892a0; margin-bottom:4px; }
-.account-balance{ font-size:18px; color:#1a1f29; }
-.account-action{
-  background:#1a1f29; color:#fff; border:none; padding:9px 16px;
-  border-radius:5px; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; cursor:default;
-}
-
-/* ---------------- Help widget ---------------- */
-.help-fab{
-  position:fixed; bottom:22px; right:22px; z-index:80;
-  width:56px; height:56px; border-radius:50%;
-  background:var(--green); color:#001A08; border:none; cursor:pointer;
-  font-size:22px; display:flex; align-items:center; justify-content:center;
-  box-shadow:0 0 24px rgba(0,255,65,0.45);
-  transition:transform .15s ease, box-shadow .15s ease;
-}
-.help-fab:hover{ transform:translateY(-2px) scale(1.04); box-shadow:0 0 32px rgba(0,255,65,0.65); }
-.help-fab .fab-dot{
-  position:absolute; top:-2px; right:-2px; width:12px; height:12px; border-radius:50%;
-  background:var(--red); border:2px solid var(--bg); display:none;
-}
-.help-panel{
-  position:fixed; bottom:90px; right:22px; z-index:80;
-  width:340px; max-width:calc(100vw - 40px); height:440px; max-height:calc(100vh - 130px);
-  background:var(--panel); border:1px solid var(--green-faint); border-radius:10px;
-  display:none; flex-direction:column; overflow:hidden;
-  box-shadow:0 12px 50px rgba(0,0,0,0.6), 0 0 30px rgba(0,255,65,0.1);
-}
-.help-panel.open{ display:flex; }
-.help-head{
-  padding:12px 14px; background:var(--panel-alt); border-bottom:1px solid var(--line);
-  display:flex; align-items:center; justify-content:space-between;
-}
-.help-head .htitle{ font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--green-bright); text-transform:uppercase; letter-spacing:.04em; display:flex; align-items:center; gap:7px; }
-.help-head .htitle::before{ content:''; width:6px; height:6px; border-radius:50%; background:var(--green); box-shadow:0 0 6px var(--green); animation:blink 1.4s infinite; }
-.help-head button{ background:none; border:none; color:var(--muted); cursor:pointer; font-size:16px; padding:2px 6px; }
-.help-head button:hover{ color:var(--green-bright); }
-.help-log{ flex:1; overflow-y:auto; padding:12px 14px; display:flex; flex-direction:column; gap:10px; }
-.help-msg{ font-size:12.5px; line-height:1.55; padding:9px 11px; border-radius:6px; max-width:88%; }
-.help-msg.bot{ background:var(--panel-alt); border:1px solid var(--line); color:var(--text); align-self:flex-start; }
-.help-msg.user{ background:rgba(0,255,65,0.1); border:1px solid var(--green-faint); color:var(--green-bright); align-self:flex-end; }
-.help-inputrow{ display:flex; gap:8px; padding:10px 12px; border-top:1px solid var(--line); background:var(--panel-alt); }
-.help-inputrow input{
-  flex:1; background:#010401; border:1px solid var(--line); color:var(--green-bright);
-  font-family:'JetBrains Mono',monospace; font-size:12.5px; padding:9px 11px; border-radius:5px;
-}
-.help-inputrow input:focus{ outline:none; border-color:var(--green); }
-.help-inputrow button{
-  background:var(--green); color:#001A08; border:none; border-radius:5px; padding:0 14px;
-  font-family:'JetBrains Mono',monospace; font-weight:700; font-size:12px; cursor:pointer;
-}
-.help-inputrow button:hover{ box-shadow:0 0 14px rgba(0,255,65,0.4); }
+/* the actual demo element being styled */
+.account-card{background:transparent;margin-bottom:20px;}
+.account-label{font-size:13px;color:#8892a0;margin-bottom:4px;}
+.account-balance{font-size:18px;color:#1a1f29;}
+.account-action{background:#1a1f29;color:#fff;border:none;padding:9px 16px;border-radius:5px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:default;}
+.site-header{}
+.site-title{font-size:15px;color:#1a1f29;}
+.site-nav{font-size:12px;color:#5b6472;}
+.page-body{padding:24px 20px;background:#eef1f5;}
+.txn-list{margin:0;padding-left:20px;}
+.txn-list li{padding:8px 0;font-size:13px;color:#1a1f29;border-bottom:1px solid #dde3ea;}
+.txn-list li:last-child{border-bottom:none;}
+.txn-amount{color:#1a1f29;}
 
 </style>
 </head>
 <body>
-<canvas id="rain"></canvas>
-<div class="scanlines"></div>
-<div class="vignette"></div>
+<!-- Help widget -->
+<button class="help-fab" id="helpFab" onclick="toggleHelp()">💬<span class="fab-dot" id="helpDot"></span></button>
+<div class="help-panel" id="helpPanel">
+  <div class="help-head">
+    <span class="htitle">System Assist</span>
+    <button onclick="toggleHelp()">✕</button>
+  </div>
+  <div class="help-log" id="helpLog"></div>
+  <div class="help-inputrow">
+    <input type="text" id="helpInput" placeholder="Ask a question…" onkeydown="if(event.key==='Enter')sendHelp()">
+    <button onclick="sendHelp()">Send</button>
+  </div>
+</div>
+
 
 <div class="wrap">
 
@@ -175,7 +167,7 @@ button{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;bor
     <div>
       <div class="eyebrow">Financial Systems · Live Taster</div>
       <h1>The Front — Style the Interface</h1>
-      <p class="sub">The markup for an account card is already there — you write the CSS. Each challenge starts fresh so you can focus on one skill at a time.</p>
+      <p class="sub">You don't need any coding experience for this — genuinely none. The markup for an account card is already there, and each challenge shows you a worked example first, using a different element.</p>
     </div>
     <div class="timeline" id="dots"></div>
   </div>
@@ -193,6 +185,10 @@ button{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;bor
   &lt;<span class="tagname">div</span> <span class="cls">class="account-balance"</span>&gt;£4,231.09&lt;/<span class="tagname">div</span>&gt;
   &lt;<span class="tagname">button</span> <span class="cls">class="account-action"</span>&gt;Transfer&lt;/<span class="tagname">button</span>&gt;
 &lt;/<span class="tagname">div</span>&gt;</div>
+        <details class="worked-example" id="workedExample" open>
+          <summary>📎 See a worked example first</summary>
+          <div class="we-body" id="weBody"></div>
+        </details>
         <div class="editor-chrome">
           <div class="editor-titlebar"><span>root@front:~$</span> style.css</div>
           <textarea id="codeInput" spellcheck="false"></textarea>
@@ -200,7 +196,7 @@ button{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;bor
         <div class="actions">
           <button class="btn-primary" onclick="runChecks()">▶ Run Checks</button>
           <button class="btn-ghost" onclick="resetChallenge()">↺ Reset</button>
-          <button class="btn-ghost" onclick="toggleHint()">💡 Hint</button>
+          <button class="btn-ghost" id="hintBtn" onclick="revealNextHint()">💡 Hint</button>
         </div>
         <div class="hint-box" id="hintBox"></div>
         <div class="error-box" id="errorBox"></div>
@@ -253,38 +249,6 @@ button{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;bor
 </div>
 
 <script>
-/* ---------------- Matrix rain (shared visual language) ---------------- */
-(function(){
-  const canvas = document.getElementById('rain');
-  const ctx = canvas.getContext('2d');
-  let w, h, cols, drops;
-  const chars = "アイウエオカキクケコサシスセソ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ<>/=+*";
-  const fontSize = 15;
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  function resize(){
-    w = canvas.width = window.innerWidth;
-    h = canvas.height = window.innerHeight;
-    cols = Math.floor(w / fontSize);
-    drops = new Array(cols).fill(0).map(()=>Math.random()*-50);
-  }
-  window.addEventListener('resize', resize);
-  resize();
-  function draw(){
-    ctx.fillStyle = 'rgba(0,0,0,0.06)';
-    ctx.fillRect(0,0,w,h);
-    ctx.font = fontSize + 'px JetBrains Mono, monospace';
-    for(let i=0;i<cols;i++){
-      const t = chars[Math.floor(Math.random()*chars.length)];
-      const x = i*fontSize, y = drops[i]*fontSize;
-      ctx.fillStyle = Math.random() > 0.94 ? '#CFFFDD' : 'rgba(0,255,65,0.5)';
-      ctx.fillText(t, x, y);
-      if(y > h && Math.random() > 0.975) drops[i] = 0;
-      drops[i]++;
-    }
-  }
-  if(!reduced){ setInterval(draw, 55); }
-  else { ctx.fillStyle = '#000'; ctx.fillRect(0,0,w,h); }
-})();
 
 /* ---------------- Challenges ---------------- */
 function isBoldWeight(fw){
@@ -310,7 +274,17 @@ const CHALLENGES = [
 .account-card {
 
 }`,
-    hint: "background: #1a1f29;\nborder-radius: 12px;\npadding: 24px;",
+    hints: [
+      "Three separate properties go on .account-card: a background colour, rounded corners, and padding on all sides.",
+      "background sets the fill colour. border-radius rounds corners (bigger number, more rounded). padding pushes content away from the edges.",
+      "background: #1a1f29;\nborder-radius: 12px;\npadding: 24px;"
+    ],
+    worked: `<pre>.notice-box {
+  background: #2b2f3a;
+  border-radius: 10px;
+  padding: 20px;
+}</pre>
+<div class="we-line">Three lines, three properties: a colour behind the content, rounded corners, and space pushing the content away from the edges. Same three properties you need below, just on a different box.</div>`,
     checks: [
       { desc: "background colour is set", prop: "background-color", test: ()=> hasRealColor(getComputedStyle(document.getElementById('previewCard')).backgroundColor) },
       { desc: "corners rounded 8px or more", prop: "border-radius", test: ()=> parseFloat(getComputedStyle(document.getElementById('previewCard')).borderRadius) >= 8 },
@@ -333,7 +307,16 @@ const CHALLENGES = [
 .account-balance {
 
 }`,
-    hint: "font-size: 32px;\nfont-weight: 700;",
+    hints: [
+      "Two properties control this: how big the text is, and how thick it looks.",
+      "font-size controls size in pixels. font-weight controls thickness — 400 is normal, 700 (or the word bold) is bold.",
+      "font-size: 32px;\nfont-weight: 700;"
+    ],
+    worked: `<pre>.headline {
+  font-size: 30px;
+  font-weight: 700;
+}</pre>
+<div class="we-line">font-size makes the text bigger, font-weight makes it thicker. 400 is normal weight; 700 (or the word bold) reads as bold. Same two properties, different selector.</div>`,
     checks: [
       { desc: "font size is at least 28px", prop: "font-size", test: ()=> parseFloat(getComputedStyle(document.getElementById('previewBalance')).fontSize) >= 28 },
       { desc: "text weight is bold (600+)", prop: "font-weight", test: ()=> isBoldWeight(getComputedStyle(document.getElementById('previewBalance')).fontWeight) }
@@ -352,7 +335,17 @@ const CHALLENGES = [
 .account-card {
 
 }`,
-    hint: "display: flex;\njustify-content: space-between;\nalign-items: center;",
+    hints: [
+      "You need to turn .account-card into a flex row, then control how its contents are spaced.",
+      "display: flex; makes it a row. justify-content: space-between; pushes the first and last items to opposite edges. align-items: center; lines everything up vertically.",
+      "display: flex;\njustify-content: space-between;\nalign-items: center;"
+    ],
+    worked: `<pre>.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}</pre>
+<div class="we-line">display: flex turns the container into a row. justify-content: space-between spreads its children to both edges. align-items: center lines them up vertically. Same three lines, different selector.</div>`,
     checks: [
       { desc: "card uses flexbox", prop: "display", test: ()=> ['flex','inline-flex'].includes(getComputedStyle(document.getElementById('previewCard')).display) },
       { desc: "content spaced to both edges", prop: "justify-content", test: ()=> getComputedStyle(document.getElementById('previewCard')).justifyContent === 'space-between' },
@@ -362,6 +355,9 @@ const CHALLENGES = [
 ];
 
 let current = 0;
+let failCount = 0;
+let hintTier = 0;
+let proactiveShown = false;
 
 function buildDots(){
   const dots = document.getElementById('dots');
@@ -396,14 +392,21 @@ function applyLiveStyle(){
 
 function loadChallenge(idx){
   current = idx;
+  failCount = 0;
+  hintTier = 0;
+  proactiveShown = false;
   const c = CHALLENGES[idx];
   document.getElementById('challengeTitle').textContent = c.title;
   document.getElementById('conceptTag').textContent = c.concept;
   document.getElementById('briefText').textContent = c.brief;
   document.getElementById('codeInput').value = c.starter;
+  document.getElementById('weBody').innerHTML = c.worked;
+  document.getElementById('workedExample').open = true;
   document.getElementById('hintBox').style.display = 'none';
-  document.getElementById('hintBox').textContent = c.hint;
+  document.getElementById('hintBox').innerHTML = '';
+  document.getElementById('hintBtn').textContent = '💡 Hint';
   document.getElementById('errorBox').style.display = 'none';
+  document.getElementById('helpDot').style.display = 'none';
   refreshDots();
   renderTests(c);
   applyLiveStyle();
@@ -425,9 +428,34 @@ function renderTests(c){
   });
 }
 
-function toggleHint(){
+function revealNextHint(){
+  const c = CHALLENGES[current];
   const box = document.getElementById('hintBox');
-  box.style.display = box.style.display === 'block' ? 'none' : 'block';
+  const btn = document.getElementById('hintBtn');
+  box.style.display = 'block';
+  if(hintTier < c.hints.length){
+    hintTier++;
+    const line = document.createElement('div');
+    line.textContent = `${hintTier}. ${c.hints[hintTier-1]}`;
+    line.style.marginBottom = '6px';
+    box.appendChild(line);
+  }
+  btn.textContent = hintTier >= c.hints.length ? '💡 That\u2019s the full hint' : '💡 Tell me more';
+}
+
+function maybeNudgeHint(){
+  const status = document.getElementById('statusLine');
+  if(failCount >= 2){
+    document.getElementById('helpDot').style.display = 'block';
+    if(document.getElementById('hintBox').style.display !== 'block'){
+      status.textContent = "No rush — try the 💡 Hint button below, it'll walk you through it step by step.";
+    }
+  }
+  if(failCount >= 3 && !proactiveShown && !helpOpen){
+    proactiveShown = true;
+    toggleHelp();
+    addHelpMsg("Hey — I noticed this one's putting up a fight. That's completely normal, not a sign you're doing anything wrong. Want to tell me what's happening, or ask me something specific about it?", 'bot');
+  }
 }
 
 function runChecks(){
@@ -452,12 +480,15 @@ function runChecks(){
 
   const status = document.getElementById('statusLine');
   if(allPass){
+    failCount = 0;
     status.textContent = 'all checks passing';
     status.className = 'status-line pass';
     showSuccess();
   } else {
-    status.textContent = 'some checks failing — read the rows above';
+    failCount++;
+    status.textContent = 'not quite yet — read the rows above and try again';
     status.className = 'status-line';
+    maybeNudgeHint();
   }
 }
 
@@ -486,20 +517,6 @@ document.getElementById('codeInput').addEventListener('input', applyLiveStyle);
 buildDots();
 loadChallenge(0);
 </script>
-
-<!-- Help widget -->
-<button class="help-fab" id="helpFab" onclick="toggleHelp()">💬<span class="fab-dot" id="helpDot"></span></button>
-<div class="help-panel" id="helpPanel">
-  <div class="help-head">
-    <span class="htitle">System Assist</span>
-    <button onclick="toggleHelp()">✕</button>
-  </div>
-  <div class="help-log" id="helpLog"></div>
-  <div class="help-inputrow">
-    <input type="text" id="helpInput" placeholder="Ask a question…" onkeydown="if(event.key==='Enter')sendHelp()">
-    <button onclick="sendHelp()">Send</button>
-  </div>
-</div>
 
 
 <script>
@@ -660,8 +677,8 @@ const HELP_DATA = {
     }
   ]
 };
-const HELP_FALLBACK = "I'm not sure about that one — try rephrasing it, use the in-app Hint button, or flag a facilitator.";
-const HELP_GREETING = "Hi — ask me anything about this activity. I can help with syntax, explain an error, or nudge you on a specific challenge.";
+const HELP_FALLBACK = "I'm not totally sure about that one — no worries though. Try asking it a different way, tap the 💡 Hint button, or wave down a facilitator. You're doing fine.";
+const HELP_GREETING = "Hi! I'm here to help — genuinely ask me anything, there's no question too basic. I can explain an error message, walk through the syntax, or nudge you on whichever bit you're stuck on.";
 
 let helpOpen = false;
 let helpGreeted = false;

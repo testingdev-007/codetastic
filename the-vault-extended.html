@@ -5,150 +5,124 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Vault: Extended — Write, Call, Test</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 :root{
-  --bg:#000000; --panel:#040804; --panel-alt:#081208;
-  --line:#0F3A1C; --line-soft:#0A240F;
-  --green:#00FF41; --green-bright:#8CFFB0; --green-dim:#0F9D45; --green-faint:#0A5C28;
-  --red:#FF3131; --text:#B9F5C6; --muted:#4E8F5E; --muted-dim:#2E5C3A;
+  --bg:#F6F7F9; --surface:#FFFFFF; --surface-alt:#F1F3F6;
+  --border:#E4E7EC; --border-strong:#D0D5DD;
+  --text:#101828; --text-secondary:#475467; --text-muted:#98A2B3;
+  --accent:#4F46E5; --accent-hover:#4338CA; --accent-bg:#EEF2FF; --accent-border:#C7D2FE;
+  --success:#12B76A; --success-bg:#ECFDF3; --success-border:#A6F4C5;
+  --warning:#F79009; --warning-bg:#FFFAEB;
+  --danger:#F04438; --danger-bg:#FEF3F2; --danger-border:#FDA29B;
+  --shadow-sm: 0 1px 2px rgba(16,24,40,0.05);
+  --shadow-md: 0 4px 12px rgba(16,24,40,0.06);
 }
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;min-height:100vh;-webkit-font-smoothing:antialiased;}
-.wrap{max-width:1080px;margin:0 auto;padding:26px 22px 60px;position:relative;z-index:2;}
-::selection{background:rgba(0,255,65,0.28);}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:1080px;margin:0 auto;padding:32px 24px 60px;}
+code,.mono{font-family:'JetBrains Mono',monospace;}
 
-#rain{position:fixed;inset:0;z-index:0;opacity:0.4;}
-.scanlines{position:fixed;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(0,255,65,0.02) 3px, rgba(0,0,0,0) 4px);}
-.vignette{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0,0,0,0.75) 100%);}
-@media (prefers-reduced-motion: reduce){ #rain{display:none;} }
+.eyebrow{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);font-weight:600;display:inline-flex;align-items:center;gap:7px;margin-bottom:10px;}
+.eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--success);}
 
-.eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--green);display:inline-flex;align-items:center;gap:8px;margin-bottom:10px;text-shadow:0 0 8px rgba(0,255,65,0.5);}
-.eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 1.4s infinite;}
-@keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
-
-.topbar{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:14px;padding-bottom:20px;margin-bottom:24px;border-bottom:1px solid var(--line-soft);}
-h1{font-size:clamp(22px,3vw,30px);margin:0 0 6px;text-transform:uppercase;letter-spacing:.01em;color:var(--text);text-shadow:0 0 12px rgba(0,255,65,0.2);}
-.sub{color:var(--muted);font-size:13px;margin:0;max-width:520px;line-height:1.5;}
+.topbar{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:14px;padding-bottom:22px;margin-bottom:24px;border-bottom:1px solid var(--border);}
+h1{font-size:26px;margin:0 0 8px;font-weight:700;letter-spacing:-0.01em;color:var(--text);}
+.sub{color:var(--text-secondary);font-size:14px;margin:0;max-width:600px;line-height:1.6;}
 
 .timeline{display:flex;align-items:center;gap:0;}
 .tl-seg{display:flex;align-items:center;}
-.tl-seg .dot{width:11px;height:11px;border-radius:50%;background:var(--panel-alt);border:2px solid var(--line);}
-.tl-seg .dot.done{background:var(--green);border-color:var(--green);box-shadow:0 0 8px rgba(0,255,65,0.6);}
-.tl-seg .dot.active{background:var(--green);border-color:var(--green);box-shadow:0 0 0 4px rgba(0,255,65,0.18);}
-.tl-line{width:26px;height:2px;background:var(--line);}
-.tl-line.done{background:var(--green);}
+.tl-seg .dot{width:10px;height:10px;border-radius:50%;background:var(--surface-alt);border:2px solid var(--border-strong);}
+.tl-seg .dot.done{background:var(--success);border-color:var(--success);}
+.tl-seg .dot.active{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-bg);}
+.tl-line{width:26px;height:2px;background:var(--border-strong);}
+.tl-line.done{background:var(--success);}
 
 .cols{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
 @media (max-width:860px){.cols{grid-template-columns:1fr;}}
+.right-col{display:flex;flex-direction:column;gap:20px;}
 
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:22px;box-shadow:0 0 30px rgba(0,255,65,0.03);}
-.panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
-.panel h2{font-size:14px;margin:0;text-transform:uppercase;letter-spacing:.04em;color:var(--green-bright);font-weight:700;}
-.tag{font-size:10px;letter-spacing:.05em;color:var(--green);border:1px solid var(--green-faint);background:rgba(0,255,65,0.06);padding:3px 9px;border-radius:3px;text-transform:uppercase;}
-.brief{color:var(--muted);font-size:13px;line-height:1.65;margin:12px 0 16px;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;box-shadow:var(--shadow-sm);}
+.panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.panel h2{font-size:13px;margin:0;text-transform:uppercase;letter-spacing:.04em;color:var(--text-secondary);font-weight:700;}
+.tag{font-size:11px;letter-spacing:.03em;color:var(--accent);border:1px solid var(--accent-border);background:var(--accent-bg);padding:3px 10px;border-radius:20px;text-transform:uppercase;font-weight:600;}
+.brief{color:var(--text-secondary);font-size:13.5px;line-height:1.65;margin:0 0 16px;}
 
-.editor-chrome{border:1px solid var(--line);border-radius:4px;overflow:hidden;background:#010401;}
-.editor-titlebar{padding:9px 12px;background:var(--panel-alt);border-bottom:1px solid var(--line);font-size:11px;color:var(--muted);}
-.editor-titlebar span{color:var(--green-bright);}
-textarea{width:100%;min-height:170px;background:transparent;color:var(--green-bright);border:none;font-family:'JetBrains Mono',monospace;font-size:14px;line-height:1.65;padding:14px 16px;resize:vertical;tab-size:2;caret-color:var(--green);}
+.worked-example{background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:10px;margin-bottom:16px;overflow:hidden;}
+.worked-example summary{padding:11px 14px;cursor:pointer;font-size:13px;color:var(--accent);font-weight:600;list-style:none;}
+.worked-example summary::-webkit-details-marker{display:none;}
+.we-body{padding:2px 14px 14px;}
+.we-body pre{background:#0D1117;border:none;border-radius:8px;padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#E6EDF3;line-height:1.65;margin:0 0 10px;white-space:pre-wrap;}
+.we-body .we-line{font-size:12.5px;color:var(--text-secondary);line-height:1.6;margin-bottom:4px;}
+
+.editor-chrome{border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.editor-titlebar{padding:9px 14px;background:var(--surface-alt);border-bottom:1px solid var(--border);font-size:12px;color:var(--text-secondary);display:flex;justify-content:space-between;align-items:center;}
+.editor-titlebar span{color:var(--text);font-weight:600;font-family:'JetBrains Mono',monospace;}
+textarea{width:100%;min-height:170px;background:#0D1117;color:#E6EDF3;border:none;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.65;padding:14px 16px;resize:vertical;tab-size:2;}
 textarea:focus{outline:none;}
-.editor-chrome:focus-within{border-color:var(--green);box-shadow:0 0 0 3px rgba(0,255,65,0.12);}
+.editor-chrome:focus-within{box-shadow:0 0 0 3px var(--accent-bg);}
 
 .actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
-button{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;border-radius:3px;cursor:pointer;padding:12px 20px;text-transform:uppercase;letter-spacing:.03em;transition:transform .15s ease,box-shadow .15s ease;border:none;}
-.btn-primary{background:var(--green);color:#001A08;border:1px solid var(--green);box-shadow:0 0 20px rgba(0,255,65,0.3);}
-.btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 28px rgba(0,255,65,0.5);}
-.btn-ghost{background:transparent;color:var(--green-bright);border:1px solid var(--line);}
-.btn-ghost:hover{border-color:var(--green-dim);background:rgba(0,255,65,0.06);}
+button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-radius:8px;cursor:pointer;padding:11px 20px;}
+.btn-primary{background:var(--accent);color:#fff;border:1px solid var(--accent);box-shadow:var(--shadow-sm);}
+.btn-primary:hover{background:var(--accent-hover);border-color:var(--accent-hover);}
+.btn-ghost{background:#fff;color:var(--text-secondary);border:1px solid var(--border-strong);}
+.btn-ghost:hover{background:var(--surface-alt);color:var(--text);}
 
-.hint-box,.error-box{margin-top:12px;font-size:12.5px;padding:11px 13px;border-radius:4px;display:none;line-height:1.6;white-space:pre-wrap;}
-.hint-box{color:var(--green-bright);background:rgba(0,255,65,0.05);border:1px solid rgba(0,255,65,0.25);}
-.hint-box::before{content:'[ HINT ] ';color:var(--green);font-weight:700;}
-.error-box{color:#FF8080;background:rgba(255,49,49,0.06);border:1px solid rgba(255,49,49,0.28);}
-.error-box::before{content:'[ ERROR ] ';color:var(--red);font-weight:700;}
+.hint-box{margin-top:12px;font-size:13px;padding:12px 14px;border-radius:8px;display:none;line-height:1.6;white-space:pre-wrap;color:var(--text);background:var(--accent-bg);border:1px solid var(--accent-border);}
+.error-box{margin-top:12px;font-size:13px;padding:12px 14px;border-radius:8px;display:none;line-height:1.6;white-space:pre-wrap;color:#B42318;background:var(--danger-bg);border:1px solid var(--danger-border);}
 
-.test-list{display:flex;flex-direction:column;gap:0;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:#010401;}
-.test-row{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line-soft);font-size:12.5px;flex-wrap:wrap;}
+.test-list{display:flex;flex-direction:column;gap:0;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.test-row{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border);font-size:13px;background:#fff;flex-wrap:wrap;}
 .test-row:last-child{border-bottom:none;}
-.test-icon{width:16px;text-align:center;font-weight:700;color:var(--muted-dim);flex-shrink:0;}
-.test-row.pass .test-icon{color:var(--green);text-shadow:0 0 6px rgba(0,255,65,0.6);}
-.test-row.fail .test-icon{color:var(--red);text-shadow:0 0 6px rgba(255,49,49,0.5);}
-.test-call{color:var(--green-bright);flex:1;min-width:150px;}
-.test-expect{color:var(--muted);}
-.test-actual{color:var(--red);width:100%;padding-left:26px;}
+.test-icon{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;border:1.5px solid var(--border-strong);color:transparent;}
+.test-row.pass{background:var(--success-bg);}
+.test-row.pass .test-icon{background:var(--success);border-color:var(--success);color:#fff;}
+.test-row.fail .test-icon{background:var(--danger);border-color:var(--danger);color:#fff;}
+.test-call,.test-desc{color:var(--text);flex:1;font-family:'JetBrains Mono',monospace;font-size:12.5px;}
+.test-expect,.test-prop{color:var(--text-muted);font-size:11.5px;}
+.test-actual{color:#B42318;width:100%;padding-left:30px;font-size:12px;}
 
-.status-line{margin-top:14px;font-size:12.5px;color:var(--muted);text-align:center;letter-spacing:.03em;}
-.status-line.pass{color:var(--green);text-shadow:0 0 6px rgba(0,255,65,0.4);}
+.status-line{margin-top:14px;font-size:13px;color:var(--text-secondary);text-align:center;}
+.status-line.pass{color:var(--success);font-weight:600;}
 
-#successOverlay{display:none;position:fixed;inset:0;background:rgba(0,4,0,0.92);backdrop-filter:blur(2px);align-items:center;justify-content:center;z-index:50;padding:20px;}
-.success-card{background:var(--panel);border:1px solid var(--green-faint);border-radius:4px;padding:36px 32px;max-width:380px;text-align:center;animation:pop .35s cubic-bezier(.2,.9,.3,1.3);box-shadow:0 0 50px rgba(0,255,65,0.12);}
-@keyframes pop{from{transform:scale(0.9);opacity:0;}to{transform:scale(1);opacity:1;}}
-.ping{width:64px;height:64px;border-radius:50%;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;background:rgba(0,255,65,0.08);border:1px solid rgba(0,255,65,0.4);position:relative;}
-.ping::before{content:'';position:absolute;inset:-8px;border-radius:50%;border:1px solid rgba(0,255,65,0.35);animation:pingring 1.6s ease-out infinite;}
-@keyframes pingring{0%{transform:scale(0.8);opacity:1;}100%{transform:scale(1.6);opacity:0;}}
-.ping-dot{width:14px;height:14px;border-radius:50%;background:var(--green);box-shadow:0 0 14px var(--green);}
-.success-card h3{font-size:20px;margin:0 0 8px;color:var(--green-bright);text-transform:uppercase;letter-spacing:.03em;text-shadow:0 0 10px rgba(0,255,65,0.4);}
-.success-card p{color:var(--muted);font-size:13.5px;line-height:1.5;margin:0 0 22px;}
+#successOverlay{display:none;position:fixed;inset:0;background:rgba(16,24,40,0.45);backdrop-filter:blur(2px);align-items:center;justify-content:center;z-index:50;padding:20px;}
+.success-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:36px 32px;max-width:380px;text-align:center;box-shadow:var(--shadow-md);}
+.ping{width:56px;height:56px;border-radius:50%;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;background:var(--success-bg);border:1px solid var(--success-border);}
+.ping-dot{width:14px;height:14px;border-radius:50%;background:var(--success);}
+.success-card h3{font-size:19px;margin:0 0 8px;color:var(--text);font-weight:700;}
+.success-card p{color:var(--text-secondary);font-size:13.5px;line-height:1.5;margin:0 0 22px;}
 
-#doneScreen{display:none;text-align:center;padding:40px 20px;}
-.done-card{max-width:520px;margin:0 auto;background:var(--panel);border:1px solid var(--green-faint);border-radius:6px;padding:40px 34px;box-shadow:0 0 50px rgba(0,255,65,0.1);}
-.done-card h2{font-size:24px;color:var(--green-bright);text-transform:uppercase;margin:0 0 10px;text-shadow:0 0 14px rgba(0,255,65,0.35);}
-.done-card p{color:var(--muted);font-size:13.5px;line-height:1.6;margin:0 0 8px;}
+#doneScreen{display:none;text-align:center;padding:50px 20px;}
+.done-card{max-width:520px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:44px 38px;box-shadow:var(--shadow-md);}
+.done-card h2{font-size:22px;color:var(--text);margin:0 0 10px;font-weight:700;}
+.done-card p{color:var(--text-secondary);font-size:13.5px;line-height:1.6;margin:0 0 8px;}
 
-/* ---------------- Help widget ---------------- */
-.help-fab{
-  position:fixed; bottom:22px; right:22px; z-index:80;
-  width:56px; height:56px; border-radius:50%;
-  background:var(--green); color:#001A08; border:none; cursor:pointer;
-  font-size:22px; display:flex; align-items:center; justify-content:center;
-  box-shadow:0 0 24px rgba(0,255,65,0.45);
-  transition:transform .15s ease, box-shadow .15s ease;
-}
-.help-fab:hover{ transform:translateY(-2px) scale(1.04); box-shadow:0 0 32px rgba(0,255,65,0.65); }
-.help-fab .fab-dot{
-  position:absolute; top:-2px; right:-2px; width:12px; height:12px; border-radius:50%;
-  background:var(--red); border:2px solid var(--bg); display:none;
-}
-.help-panel{
-  position:fixed; bottom:90px; right:22px; z-index:80;
-  width:340px; max-width:calc(100vw - 40px); height:440px; max-height:calc(100vh - 130px);
-  background:var(--panel); border:1px solid var(--green-faint); border-radius:10px;
-  display:none; flex-direction:column; overflow:hidden;
-  box-shadow:0 12px 50px rgba(0,0,0,0.6), 0 0 30px rgba(0,255,65,0.1);
-}
-.help-panel.open{ display:flex; }
-.help-head{
-  padding:12px 14px; background:var(--panel-alt); border-bottom:1px solid var(--line);
-  display:flex; align-items:center; justify-content:space-between;
-}
-.help-head .htitle{ font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--green-bright); text-transform:uppercase; letter-spacing:.04em; display:flex; align-items:center; gap:7px; }
-.help-head .htitle::before{ content:''; width:6px; height:6px; border-radius:50%; background:var(--green); box-shadow:0 0 6px var(--green); animation:blink 1.4s infinite; }
-.help-head button{ background:none; border:none; color:var(--muted); cursor:pointer; font-size:16px; padding:2px 6px; }
-.help-head button:hover{ color:var(--green-bright); }
-.help-log{ flex:1; overflow-y:auto; padding:12px 14px; display:flex; flex-direction:column; gap:10px; }
-.help-msg{ font-size:12.5px; line-height:1.55; padding:9px 11px; border-radius:6px; max-width:88%; }
-.help-msg.bot{ background:var(--panel-alt); border:1px solid var(--line); color:var(--text); align-self:flex-start; }
-.help-msg.user{ background:rgba(0,255,65,0.1); border:1px solid var(--green-faint); color:var(--green-bright); align-self:flex-end; }
-.help-inputrow{ display:flex; gap:8px; padding:10px 12px; border-top:1px solid var(--line); background:var(--panel-alt); }
-.help-inputrow input{
-  flex:1; background:#010401; border:1px solid var(--line); color:var(--green-bright);
-  font-family:'JetBrains Mono',monospace; font-size:12.5px; padding:9px 11px; border-radius:5px;
-}
-.help-inputrow input:focus{ outline:none; border-color:var(--green); }
-.help-inputrow button{
-  background:var(--green); color:#001A08; border:none; border-radius:5px; padding:0 14px;
-  font-family:'JetBrains Mono',monospace; font-weight:700; font-size:12px; cursor:pointer;
-}
-.help-inputrow button:hover{ box-shadow:0 0 14px rgba(0,255,65,0.4); }
+/* chat widget */
+.help-fab{position:fixed;bottom:22px;right:22px;z-index:80;width:56px;height:56px;border-radius:50%;background:var(--accent);color:#fff;border:none;cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-md);}
+.help-fab:hover{background:var(--accent-hover);}
+.help-fab .fab-dot{position:absolute;top:-2px;right:-2px;width:12px;height:12px;border-radius:50%;background:var(--danger);border:2px solid #fff;display:none;}
+.help-panel{position:fixed;bottom:90px;right:22px;z-index:80;width:340px;max-width:calc(100vw - 40px);height:440px;max-height:calc(100vh - 130px);background:var(--surface);border:1px solid var(--border);border-radius:14px;display:none;flex-direction:column;overflow:hidden;box-shadow:0 12px 40px rgba(16,24,40,0.15);}
+.help-panel.open{display:flex;}
+.help-head{padding:12px 14px;background:var(--surface-alt);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.help-head .htitle{font-size:13px;color:var(--text);font-weight:700;display:flex;align-items:center;gap:7px;}
+.help-head .htitle::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--success);}
+.help-head button{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;padding:2px 6px;}
+.help-head button:hover{color:var(--text);}
+.help-log{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px;}
+.help-msg{font-size:12.5px;line-height:1.55;padding:9px 11px;border-radius:8px;max-width:88%;}
+.help-msg.bot{background:var(--surface-alt);border:1px solid var(--border);color:var(--text);align-self:flex-start;}
+.help-msg.user{background:var(--accent);border:1px solid var(--accent);color:#fff;align-self:flex-end;}
+.help-inputrow{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--border);background:var(--surface-alt);}
+.help-inputrow input{flex:1;background:#fff;border:1px solid var(--border);color:var(--text);font-family:'Inter',sans-serif;font-size:12.5px;padding:9px 11px;border-radius:8px;}
+.help-inputrow input:focus{outline:none;border-color:var(--accent);}
+.help-inputrow button{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:0 14px;font-weight:600;font-size:12px;}
+.help-inputrow button:hover{background:var(--accent-hover);}
+
 
 </style>
 </head>
 <body>
-<canvas id="rain"></canvas>
-<div class="scanlines"></div>
-<div class="vignette"></div>
 
 <div class="wrap">
 
@@ -169,14 +143,18 @@ button{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;bor
           <span class="tag" id="conceptTag">FUNCTIONS</span>
         </div>
         <p class="brief" id="briefText"></p>
+        <details class="worked-example" id="workedExample" open>
+          <summary>📎 See a worked example first</summary>
+          <div class="we-body" id="weBody"></div>
+        </details>
         <div class="editor-chrome">
-          <div class="editor-titlebar"><span>root@vault:~$</span> risk.js</div>
+          <div class="editor-titlebar"><span>risk.js</span> — updates as you type</div>
           <textarea id="codeInput" spellcheck="false"></textarea>
         </div>
         <div class="actions">
           <button class="btn-primary" onclick="runTests()">▶ Run Tests</button>
           <button class="btn-ghost" onclick="resetChallenge()">↺ Reset</button>
-          <button class="btn-ghost" onclick="toggleHint()">💡 Hint</button>
+          <button class="btn-ghost" id="hintBtn" onclick="revealNextHint()">💡 Hint</button>
         </div>
         <div class="hint-box" id="hintBox"></div>
         <div class="error-box" id="errorBox"></div>
@@ -214,38 +192,6 @@ button{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;bor
 </div>
 
 <script>
-/* ---------------- Matrix rain (shared visual language with Construct) ---------------- */
-(function(){
-  const canvas = document.getElementById('rain');
-  const ctx = canvas.getContext('2d');
-  let w, h, cols, drops;
-  const chars = "アイウエオカキクケコサシスセソ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ<>/=+*";
-  const fontSize = 15;
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  function resize(){
-    w = canvas.width = window.innerWidth;
-    h = canvas.height = window.innerHeight;
-    cols = Math.floor(w / fontSize);
-    drops = new Array(cols).fill(0).map(()=>Math.random()*-50);
-  }
-  window.addEventListener('resize', resize);
-  resize();
-  function draw(){
-    ctx.fillStyle = 'rgba(0,0,0,0.06)';
-    ctx.fillRect(0,0,w,h);
-    ctx.font = fontSize + 'px JetBrains Mono, monospace';
-    for(let i=0;i<cols;i++){
-      const text = chars[Math.floor(Math.random()*chars.length)];
-      const x = i*fontSize, y = drops[i]*fontSize;
-      ctx.fillStyle = Math.random() > 0.94 ? '#CFFFDD' : 'rgba(0,255,65,0.5)';
-      ctx.fillText(text, x, y);
-      if(y > h && Math.random() > 0.975) drops[i] = 0;
-      drops[i]++;
-    }
-  }
-  if(!reduced){ setInterval(draw, 55); }
-  else { ctx.fillStyle = '#000'; ctx.fillRect(0,0,w,h); }
-})();
 
 /* ---------------- Challenges ---------------- */
 const CHALLENGES = [
@@ -264,7 +210,17 @@ function calculateTotal(amount) {
       {args:[250], expected:255},
       {args:[0], expected:5}
     ],
-    hint: "return amount + 5;"
+    hints: [
+      "Think about what the function needs to give back — the amount, plus something extra.",
+      "You need a return statement. The shape is: return amount + ___;",
+      "return amount + 5;"
+    ],
+    worked: `<pre>function addServiceCharge(price) {
+  return price + 2;
+}</pre>
+<div class="we-line"><b>function addServiceCharge(price)</b> — this names the function and says what goes in: price.</div>
+<div class="we-line"><b>return price + 2;</b> — this is what comes back out: price, plus 2.</div>
+<div class="we-line"><b>example</b> — addServiceCharge(10) gives back 12. That's the whole shape you need below, just with a different number and name.</div>`
   },
   {
     fnName: "isHighRisk",
@@ -281,7 +237,17 @@ function isHighRisk(amount) {
       {args:[5000], expected:false},
       {args:[10000], expected:false}
     ],
-    hint: "return amount > 10000;"
+    hints: [
+      "This is really a yes/no question — is the amount over 10000?",
+      "A comparison like amount > 10000 already gives you true or false directly — you can return it as-is.",
+      "return amount > 10000;"
+    ],
+    worked: `<pre>function isAdult(age) {
+  return age >= 18;
+}</pre>
+<div class="we-line"><b>age >= 18</b> — this is a question with a yes/no answer: true or false.</div>
+<div class="we-line"><b>return age >= 18;</b> — sends that yes/no answer straight back. No need to write "if this is true, return true" — the comparison already IS true or false.</div>
+<div class="we-line"><b>example</b> — isAdult(20) gives back true. isAdult(15) gives back false.</div>`
   },
   {
     fnName: "categoriseTransaction",
@@ -301,7 +267,20 @@ function categoriseTransaction(amount) {
       {args:[1000], expected:"review"},
       {args:[500], expected:"standard"}
     ],
-    hint: "if (amount > 10000) return 'flagged';\nif (amount >= 1000) return 'review';\nreturn 'standard';"
+    hints: [
+      "Check the most extreme case first, then work your way down to the least extreme.",
+      "Start with: if (amount > 10000) return 'flagged'; then add another if for the next band.",
+      "if (amount > 10000) return 'flagged';\nif (amount >= 1000) return 'review';\nreturn 'standard';"
+    ],
+    worked: `<pre>function gradeScore(score) {
+  if (score > 90) return 'A';
+  if (score >= 70) return 'B';
+  return 'C';
+}</pre>
+<div class="we-line"><b>if (score > 90) return 'A';</b> — checked first. If this matches, it stops here.</div>
+<div class="we-line"><b>if (score >= 70) return 'B';</b> — only checked if the first one didn't match.</div>
+<div class="we-line"><b>return 'C';</b> — if neither matched, this runs last, with no "if" needed.</div>
+<div class="we-line"><b>example</b> — gradeScore(95) gives 'A'. gradeScore(75) gives 'B'. gradeScore(40) gives 'C'.</div>`
   },
   {
     fnName: "applyLoyaltyDiscount",
@@ -319,7 +298,16 @@ function applyLoyaltyDiscount(amount, isPremium) {
       {args:[100, false], expected:100},
       {args:[50, true], expected:45}
     ],
-    hint: "return isPremium ? amount * 0.9 : amount;"
+    hints: [
+      "This one takes two inputs. Since isPremium is already true or false, you can use it directly to decide which calculation to run.",
+      "A ternary is a shorthand if/else in one line: condition ? valueIfTrue : valueIfFalse.",
+      "return isPremium ? amount * 0.9 : amount;"
+    ],
+    worked: `<pre>function applyMemberPrice(price, isMember) {
+  return isMember ? price * 0.8 : price;
+}</pre>
+<div class="we-line"><b>isMember ? price * 0.8 : price</b> — a shorthand if/else. If isMember is true, use the first value; otherwise use the second.</div>
+<div class="we-line"><b>example</b> — applyMemberPrice(100, true) gives 80. applyMemberPrice(100, false) gives 100.</div>`
   },
   {
     fnName: "calculateInterest",
@@ -336,7 +324,17 @@ function calculateInterest(balance, rate) {
       {args:[2500, 3], expected:75},
       {args:[0, 5], expected:0}
     ],
-    hint: "return balance * (rate / 100);"
+    hints: [
+      "rate is given as a whole number like 5, meaning 5% — you need to turn that into a fraction first.",
+      "Dividing by 100 turns a percentage like 5 into 0.05 — then multiply that by balance.",
+      "return balance * (rate / 100);"
+    ],
+    worked: `<pre>function calculateCommission(sale, percent) {
+  return sale * (percent / 100);
+}</pre>
+<div class="we-line"><b>percent / 100</b> — turns a whole number like 10 into a fraction like 0.1.</div>
+<div class="we-line"><b>sale * (percent / 100)</b> — multiplies the sale by that fraction to get the commission amount.</div>
+<div class="we-line"><b>example</b> — calculateCommission(1000, 10) gives 100.</div>`
   },
   {
     fnName: "flagSuspiciousActivity",
@@ -354,11 +352,23 @@ function flagSuspiciousActivity(amount, country) {
       {args:[3000, "US"], expected:false},
       {args:[5000, "US"], expected:false}
     ],
-    hint: "return amount > 5000 && country !== 'UK';"
+    hints: [
+      "This needs both conditions true at the same time — think about which operator combines two conditions with AND.",
+      "&& only returns true when BOTH sides are true. Try: amount > 5000 && country !== 'UK'",
+      "return amount > 5000 && country !== 'UK';"
+    ],
+    worked: `<pre>function needsApproval(age, amount) {
+  return age < 18 && amount > 50;
+}</pre>
+<div class="we-line"><b>age < 18 && amount > 50</b> — both sides have to be true for the whole thing to be true.</div>
+<div class="we-line"><b>example</b> — needsApproval(16, 100) gives true. needsApproval(16, 20) gives false — only one condition matched.</div>`
   }
 ];
 
 let current = 0;
+let failCount = 0;
+let hintTier = 0;
+let proactiveShown = false;
 
 function buildDots(){
   const dots = document.getElementById('dots');
@@ -389,14 +399,21 @@ function refreshDots(){
 
 function loadChallenge(idx){
   current = idx;
+  failCount = 0;
+  hintTier = 0;
+  proactiveShown = false;
   const c = CHALLENGES[idx];
   document.getElementById('challengeTitle').textContent = c.fnName;
   document.getElementById('conceptTag').textContent = c.concept;
   document.getElementById('briefText').textContent = c.brief;
   document.getElementById('codeInput').value = c.starter;
+  document.getElementById('weBody').innerHTML = c.worked;
+  document.getElementById('workedExample').open = true;
   document.getElementById('hintBox').style.display = 'none';
-  document.getElementById('hintBox').textContent = c.hint;
+  document.getElementById('hintBox').innerHTML = '';
+  document.getElementById('hintBtn').textContent = '💡 Hint';
   document.getElementById('errorBox').style.display = 'none';
+  document.getElementById('helpDot').style.display = 'none';
   refreshDots();
   renderTests(c);
   const status = document.getElementById('statusLine');
@@ -417,9 +434,34 @@ function renderTests(c){
   });
 }
 
-function toggleHint(){
+function revealNextHint(){
+  const c = CHALLENGES[current];
   const box = document.getElementById('hintBox');
-  box.style.display = box.style.display === 'block' ? 'none' : 'block';
+  const btn = document.getElementById('hintBtn');
+  box.style.display = 'block';
+  if(hintTier < c.hints.length){
+    hintTier++;
+    const line = document.createElement('div');
+    line.textContent = `${hintTier}. ${c.hints[hintTier-1]}`;
+    line.style.marginBottom = '6px';
+    box.appendChild(line);
+  }
+  btn.textContent = hintTier >= c.hints.length ? '💡 That\u2019s the full hint' : '💡 Tell me more';
+}
+
+function maybeNudgeHint(){
+  const status = document.getElementById('statusLine');
+  if(failCount >= 2){
+    document.getElementById('helpDot').style.display = 'block';
+    if(document.getElementById('hintBox').style.display !== 'block'){
+      status.textContent = "No rush — try the 💡 Hint button below, it'll walk you through it step by step.";
+    }
+  }
+  if(failCount >= 3 && !proactiveShown && !helpOpen){
+    proactiveShown = true;
+    toggleHelp();
+    addHelpMsg("Hey — I noticed this one's putting up a fight. That's completely normal, not a sign you're doing anything wrong. Want to tell me what's happening, or ask me something specific about it?", 'bot');
+  }
 }
 
 function runTests(){
@@ -432,11 +474,13 @@ function runTests(){
   try{
     fn = new Function(src + `\nreturn ${c.fnName};`)();
     if(typeof fn !== 'function'){
-      throw new Error(`${c.fnName} isn't defined as a function — check the function name matches exactly.`);
+      throw new Error(`${c.fnName} isn't defined as a function yet — check the function name is spelled exactly the same as in the starter code.`);
     }
   }catch(e){
-    errorBox.textContent = e.message;
+    failCount++;
+    errorBox.innerHTML = `<b>That's okay — this is a normal step.</b><br>${e.message}`;
     errorBox.style.display = 'block';
+    maybeNudgeHint();
     return;
   }
 
@@ -465,12 +509,15 @@ function runTests(){
 
   const status = document.getElementById('statusLine');
   if(allPass){
+    failCount = 0;
     status.textContent = 'all tests passing';
     status.className = 'status-line pass';
     showSuccess();
   } else {
-    status.textContent = 'some tests failing — read the rows above';
+    failCount++;
+    status.textContent = 'not quite yet — read the rows above and try again';
     status.className = 'status-line';
+    maybeNudgeHint();
   }
 }
 
@@ -478,7 +525,7 @@ function showSuccess(){
   const isLast = current === CHALLENGES.length - 1;
   document.getElementById('successTitle').textContent = isLast ? 'Vault Secured' : 'Tests Passing';
   document.getElementById('successText').textContent = isLast
-    ? 'All three functions deployed and passing.'
+    ? 'All six functions deployed and passing.'
     : `${CHALLENGES[current].fnName} is solid. One more piece to patch.`;
   document.getElementById('nextBtn').textContent = isLast ? 'Finish →' : 'Deploy →';
   document.getElementById('successOverlay').style.display = 'flex';
@@ -675,8 +722,8 @@ const HELP_DATA = {
     }
   ]
 };
-const HELP_FALLBACK = "I'm not sure about that one — try rephrasing it, use the in-app Hint button, or flag a facilitator.";
-const HELP_GREETING = "Hi — ask me anything about this activity. I can help with syntax, explain an error, or nudge you on a specific challenge.";
+const HELP_FALLBACK = "I'm not totally sure about that one — no worries though. Try asking it a different way, tap the 💡 Hint button, or wave down a facilitator. You're doing fine.";
+const HELP_GREETING = "Hi! I'm here to help — genuinely ask me anything, there's no question too basic. I can explain an error message, walk through the syntax, or nudge you on whichever bit you're stuck on.";
 
 let helpOpen = false;
 let helpGreeted = false;
