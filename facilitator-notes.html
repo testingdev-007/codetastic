@@ -25,18 +25,19 @@ h2{font-size:17px;text-transform:uppercase;letter-spacing:.03em;color:var(--text
 h3{font-size:13px;text-transform:uppercase;letter-spacing:.03em;color:var(--accent);font-weight:700;margin:22px 0 10px;}
 p{font-size:14px;color:var(--text-secondary);}
 code{font-family:'JetBrains Mono',monospace;background:var(--surface-alt);color:#7C3AED;padding:2px 6px;border-radius:4px;font-size:12.5px;}
-pre{background:#0D1117;border:none;border-radius:8px;padding:12px 14px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#E6EDF3;line-height:1.6;margin:6px 0;}
+pre{background:#0D1117;border:none;border-radius:8px;padding:12px 14px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#E6EDF3;line-height:1.6;margin:6px 0;white-space:pre-wrap;}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 22px;margin-bottom:16px;box-shadow:0 1px 2px rgba(16,24,40,0.05);}
 table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0;}
 th{text-align:left;color:var(--text-muted);text-transform:uppercase;font-size:10px;letter-spacing:.05em;padding:8px 10px;border-bottom:1px solid var(--border);}
 td{padding:10px;border-bottom:1px solid var(--surface-alt);vertical-align:top;color:var(--text);}
 td code{background:transparent;padding:0;}
 .timing-bar{display:flex;height:36px;border-radius:8px;overflow:hidden;margin:14px 0;border:1px solid var(--border);}
-.seg{display:flex;align-items:center;justify-content:center;font-size:11.5px;color:#fff;font-weight:700;}
+.seg{display:flex;align-items:center;justify-content:center;font-size:10.5px;color:#fff;font-weight:700;}
 .s1{background:#4F46E5;flex:6;}
 .s2{background:#7C3AED;flex:6;}
 .s3{background:#DB2777;flex:6;}
 .s4{background:#0EA5E9;flex:6;}
+.s5{background:#0D9488;flex:6;}
 .sbuf{background:var(--surface-alt);flex:1;color:var(--text-muted);}
 .ladder{border-left:2px solid var(--border);padding-left:16px;margin:14px 0;}
 .rung{margin-bottom:14px;}
@@ -54,6 +55,11 @@ summary::-webkit-details-marker{display:none;}
 .trouble{border-left:3px solid var(--danger);padding:11px 14px;background:var(--danger-bg);border-radius:0 8px 8px 0;margin-bottom:10px;font-size:13.5px;color:var(--text);}
 .trouble b{color:#B42318;}
 .trouble .fix{color:var(--text-secondary);display:block;margin-top:4px;}
+.works{border-left:3px solid var(--success);padding:11px 14px;background:var(--success-bg);border-radius:0 8px 8px 0;margin-bottom:10px;font-size:13.5px;color:var(--text);}
+.works b{color:#067647;}
+.chatline{display:flex;gap:10px;margin-bottom:8px;font-size:13px;align-items:flex-start;}
+.chatline .q{font-family:'JetBrains Mono',monospace;color:var(--text);background:var(--surface-alt);padding:6px 10px;border-radius:6px;flex-shrink:0;min-width:220px;}
+.chatline .a{color:var(--text-secondary);padding-top:6px;}
 .linklist{display:flex;flex-direction:column;gap:6px;font-size:13px;}
 .linklist a{text-decoration:none;font-family:'JetBrains Mono',monospace;font-weight:600;}
 .linklist a:hover{text-decoration:underline;}
@@ -68,7 +74,7 @@ footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--border);font-
 <div class="wrap">
   <div class="eyebrow">Facilitator Notes — Not For Participants</div>
   <h1>Running The Mainframe</h1>
-  <p class="sub">Everything a facilitator needs in the room: what each task actually asks for, a scaffolded way to help someone stuck without just giving them the answer, the full answer key for when that's genuinely the right call, and troubleshooting for the "it's not working" moments that are actually user error, not a broken build.</p>
+  <p class="sub">Everything a facilitator needs in the room: what each task asks for, a scaffolded way to help someone stuck without just giving them the answer, the full answer key for when that's genuinely the right call, what the chat systems can and can't actually do, and troubleshooting for "it's not working" moments that are user error, not a broken build.</p>
 
   <div class="toc">
     <a href="#timing">Timing</a>
@@ -76,38 +82,44 @@ footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--border);font-
     <a href="#vault">Vault</a>
     <a href="#ledger">Ledger</a>
     <a href="#front">Front</a>
+    <a href="#helpdesk">Helpdesk</a>
+    <a href="#chat-capability">Help chat — what works</a>
+    <a href="#helpdesk-chat">Helpdesk chat — what works</a>
     <a href="#troubleshooting">Troubleshooting</a>
     <a href="#files">All files</a>
-    <a href="#chat">Chat help</a>
   </div>
 
   <h2 id="timing">The 25-minute slot</h2>
-  <p>Four stations, roughly 6 minutes each, with a short buffer for moving between them. The Construct taster has a visible on-screen countdown set to 6 minutes — the other three don't enforce a timer, so you'll need to call time yourself.</p>
+  <p>Five stations, roughly 5 minutes each, with a short buffer for moving between them. The Construct taster has a visible on-screen countdown set to 6 minutes — the other four don't enforce a timer, so you'll need to call time yourself.</p>
   <div class="timing-bar">
-    <div class="seg s1">Construct ~6m</div><div class="seg sbuf"></div>
-    <div class="seg s2">Vault ~6m</div><div class="seg sbuf"></div>
-    <div class="seg s3">Ledger ~6m</div><div class="seg sbuf"></div>
-    <div class="seg s4">Front ~6m</div>
+    <div class="seg s1">Construct ~5m</div><div class="seg sbuf"></div>
+    <div class="seg s2">Vault ~5m</div><div class="seg sbuf"></div>
+    <div class="seg s3">Ledger ~5m</div><div class="seg sbuf"></div>
+    <div class="seg s4">Front ~5m</div><div class="seg sbuf"></div>
+    <div class="seg s5">Helpdesk ~5m</div>
   </div>
-  <p>Nobody needs to finish every challenge in every activity — the point is a real taste of each, not full completion. If someone's clearly engaged and close on the last challenge when time's up, let them finish; don't cut mid-flow over a minute or two.</p>
+  <p>Nobody needs to finish every task in every activity — the point is a real taste of each, not full completion. If someone's clearly engaged and close to finishing when time's up, let them carry on; don't cut mid-flow over a minute or two. Construct and Vault now have 5 tasks each rather than 3 — genuinely finishing either one in 5 minutes is a stretch goal, not an expectation.</p>
 
   <!-- ============ CONSTRUCT ============ -->
   <h2 id="construct">The Construct</h2>
   <div class="card">
-    <p><b>What it is:</b> navigating a hidden rover across a grid by writing real JavaScript — <code>moveForward()</code>, <code>turnLeft()</code>, <code>turnRight()</code> — building from a single command up to a loop. Covers functions, sequencing, and loops.</p>
+    <p><b>What it is:</b> navigating a hidden rover across a grid by writing real JavaScript — <code>moveForward()</code>, <code>turnLeft()</code>, <code>turnRight()</code> — building from a single command up to a loop, and explicitly showing that a loop and manual repeated calls are equally valid solutions. Covers functions, sequencing, parameters, and loops.</p>
     <table>
       <tr><th>#</th><th>Task</th><th>Asks for</th></tr>
       <tr><td>1</td><td>Wake Up</td><td>call <code>moveForward()</code> once</td></tr>
       <tr><td>2</td><td>The Path</td><td>four <code>moveForward()</code> calls in a row</td></tr>
       <tr><td>3</td><td>The Turn</td><td>move, turn, move again — combining direction changes</td></tr>
+      <tr><td>4</td><td>The Relay</td><td>two turns — three straight stretches chained together</td></tr>
+      <tr><td>5</td><td>The Repeat</td><td>a straight run — solvable manually or with a loop, deliberately</td></tr>
       <tr><td>Bonus</td><td>The Glitch</td><td>fix a loop that runs one time too few (debugging, not new syntax)</td></tr>
     </table>
+    <p style="margin-top:10px;"><b>The Repeat is worth knowing about specifically:</b> its worked example shows the exact same task solved two ways — six <code>moveForward()</code> calls, or a <code>for</code> loop — side by side, and says outright that either one is fine. The checking logic only ever looks at where the rover ends up, never at what code got it there, so this isn't just supportive copy — a fully manual solution and a fully looped one both genuinely pass.</p>
   </div>
 
   <h3>Scaffolded help</h3>
   <div class="ladder">
     <div class="rung"><div class="tier">Tier 1 — ask, don't tell</div><p>"How many cells away is the exit? What do you think that number needs to be in your code?"</p></div>
-    <div class="rung"><div class="tier">Tier 2 — point at the tool</div><p>Point them at the in-app Hint button before adding anything yourself — it's calibrated to nudge, not solve.</p></div>
+    <div class="rung"><div class="tier">Tier 2 — point at the tool</div><p>Point them at the in-app Hint button before adding anything yourself — it escalates through three tiers on its own, ending in the full answer if they click it enough times.</p></div>
     <div class="rung"><div class="tier">Tier 3 — narrow it down</div><p>"You've got the right idea, but count your <code>moveForward()</code> calls again — you're one short." Still make them fix it themselves.</p></div>
   </div>
 
@@ -124,21 +136,36 @@ turnRight();
 moveForward();
 moveForward();
 moveForward();</pre></div></details>
+  <details><summary>The Relay</summary><div class="answer-body"><pre>moveForward();
+moveForward();
+turnRight();
+moveForward();
+moveForward();
+turnLeft();
+moveForward();
+moveForward();</pre></div></details>
+  <details><summary>The Repeat (either solution passes)</summary><div class="answer-body"><pre>// Manual:
+moveForward(); × 6
+
+// Loop:
+for (let i = 0; i < 6; i++) { moveForward(); }</pre></div></details>
   <details><summary>Bonus — The Glitch</summary><div class="answer-body"><p>Change the loop condition from <code>i &lt; 3</code> to <code>i &lt; 4</code> — the exit is 4 cells away, the loop only ran 3 times.</p></div></details>
 
   <!-- ============ VAULT ============ -->
   <h2 id="vault">The Vault</h2>
   <div class="card">
-    <p><b>What it is:</b> writing real functions to patch broken business logic in a bank's risk-checking system, then running real test cases against them. Covers functions, return values, booleans, and conditionals.</p>
+    <p><b>What it is:</b> writing real functions to patch broken business logic in a bank's risk-checking system, then running real test cases against them. Covers functions, return values, booleans, conditionals, and — new — a two-parameter conditional and a built-in maths function.</p>
     <table>
       <tr><th>#</th><th>Function</th><th>Asks for</th></tr>
       <tr><td>1</td><td><code>calculateTotal</code></td><td>add a flat £5 fee to an amount</td></tr>
       <tr><td>2</td><td><code>isHighRisk</code></td><td>return true/false for amounts over £10,000</td></tr>
       <tr><td>3</td><td><code>categoriseTransaction</code></td><td>three-way if/else banding</td></tr>
-      <tr><td colspan="3" style="color:var(--muted-dim);font-size:11px;">— take-home extension adds 3 more, see below —</td></tr>
-      <tr><td>4</td><td><code>applyLoyaltyDiscount</code></td><td>two parameters, one a boolean flag</td></tr>
-      <tr><td>5</td><td><code>calculateInterest</code></td><td>two-parameter arithmetic</td></tr>
-      <tr><td>6</td><td><code>flagSuspiciousActivity</code></td><td>compound condition with <code>&amp;&amp;</code></td></tr>
+      <tr><td>4</td><td><code>applyLateFee</code></td><td>two parameters, one used as a conditional gate</td></tr>
+      <tr><td>5</td><td><code>roundToNearestPound</code></td><td>introduces <code>Math.round()</code></td></tr>
+      <tr><td colspan="3" style="color:var(--text-muted);font-size:11px;">— take-home extension adds 3 more, see below —</td></tr>
+      <tr><td>6</td><td><code>applyLoyaltyDiscount</code></td><td>multiple parameters, one a boolean flag</td></tr>
+      <tr><td>7</td><td><code>calculateInterest</code></td><td>two-parameter arithmetic</td></tr>
+      <tr><td>8</td><td><code>flagSuspiciousActivity</code></td><td>compound condition with <code>&amp;&amp;</code></td></tr>
     </table>
   </div>
 
@@ -161,6 +188,13 @@ moveForward();</pre></div></details>
   if (amount >= 1000) return 'review';
   return 'standard';
 }</pre></div></details>
+  <details><summary>applyLateFee</summary><div class="answer-body"><pre>function applyLateFee(amount, daysLate) {
+  if (daysLate > 0) return amount + 10;
+  return amount;
+}</pre></div></details>
+  <details><summary>roundToNearestPound</summary><div class="answer-body"><pre>function roundToNearestPound(amount) {
+  return Math.round(amount);
+}</pre></div></details>
   <details><summary>applyLoyaltyDiscount (extension)</summary><div class="answer-body"><pre>function applyLoyaltyDiscount(amount, isPremium) {
   return isPremium ? amount * 0.9 : amount;
 }</pre></div></details>
@@ -174,13 +208,14 @@ moveForward();</pre></div></details>
   <!-- ============ LEDGER ============ -->
   <h2 id="ledger">The Ledger</h2>
   <div class="card">
-    <p><b>What it is:</b> writing functions that loop through a real (visible) list of transactions to answer questions — totals, filters, counts. Each function also gets tested against a second, hidden dataset, so hardcoding the visible numbers doesn't pass. Covers variables, arrays, objects, and loops.</p>
+    <p><b>What it is:</b> writing functions that loop through a real, visible list of transactions to answer questions — totals, filters, counts. Each function also gets tested against a second, hidden dataset, so hardcoding the visible numbers doesn't pass. Covers variables, arrays, objects, and loops.</p>
+    <p style="margin-top:10px;"><b>If this was confusing before, it's had a real fix:</b> the panel showing the data now explicitly spells out that row 1 (<code>groceries, £120</code>) is <code>transactions[0].category</code> and <code>transactions[0].amount</code> in code — that bridge was missing before and was very likely the actual cause of confusion, not the difficulty of the task itself. There was also a genuine layout bug where, on any narrow screen, the code editor rendered <i>above</i> the data table — fixed so the data always shows first.</p>
     <table>
       <tr><th>#</th><th>Function</th><th>Asks for</th></tr>
       <tr><td>1</td><td><code>totalSpend</code></td><td>accumulator pattern — sum every amount</td></tr>
       <tr><td>2</td><td><code>sumByCategory</code></td><td>filtered sum, one category</td></tr>
       <tr><td>3</td><td><code>countHighValue</code></td><td>filtered count against a threshold</td></tr>
-      <tr><td colspan="3" style="color:var(--muted-dim);font-size:11px;">— take-home extension adds 3 more, see below —</td></tr>
+      <tr><td colspan="3" style="color:var(--text-muted);font-size:11px;">— take-home extension adds 3 more —</td></tr>
       <tr><td>4</td><td><code>largestTransaction</code></td><td>running maximum</td></tr>
       <tr><td>5</td><td><code>averageTransaction</code></td><td>division + rounding</td></tr>
       <tr><td>6</td><td><code>sumByCategories</code></td><td>filter against an array of categories</td></tr>
@@ -249,14 +284,15 @@ moveForward();</pre></div></details>
   <!-- ============ FRONT ============ -->
   <h2 id="front">The Front</h2>
   <div class="card">
-    <p><b>What it is:</b> writing real CSS against a live preview to hit stated visual goals — checked by reading actual computed styles, not exact pixel matching, so any reasonable colour/sizing choice passes. Covers selectors, the box model, typography, and flexbox.</p>
+    <p><b>What it is:</b> writing real CSS against a live preview to hit stated visual goals — checked by reading actual computed styles, not exact pixel matching. Covers selectors, the box model, typography, and flexbox.</p>
+    <p style="margin-top:10px;"><b>Two real changes worth knowing about:</b> there's now a colour picker next to the editor — click a swatch and it shows the hex code to copy, and the brief also says a plain colour name like <code>navy</code> works exactly as well as a hex code. Separately, the worked examples used to use values that would pass the actual checks if copied verbatim with just the selector renamed — that's fixed. The worked examples still show the right properties, but with deliberately small or slightly wrong values (e.g. <code>justify-content: center</code> instead of <code>space-between</code>), so a blind copy-paste no longer passes — genuine adaptation is required.</p>
     <table>
       <tr><th>#</th><th>Screen</th><th>Asks for</th></tr>
       <tr><td>1</td><td>The Panel</td><td>background, rounded corners, padding</td></tr>
       <tr><td>2</td><td>The Numbers</td><td>font-size, font-weight</td></tr>
       <tr><td>3</td><td>The Layout</td><td>flexbox row, space-between, centred</td></tr>
     </table>
-    <p style="margin-top:10px;">The take-home extension restructures this as <b>one continuous page</b> (header, nav, card, transaction list) instead of resetting between screens — same underlying skills, four sections instead of three, nothing wipes as you move between them.</p>
+    <p style="margin-top:10px;">Each screen also has a collapsed "🌟 Try these extensions" box with two optional, unchecked stretch ideas — a hover effect, a box-shadow, a text-shadow, and so on. Nobody needs to do these to pass; they're there for anyone who finishes early. The take-home extension restructures the taster into <b>one continuous page</b> (header, nav, card, transaction list) instead of resetting between screens, with 2 extensions per section (8 total).</p>
   </div>
 
   <h3>Scaffolded help</h3>
@@ -293,50 +329,137 @@ moveForward();</pre></div></details>
 .txn-list li { display: flex; justify-content: space-between; }
 .txn-amount.positive { color: #1a8a4c; }</pre></div></details>
 
+  <!-- ============ HELPDESK ============ -->
+  <h2 id="helpdesk">The Helpdesk</h2>
+  <div class="card">
+    <p><b>What it is:</b> a completely different mechanic from the other four — a live banking app is broken in five ways, and the participant plays with it, describes what's wrong to a support chat in their own words, and the chat summarises the problem, applies the fix directly to the code, and shows a diff of exactly what changed. No manual find-and-edit required. Two more "issues" are actually just polish suggestions, not bugs, to reward people who suggest improvements as well as spot faults.</p>
+    <p style="margin-top:10px;"><b>There's no visible bug list.</b> The old version showed a checklist naming all 5 known issues, which made the activity pointless — you could just read the list. Now there's only a progress bar showing <i>how many</i> have been found, never <i>what they are</i>. Discovery has to come from actually playing with the app.</p>
+  </div>
+
+  <h3>The 5 real bugs</h3>
+  <details><summary>Deposit overwrites instead of adding</summary><div class="answer-body">
+    <p>Symptom: depositing money resets the balance to the deposit amount instead of adding to it.</p>
+    <pre>- balance = amt;
++ balance += amt;</pre>
+  </div></details>
+  <details><summary>Withdraw button does nothing</summary><div class="answer-body">
+    <p>Symptom: clicking Withdraw has no effect at all. The button calls <code>handleWithdraw()</code>, but the function is defined as <code>handelWithdraw()</code> — a typo.</p>
+    <pre>- function handelWithdraw(){
++ function handleWithdraw(){</pre>
+  </div></details>
+  <details><summary>Most recent transaction missing from the list</summary><div class="answer-body">
+    <p>Symptom: the transaction history is always one entry short — the newest action never appears.</p>
+    <pre>- for (let i = 0; i < transactions.length - 1; i++) {
++ for (let i = 0; i < transactions.length; i++) {</pre>
+  </div></details>
+  <details><summary>Transfers can push the balance negative</summary><div class="answer-body">
+    <p>Symptom: entering a negative amount, or an amount larger than the balance, into Transfer goes through with no error.</p>
+    <pre>- const amt = Number(document.getElementById('transferAmt').value);
+-   balance -= amt;
++ const amt = Number(document.getElementById('transferAmt').value);
++   if (amt > 0 && amt <= balance) {
++     balance -= amt;
++   } else {
++     alert('Enter a valid amount');
++     return;
++   }</pre>
+  </div></details>
+  <details><summary>Balance displays a long, broken-looking number</summary><div class="answer-body">
+    <p>Symptom: the balance sometimes shows something like <code>30.299999999999997</code> — genuine JavaScript floating-point behaviour, seeded deliberately into the starting balance so it's visible immediately on load, independent of the other four bugs.</p>
+    <pre>- document.getElementById('balance').textContent = balance;
++ document.getElementById('balance').textContent = balance.toFixed(2);</pre>
+  </div></details>
+
+  <h3>The 2 "improvements" (not bugs — reward noticing these too)</h3>
+  <details><summary>Deposit box doesn't clear after use</summary><div class="answer-body">
+    <p>Not broken, just rough — the amount stays in the input after a successful deposit.</p>
+    <pre>  transactions.push('Deposited £' + amt);
++ document.getElementById('depositAmt').value = '';</pre>
+  </div></details>
+  <details><summary>Large balances are hard to read</summary><div class="answer-body">
+    <p>Adds thousands separators. This one depends on the rounding bug being fixed first — the chat will say so if asked about it too early.</p>
+    <pre>- document.getElementById('balance').textContent = balance.toFixed(2);
++ document.getElementById('balance').textContent = balance.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});</pre>
+  </div></details>
+
+  <!-- ============ CHAT CAPABILITY ============ -->
+  <h2 id="chat-capability">Help chat — what works and what doesn't</h2>
+  <div class="card">
+    <p>Construct, Vault, Ledger, and Front each have a support chat (bottom-right corner). It's a keyword-matching system, not a real language model — it can't understand arbitrary phrasing the way a person would, but the net is wide and the behaviour is deliberate: <b>guidance first, the full answer only on genuine escalation.</b></p>
+  </div>
+  <h3>How it behaves</h3>
+  <div class="works"><b>First time asking about something:</b> a leading question or conceptual nudge — never the literal code. "This one's really a yes/no question in disguise — is the amount over 10000? What do you already know about what a comparison like that returns?" — not <code>return amount > 10000;</code>.</div>
+  <div class="works"><b>On genuine escalation:</b> phrases like "I'm really stuck", "just tell me", "give me the answer", or "I give up" reveal the direct answer for whatever was most recently discussed — prefixed with "No worries — here's the direct answer:". If nothing's been discussed yet, it asks what specifically they're stuck on instead of guessing.</div>
+  <div class="works"><b>General concept questions:</b> "what's a function", "what does return do", "what's the difference between > and >=" get genuine, direct explanations — these are teaching general syntax, not giving away a specific answer, so there's no need to hold back.</div>
+  <div class="works"><b>Everyday word choices are now understood too:</b> saying "cash" or "money" instead of "amount", "spin" instead of "turn", "colour" whether spelled the US or UK way, "tally" instead of "total" — a small synonym table normalizes these before matching, so someone doesn't need to guess the exact technical word to get a real answer.</div>
+  <div class="trouble"><b>What it still can't do:</b> understand a genuinely novel phrasing that doesn't overlap with any known keyword or synonym. If someone asks something reasonable that gets the generic fallback ("I'm not totally sure about that one..."), that's the system reaching its limit, not a bug — point them at the Hint button or step in yourself.</div>
+
+  <h3>Example exchanges (Vault)</h3>
+  <div class="chatline"><span class="q">"ishighrisk stuck"</span><span class="a">→ a guiding question about what a comparison returns</span></div>
+  <div class="chatline"><span class="q">"im really stuck"</span><span class="a">→ reveals the direct answer for isHighRisk specifically</span></div>
+  <div class="chatline"><span class="q">"how do i even start"</span><span class="a">→ general encouragement, points at the brief and Hint button</span></div>
+  <div class="chatline"><span class="q">"whats a function"</span><span class="a">→ a real, direct explanation of function syntax</span></div>
+  <div class="chatline"><span class="q">"what does it output"</span><span class="a">→ ("output" → "return") explains the missing-return symptom directly</span></div>
+
+  <div class="snag"><b>A real bug was found and fixed during testing, worth knowing about:</b> the word "stuck" appeared in almost every challenge-specific keyword set, which meant a query like "interest stuck" could tie with several unrelated entries and silently return guidance for the wrong challenge. Fixed by treating "stuck" as a non-signal word everywhere — confirmed working correctly across all 8 activity files afterward.</div>
+
+  <div class="works" style="margin-top:16px;"><b>The synonym layer was measured, not assumed to help:</b> a 22-query before/after comparison across all four modules found 5 queries that used to hit the generic fallback now get a genuine, correct answer instead — "how do I spin it around", "how do I tally this up", "how do I pick a color" among them — with zero regressions on queries that already worked. Two of those tests also surfaced a real content gap: "what does each row look like" and "how do I make it walk forward" were weakly matching an unrelated entry by coincidence, purely because no entry actually covered those questions. Both were fixed by adding the missing keyword coverage to the correct existing entry, not by removing the synonym.</div>
+
+  <!-- ============ HELPDESK CHAT ============ -->
+  <h2 id="helpdesk-chat">Helpdesk chat — what works and what doesn't</h2>
+  <div class="card">
+    <p>This is a genuinely different system from the other four — it doesn't give hints, it <b>applies real fixes automatically</b>. Describing a problem gets you: a one-line summary of what's wrong, the fix applied directly into the code editor, and a red/green diff showing exactly what changed. The live app rebuilds and re-checks itself immediately after.</p>
+  </div>
+  <h3>How it behaves</h3>
+  <div class="works"><b>Recognised problems and improvements (7 total, see the answer key above):</b> each has roughly 7-12 different phrasings it recognises — "the deposit doesn't add up right", "my balance just becomes whatever I deposit", "adding money isn't working" all correctly match the same deposit bug.</div>
+  <div class="works"><b>Fixes stack correctly:</b> describing a second problem after the first applies its fix on top of the first, without undoing it — participants can work through issues in any order.</div>
+  <div class="trouble"><b>What it can't do — genuinely open-ended interpretation:</b> despite feeling conversational, this is still keyword matching underneath, just with a much wider net and a much better payoff (an applied fix, not just text) than the other four chats. It cannot diagnose a problem it wasn't built to recognise.</div>
+  <div class="trouble"><b>"I can't find that exact spot right now":</b> this appears in two real situations, both fine — either that line has already been changed (by chat or by hand), or (for the thousands-separator improvement specifically) an earlier fix hasn't landed yet. Tested and confirmed this fails gracefully rather than corrupting the code.</div>
+  <div class="trouble"><b>Manual editing still works alongside chat:</b> participants can type directly into the code window instead of using chat at all — "Check My Fixes" runs the same checks either way. Worth mentioning this explicitly if someone wants to experiment by hand.</div>
+
+  <h3>Example exchanges</h3>
+  <div class="chatline"><span class="q">"clicking withdraw does nothing at all"</span><span class="a">→ diagnoses the handelWithdraw typo, fixes it, shows diff</span></div>
+  <div class="chatline"><span class="q">"large numbers are hard to read"</span><span class="a">→ works only after the rounding bug is already fixed; otherwise a graceful "can't find that" message</span></div>
+  <div class="chatline"><span class="q">"what is the weather today"</span><span class="a">→ honest fallback, no fabricated fix</span></div>
+
   <!-- ============ TROUBLESHOOTING ============ -->
   <h2 id="troubleshooting">Troubleshooting — user error, not the build</h2>
   <p>Every one of these has come up in testing and is a person doing something reasonable, not a bug in the files.</p>
 
   <div class="trouble"><b>"I clicked Run and nothing happened."</b><span class="fix">Check the Error box beneath the buttons — a syntax error (missing bracket, missing semicolon) stops the code from running at all, and the message is usually specific enough to spot the line. If the Error box is empty too, check they actually edited the function body — an empty <code>// TODO</code> with nothing added runs fine and just does nothing.</span></div>
-  <div class="trouble"><b>"My answer looks right but it's still failing."</b><span class="fix">Almost always exact wording/case: <code>"Groceries"</code> won't match <code>"groceries"</code>, and a typo'd function name (<code>calculateTotall</code>) means the test can't find the function at all — the error message will say so directly.</span></div>
-  <div class="trouble"><b>"The page looks completely unstyled / broken, no colours, no layout."</b><span class="fix">The file was opened on its own outside the folder it came with (e.g. dragged out, or emailed as a single attachment). These are self-contained single files with no other dependencies, so this is almost always a font failing to load over a blocked network rather than a missing file — check internet access on that machine; the Google Fonts import is the only external request any of these make.</span></div>
+  <div class="trouble"><b>"My answer looks right but it's still failing."</b><span class="fix">Almost always exact wording/case: <code>"Groceries"</code> won't match <code>"groceries"</code>, and a typo'd function name means the test can't find the function at all — the error message will say so directly.</span></div>
+  <div class="trouble"><b>"The page looks completely unstyled / broken, no colours, no layout."</b><span class="fix">These are self-contained single files with no other dependencies except a Google Fonts import — this is almost always a font failing to load over a blocked network. Check internet access on that machine.</span></div>
   <div class="trouble"><b>"I can't type in the code box."</b><span class="fix">Click directly inside the text area first — cursor focus can land on a button instead, especially on a trackpad. Not a bug, just needs a click.</span></div>
-  <div class="trouble"><b>"I hit Reset and lost my code."</b><span class="fix">Working as intended — Reset wipes back to the starter code for that challenge, not just the visuals. Worth warning the room about this once up front rather than after someone loses 4 minutes of work.</span></div>
-  <div class="trouble"><b>"The Vault/Ledger test console shows a weird value like NaN or undefined."</b><span class="fix"><code>NaN</code> usually means a maths operation happened on something that wasn't a number (often a typo'd property name, e.g. <code>transactions[i].amout</code>). <code>undefined</code> almost always means a missing <code>return</code> — the function ran, but never sent anything back.</span></div>
-  <div class="trouble"><b>"Nothing in The Front changes when I edit the CSS."</b><span class="fix">Check the selector actually matches — <code>.account-card</code> needs the dot; <code>account-card</code> without it targets a tag that doesn't exist and silently does nothing.</span></div>
+  <div class="trouble"><b>"I hit Reset and lost my code."</b><span class="fix">Working as intended — Reset wipes back to the starter code for that task, not just the visuals. Worth warning the room about this once up front rather than after someone loses a few minutes of work.</span></div>
+  <div class="trouble"><b>"The test console shows a weird value like NaN or undefined."</b><span class="fix"><code>NaN</code> usually means a maths operation happened on something that wasn't a number (often a typo'd property name). <code>undefined</code> almost always means a missing <code>return</code>.</span></div>
+  <div class="trouble"><b>"Nothing in The Front changes when I edit the CSS."</b><span class="fix">Check the selector actually matches — <code>.account-card</code> needs the dot; without it, it silently targets nothing.</span></div>
+  <div class="trouble"><b>"I copied the worked example exactly and it still failed."</b><span class="fix">Working as intended, not a bug — Front's worked examples deliberately use values too small (or, for Layout, a different value entirely) to pass the real checks. Explain this is on purpose: the pattern is right, the numbers need adjusting.</span></div>
 
-  <div class="snag" style="margin-top:24px;"><b>Construct taster vs. full build:</b> the taster is genuinely a different file (<code>mission-control-taster.html</code>) with only 3 of 5 constructs and a 6-minute timer. Don't hand out the full <code>mission-control.html</code> link during the live event by mistake — its timer now counts up with no deadline, which will look odd if someone's expecting a countdown.</div>
+  <div class="snag" style="margin-top:24px;"><b>Construct taster vs. full build:</b> the taster is genuinely a different file (<code>mission-control-taster.html</code>) with 5 of the full build's tasks (missing Agents, which is take-home only) and a 6-minute timer. Don't hand out the full <code>mission-control.html</code> link during the live event by mistake — its timer now counts up with no deadline, which will look odd if someone's expecting a countdown.</div>
 
   <!-- ============ FILES ============ -->
-  <h2 id="chat">Chat help</h2>
-  <div class="card">
-    <p>Each of the four live tasters has a small green chat button in the bottom-right corner ("System Assist"). Participants can type a real question in their own words and get an instant hint — the point is to take pressure off you in the room, not to replace you.</p>
-    <p><b>How it actually works:</b> there's no live AI model behind it — these are static files with no server. Each module ships with its own local knowledge base (16 entries for Construct, 15 for Vault, 15 for Ledger, 16 for Front) covering general concepts, per-challenge nudges, and common error messages. When someone types a question, it strips filler words ("what", "does", "how", "help", "meaning" — that kind of thing) and matches what's left against each entry's keyword list, then returns the best match. If nothing scores well enough, it says so honestly and points them at the in-app Hint button or a facilitator — it never invents an answer.</p>
-    <p><b>Where the content lives:</b> the actual knowledge base is baked directly into each HTML file (not loaded from a separate file at runtime) — a JSON file opened directly by double-clicking, rather than served from a website, can silently fail to load its sibling files in some browsers, so the working copy is embedded for reliability. The matching <code>construct-help.json</code> / <code>vault-help.json</code> / <code>ledger-help.json</code> / <code>front-help.json</code> files are shipped alongside as the editable source — if you want to add or tweak an entry, edit the JSON file, then it needs re-embedding into the HTML before it'll actually take effect.</p>
-    <p><b>What it's good at:</b> syntax questions, explaining an error message, nudging on a specific named challenge, and honestly saying "I don't know" for anything off-topic. <b>What it won't do:</b> write code for someone, or get pulled into small talk — it stays scoped to the activity on purpose.</p>
-  </div>
-
   <h2 id="files">All files</h2>
   <div class="card">
     <div class="linklist">
-      <a href="index.html">index.html</a> <span>— the dashboard, start here</span>
-      <a href="mission-control-taster.html">mission-control-taster.html</a> <span>— Construct, live taster (6 min, chat help)</span>
-      <a href="mission-control.html">mission-control.html</a> <span>— Construct, full/take-home</span>
-      <a href="the-vault.html">the-vault.html</a> <span>— Vault, live taster (chat help)</span>
-      <a href="the-vault-extended.html">the-vault-extended.html</a> <span>— Vault, take-home</span>
-      <a href="the-ledger.html">the-ledger.html</a> <span>— Ledger, live taster (chat help)</span>
+      <a href="start-here.html">start-here.html</a> <span>— session intro, show this first</span>
+      <a href="index.html">index.html</a> <span>— the dashboard</span>
+      <a href="mission-control-taster.html">mission-control-taster.html</a> <span>— Construct, live taster (5 tasks + bonus)</span>
+      <a href="mission-control.html">mission-control.html</a> <span>— Construct, full/take-home (adds Agents)</span>
+      <a href="the-vault.html">the-vault.html</a> <span>— Vault, live taster (5 challenges)</span>
+      <a href="the-vault-extended.html">the-vault-extended.html</a> <span>— Vault, take-home (8 challenges)</span>
+      <a href="the-ledger.html">the-ledger.html</a> <span>— Ledger, live taster</span>
       <a href="the-ledger-extended.html">the-ledger-extended.html</a> <span>— Ledger, take-home</span>
-      <a href="the-front.html">the-front.html</a> <span>— Front, live taster (chat help)</span>
+      <a href="the-front.html">the-front.html</a> <span>— Front, live taster (colour picker, extensions)</span>
       <a href="the-front-extended.html">the-front-extended.html</a> <span>— Front, take-home</span>
-      <a href="the-helpdesk.html">the-helpdesk.html</a> <span>— Helpdesk, live taster</span>
+      <a href="the-helpdesk.html">the-helpdesk.html</a> <span>— Helpdesk, chat-driven auto-fix</span>
       <a href="construct-guide.html">construct-guide.html</a> <span>— participant reference</span>
       <a href="vault-guide.html">vault-guide.html</a> <span>— participant reference</span>
       <a href="ledger-guide.html">ledger-guide.html</a> <span>— participant reference</span>
       <a href="front-guide.html">front-guide.html</a> <span>— participant reference</span>
-      <a href="construct-help.json">construct-help.json</a> <span>— chat help source, edit then re-embed</span>
-      <a href="vault-help.json">vault-help.json</a> <span>— chat help source, edit then re-embed</span>
-      <a href="ledger-help.json">ledger-help.json</a> <span>— chat help source, edit then re-embed</span>
-      <a href="front-help.json">front-help.json</a> <span>— chat help source, edit then re-embed</span>
+      <a href="construct-help.json">construct-help.json</a> <span>— chat knowledge base + synonym table, edit then re-embed</span>
+      <a href="vault-help.json">vault-help.json</a> <span>— chat knowledge base + synonym table, edit then re-embed</span>
+      <a href="ledger-help.json">ledger-help.json</a> <span>— chat knowledge base + synonym table, edit then re-embed</span>
+      <a href="front-help.json">front-help.json</a> <span>— chat knowledge base + synonym table, edit then re-embed</span>
     </div>
   </div>
 

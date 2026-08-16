@@ -882,7 +882,10 @@ const HELP_DATA = {
         "how do i call a function",
         "call function",
         "function mean",
-        "what does moveforward do"
+        "what does moveforward do",
+        "how do i make it move forward",
+        "how do i move the rover",
+        "how do i make it move"
       ],
       "response": "A function does something when you call it. Write its name, then brackets, then a semicolon \u2014 like moveForward();. Nothing happens until you actually call it on its own line."
     },
@@ -959,7 +962,8 @@ const HELP_DATA = {
         "first level help",
         "construct 1"
       ],
-      "response": "Wake Up just needs one moveForward(); \u2014 the exit is a single cell away. One line, brackets, semicolon."
+      "response": "How many cells sit between the rover and the exit on this one? What's the smallest possible number of commands that could cover that?",
+      "escalatedResponse": "Wake Up just needs one moveForward(); \u2014 the exit is a single cell away. One line, brackets, semicolon."
     },
     {
       "id": "the-path-stuck",
@@ -969,7 +973,8 @@ const HELP_DATA = {
         "level 2 help",
         "construct 2"
       ],
-      "response": "The Path is further away \u2014 count the cells, then write that many moveForward(); calls, one per line, in order."
+      "response": "Count the cells between the rover and the exit \u2014 what does that tell you about how many times you need to call the same command?",
+      "escalatedResponse": "The Path is further away \u2014 count the cells, then write that many moveForward(); calls, one per line, in order."
     },
     {
       "id": "the-turn-stuck",
@@ -980,7 +985,8 @@ const HELP_DATA = {
         "combining moves and turns",
         "construct 3"
       ],
-      "response": "The Turn needs you to move, then turn, then move again. Get the rover moving in the first direction first, then add a turnRight() or turnLeft() before continuing."
+      "response": "This one needs a change of direction partway through. What three things happen in order \u2014 move, then what, then move again?",
+      "escalatedResponse": "The Turn needs you to move, then turn, then move again. Get the rover moving in the first direction first, then add a turnRight() or turnLeft() before continuing."
     },
     {
       "id": "bonus-glitch",
@@ -1056,22 +1062,41 @@ const HELP_DATA = {
         "dont know what to do",
         "confused",
         "not sure what to write",
-        "no idea"
+        "no idea",
+        "how do i even start",
+        "where do i begin",
+        "how do i start"
       ],
       "response": "Start by reading the brief again slowly \u2014 it usually states exactly what's needed. If you're still stuck after that, try the Hint button, or put your hand up for a facilitator."
     }
-  ]
+  ],
+  "synonyms": {
+    "walk": "move",
+    "drive": "move",
+    "travel": "move",
+    "spin": "turn",
+    "rotate": "turn",
+    "repeat": "loop",
+    "square": "cell",
+    "tile": "cell",
+    "block": "wall",
+    "finish": "exit",
+    "destination": "exit",
+    "goal": "exit"
+  }
 };
 const HELP_FALLBACK = "I'm not totally sure about that one — no worries though. Try asking it a different way, tap the 💡 Hint button, or wave down a facilitator. You're doing fine.";
 const HELP_GREETING = "Hi! I'm here to help — genuinely ask me anything, there's no question too basic. I can explain an error message, walk through the syntax, or nudge you on whichever bit you're stuck on.";
+const ESCALATION_PHRASES = ["just tell me", "give me the answer", "tell me the answer", "im really stuck", "really stuck", "super stuck", "please just tell me", "just give me the code", "i give up", "cant figure it out", "cant work it out", "just show me", "give up"];
 
 let helpOpen = false;
 let helpGreeted = false;
+let lastHelpEntry = null;
 
 function normalizeHelp(s){
   return s.toLowerCase().replace(/[^\w\s]/g,' ').replace(/\s+/g,' ').trim();
 }
-const HELP_STOPWORDS = new Set(["what","does","do","is","are","the","a","an","to","of","in","on","for","and","or","i","my","how","this","that","it","me","you","your","did","doing","can","if","help","meaning","mean","means","explain","understand","understanding","know","knowing","work","working","works","use","using","used","need","needs","needed","want","wanted","wants","sure","right","correct","wrong","thing","things","stuff","way","ways","doesnt","dont","isnt","not","get","got","getting","should","would","could","will","with","when","where","why","which","who","from","have","has","had","about","some","any","just","really","actually","supposed","supposed"]);
+const HELP_STOPWORDS = new Set(["what","does","do","is","are","the","a","an","to","of","in","on","for","and","or","i","my","how","this","that","it","me","you","your","did","doing","can","if","help","meaning","mean","means","explain","understand","understanding","know","knowing","work","working","works","use","using","used","need","needs","needed","want","wanted","wants","sure","right","correct","wrong","thing","things","stuff","way","ways","doesnt","dont","isnt","not","get","got","getting","should","would","could","will","with","when","where","why","which","who","from","have","has","had","about","some","any","just","really","actually","supposed","supposed","stuck"]);
 function scoreHelpEntry(msgNorm, msgWords, entry){
   let best = 0;
   entry.keywords.forEach(kw=>{
@@ -1085,15 +1110,32 @@ function scoreHelpEntry(msgNorm, msgWords, entry){
   });
   return best;
 }
+function isEscalation(msgNorm){
+  return ESCALATION_PHRASES.some(p => msgNorm.includes(p));
+}
+function applySynonyms(msgNorm){
+  const syns = HELP_DATA.synonyms || {};
+  return msgNorm.split(' ').map(w => syns[w] || w).join(' ');
+}
 function findHelpResponse(userMsg){
-  const msgNorm = normalizeHelp(userMsg);
+  let msgNorm = normalizeHelp(userMsg);
+  msgNorm = applySynonyms(msgNorm);
   const msgWords = msgNorm.split(' ');
+
+  if(isEscalation(msgNorm)){
+    if(lastHelpEntry && lastHelpEntry.escalatedResponse){
+      return "No worries — here's the direct answer: " + lastHelpEntry.escalatedResponse;
+    }
+    return "That's okay — tell me which specific challenge or line you're stuck on, and I'll be more direct about it.";
+  }
+
   let bestEntry = null, bestScore = 0;
   HELP_DATA.entries.forEach(entry=>{
     const s = scoreHelpEntry(msgNorm, msgWords, entry);
     if(s > bestScore){ bestScore = s; bestEntry = entry; }
   });
   if(bestEntry && bestScore >= 1){
+    lastHelpEntry = bestEntry;
     return bestEntry.response;
   }
   return HELP_FALLBACK;

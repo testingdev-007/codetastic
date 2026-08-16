@@ -55,6 +55,18 @@ h1{font-size:26px;margin:0 0 8px;font-weight:700;letter-spacing:-0.01em;color:va
 .we-body pre{background:#0D1117;border:none;border-radius:8px;padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#E6EDF3;line-height:1.65;margin:0 0 10px;white-space:pre-wrap;}
 .we-body .we-line{font-size:12.5px;color:var(--text-secondary);line-height:1.6;margin-bottom:4px;}
 
+.color-tool{display:flex;align-items:center;gap:10px;background:var(--surface-alt);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:14px;flex-wrap:wrap;}
+.color-tool label{font-size:12.5px;color:var(--text-secondary);font-weight:500;}
+.color-tool input[type=color]{width:34px;height:34px;padding:0;border:1px solid var(--border);border-radius:6px;cursor:pointer;background:none;}
+.color-tool code{background:#0D1117;color:#E6EDF3;padding:5px 10px;border-radius:5px;font-family:'JetBrains Mono',monospace;font-size:12.5px;}
+.mini-copy-btn{font-size:11px;font-weight:600;background:#fff;color:var(--accent);border:1px solid var(--accent-border);padding:5px 10px;border-radius:6px;cursor:pointer;}
+.mini-copy-btn:hover{background:var(--accent-bg);}
+.mini-copy-btn.copied{color:var(--success);border-color:var(--success-border);background:var(--success-bg);}
+.extensions-box{background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:10px;margin-top:14px;overflow:hidden;}
+.extensions-box summary{padding:11px 14px;cursor:pointer;font-size:13px;color:var(--accent);font-weight:600;list-style:none;}
+.extensions-box summary::-webkit-details-marker{display:none;}
+.ext-body{padding:2px 14px 14px;font-size:13px;color:var(--text-secondary);line-height:1.6;}
+.ext-body li{margin-bottom:6px;}
 .editor-chrome{border:1px solid var(--border);border-radius:10px;overflow:hidden;}
 .editor-titlebar{padding:9px 14px;background:var(--surface-alt);border-bottom:1px solid var(--border);font-size:12px;color:var(--text-secondary);display:flex;justify-content:space-between;align-items:center;}
 .editor-titlebar span{color:var(--text);font-weight:600;font-family:'JetBrains Mono',monospace;}
@@ -189,8 +201,14 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
           <summary>📎 See a worked example first</summary>
           <div class="we-body" id="weBody"></div>
         </details>
+        <div class="color-tool">
+          <label for="colorPicker">🎨 Not sure what colour to use? Pick one:</label>
+          <input type="color" id="colorPicker" value="#2b2f3a" oninput="updateColorReadout()">
+          <code id="colorReadout">#2b2f3a</code>
+          <button class="mini-copy-btn" onclick="copyColorValue(this)">Copy</button>
+        </div>
         <div class="editor-chrome">
-          <div class="editor-titlebar"><span>root@front:~$</span> style.css</div>
+          <div class="editor-titlebar"><span>style.css</span> — updates as you type</div>
           <textarea id="codeInput" spellcheck="false"></textarea>
         </div>
         <div class="actions">
@@ -200,6 +218,10 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
         </div>
         <div class="hint-box" id="hintBox"></div>
         <div class="error-box" id="errorBox"></div>
+        <details class="extensions-box" id="extensionsBox">
+          <summary>🌟 Done? Try these extensions</summary>
+          <div class="ext-body" id="extBody"></div>
+        </details>
       </div>
 
       <div class="right-col">
@@ -264,7 +286,7 @@ const CHALLENGES = [
   {
     title: "The Panel",
     concept: "BOX MODEL",
-    brief: "Give .account-card a real background, rounded corners, and generous padding so the content isn't jammed against the edges. Any colour and sizing you like — the checks just look for real values, not exact ones.",
+    brief: "Give .account-card a real background, rounded corners, and generous padding so the content isn't jammed against the edges. Any colour and sizing you like — a colour name like navy or forestgreen works just as well as a hex code, and the checks just look for real values, not exact ones.",
     starter: `/* Style .account-card:
    - give it a background colour
    - round the corners by at least 8px
@@ -281,10 +303,10 @@ const CHALLENGES = [
     ],
     worked: `<pre>.notice-box {
   background: #2b2f3a;
-  border-radius: 10px;
-  padding: 20px;
+  border-radius: 4px;
+  padding: 8px;
 }</pre>
-<div class="we-line">Three lines, three properties: a colour behind the content, rounded corners, and space pushing the content away from the edges. Same three properties you need below, just on a different box.</div>`,
+<div class="we-line">Three lines, three properties: a colour behind the content, rounded corners, and space pushing the content away from the edges. Same three properties you need below — but the actual sizes here are small, just illustrating the pattern. Your version needs bigger numbers to look right.</div>`,
     checks: [
       { desc: "background colour is set", prop: "background-color", test: ()=> hasRealColor(getComputedStyle(document.getElementById('previewCard')).backgroundColor) },
       { desc: "corners rounded 8px or more", prop: "border-radius", test: ()=> parseFloat(getComputedStyle(document.getElementById('previewCard')).borderRadius) >= 8 },
@@ -293,6 +315,10 @@ const CHALLENGES = [
           return ['paddingTop','paddingRight','paddingBottom','paddingLeft'].every(p=>parseFloat(cs[p])>=16);
         }
       }
+    ],
+    ext: [
+      "Add a subtle box-shadow to make the card look like it's floating slightly above the page.",
+      "Add a hover effect on the Transfer button so its background lightens when you point at it — .account-action:hover { }"
     ]
   },
   {
@@ -313,13 +339,17 @@ const CHALLENGES = [
       "font-size: 32px;\nfont-weight: 700;"
     ],
     worked: `<pre>.headline {
-  font-size: 30px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 400;
 }</pre>
-<div class="we-line">font-size makes the text bigger, font-weight makes it thicker. 400 is normal weight; 700 (or the word bold) reads as bold. Same two properties, different selector.</div>`,
+<div class="we-line">font-size makes the text bigger, font-weight makes it thicker. This example uses small, normal-weight values just to show where the properties go — your version needs a bigger size and a heavier weight to actually look bold and prominent.</div>`,
     checks: [
       { desc: "font size is at least 28px", prop: "font-size", test: ()=> parseFloat(getComputedStyle(document.getElementById('previewBalance')).fontSize) >= 28 },
       { desc: "text weight is bold (600+)", prop: "font-weight", test: ()=> isBoldWeight(getComputedStyle(document.getElementById('previewBalance')).fontWeight) }
+    ],
+    ext: [
+      "Try a different colour for the balance — something that stands out from the label text above it.",
+      "Add a subtle text-shadow to make the number feel like it lifts off the page."
     ]
   },
   {
@@ -342,14 +372,18 @@ const CHALLENGES = [
     ],
     worked: `<pre>.toolbar {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
 }</pre>
-<div class="we-line">display: flex turns the container into a row. justify-content: space-between spreads its children to both edges. align-items: center lines them up vertically. Same three lines, different selector.</div>`,
+<div class="we-line">display: flex turns the container into a row. align-items: center lines items up vertically. This example centres everything with justify-content: center — but your task asks for content spaced to both edges, not bunched in the middle, so that one value needs to be different.</div>`,
     checks: [
       { desc: "card uses flexbox", prop: "display", test: ()=> ['flex','inline-flex'].includes(getComputedStyle(document.getElementById('previewCard')).display) },
       { desc: "content spaced to both edges", prop: "justify-content", test: ()=> getComputedStyle(document.getElementById('previewCard')).justifyContent === 'space-between' },
       { desc: "items vertically centred", prop: "align-items", test: ()=> getComputedStyle(document.getElementById('previewCard')).alignItems === 'center' }
+    ],
+    ext: [
+      "Add a gap between the label/balance block and the button, so they're not touching even before space-between spreads them out.",
+      "Try flex-direction: column instead of row and see how the layout changes — then switch it back."
     ]
   }
 ];
@@ -390,6 +424,20 @@ function applyLiveStyle(){
   document.getElementById('liveStyle').textContent = document.getElementById('codeInput').value;
 }
 
+function updateColorReadout(){
+  const val = document.getElementById('colorPicker').value;
+  document.getElementById('colorReadout').textContent = val;
+}
+function copyColorValue(btn){
+  const val = document.getElementById('colorReadout').textContent;
+  navigator.clipboard.writeText(val).then(()=>{
+    const old = btn.textContent;
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent = old; btn.classList.remove('copied'); }, 1500);
+  }).catch(()=>{});
+}
+
 function loadChallenge(idx){
   current = idx;
   failCount = 0;
@@ -402,6 +450,8 @@ function loadChallenge(idx){
   document.getElementById('codeInput').value = c.starter;
   document.getElementById('weBody').innerHTML = c.worked;
   document.getElementById('workedExample').open = true;
+  document.getElementById('extBody').innerHTML = '<ul>' + c.ext.map(e=>`<li>${e}</li>`).join('') + '</ul>';
+  document.getElementById('extensionsBox').open = false;
   document.getElementById('hintBox').style.display = 'none';
   document.getElementById('hintBox').innerHTML = '';
   document.getElementById('hintBtn').textContent = '💡 Hint';
@@ -625,7 +675,8 @@ const HELP_DATA = {
         "first screen help",
         "background radius padding help"
       ],
-      "response": "The Panel just needs three properties on .account-card: background, border-radius (8px or more), and padding (16px or more on every side)."
+      "response": "Three separate properties go here: a background, rounded corners, and padding on all sides. Check the brief for the minimum sizes \u2014 is your padding actually big enough to notice?",
+      "escalatedResponse": "The Panel just needs three properties on .account-card: background, border-radius (8px or more), and padding (16px or more on every side)."
     },
     {
       "id": "numbers-stuck",
@@ -634,7 +685,8 @@ const HELP_DATA = {
         "second screen help",
         "balance styling help"
       ],
-      "response": "The Numbers needs .account-balance styled with font-size (28px or more) and font-weight (600 or higher, or bold)."
+      "response": "Two properties control how prominent the balance looks \u2014 one for size, one for thickness. Are both actually big enough to read as a headline figure, not just slightly bigger than normal text?",
+      "escalatedResponse": "The Numbers needs .account-balance styled with font-size (28px or more) and font-weight (600 or higher, or bold)."
     },
     {
       "id": "layout-stuck",
@@ -643,7 +695,8 @@ const HELP_DATA = {
         "third screen help",
         "flex layout help"
       ],
-      "response": "The Layout needs .account-card to be display: flex; with justify-content: space-between; and align-items: center; \u2014 three properties, one selector."
+      "response": "This needs .account-card turned into a flex row, then two more properties to control the spacing and alignment. What turns a container into a flex row in the first place?",
+      "escalatedResponse": "The Layout needs .account-card to be display: flex; with justify-content: space-between; and align-items: center; \u2014 three properties, one selector."
     },
     {
       "id": "extended-sections-stuck",
@@ -671,22 +724,33 @@ const HELP_DATA = {
         "dont know what to do",
         "confused",
         "not sure what to write",
-        "no idea"
+        "no idea",
+        "how do i even start",
+        "where do i begin",
+        "how do i start"
       ],
       "response": "Look at the live preview and describe out loud what's different from what you want \u2014 that usually points straight at which property's missing. Try the Hint button, or flag a facilitator."
     }
-  ]
+  ],
+  "synonyms": {
+    "color": "colour",
+    "rounded": "radius",
+    "bold": "weight",
+    "thick": "weight"
+  }
 };
 const HELP_FALLBACK = "I'm not totally sure about that one — no worries though. Try asking it a different way, tap the 💡 Hint button, or wave down a facilitator. You're doing fine.";
 const HELP_GREETING = "Hi! I'm here to help — genuinely ask me anything, there's no question too basic. I can explain an error message, walk through the syntax, or nudge you on whichever bit you're stuck on.";
+const ESCALATION_PHRASES = ["just tell me", "give me the answer", "tell me the answer", "im really stuck", "really stuck", "super stuck", "please just tell me", "just give me the code", "i give up", "cant figure it out", "cant work it out", "just show me", "give up"];
 
 let helpOpen = false;
 let helpGreeted = false;
+let lastHelpEntry = null;
 
 function normalizeHelp(s){
   return s.toLowerCase().replace(/[^\w\s]/g,' ').replace(/\s+/g,' ').trim();
 }
-const HELP_STOPWORDS = new Set(["what","does","do","is","are","the","a","an","to","of","in","on","for","and","or","i","my","how","this","that","it","me","you","your","did","doing","can","if","help","meaning","mean","means","explain","understand","understanding","know","knowing","work","working","works","use","using","used","need","needs","needed","want","wanted","wants","sure","right","correct","wrong","thing","things","stuff","way","ways","doesnt","dont","isnt","not","get","got","getting","should","would","could","will","with","when","where","why","which","who","from","have","has","had","about","some","any","just","really","actually","supposed","supposed"]);
+const HELP_STOPWORDS = new Set(["what","does","do","is","are","the","a","an","to","of","in","on","for","and","or","i","my","how","this","that","it","me","you","your","did","doing","can","if","help","meaning","mean","means","explain","understand","understanding","know","knowing","work","working","works","use","using","used","need","needs","needed","want","wanted","wants","sure","right","correct","wrong","thing","things","stuff","way","ways","doesnt","dont","isnt","not","get","got","getting","should","would","could","will","with","when","where","why","which","who","from","have","has","had","about","some","any","just","really","actually","supposed","supposed","stuck"]);
 function scoreHelpEntry(msgNorm, msgWords, entry){
   let best = 0;
   entry.keywords.forEach(kw=>{
@@ -700,15 +764,32 @@ function scoreHelpEntry(msgNorm, msgWords, entry){
   });
   return best;
 }
+function isEscalation(msgNorm){
+  return ESCALATION_PHRASES.some(p => msgNorm.includes(p));
+}
+function applySynonyms(msgNorm){
+  const syns = HELP_DATA.synonyms || {};
+  return msgNorm.split(' ').map(w => syns[w] || w).join(' ');
+}
 function findHelpResponse(userMsg){
-  const msgNorm = normalizeHelp(userMsg);
+  let msgNorm = normalizeHelp(userMsg);
+  msgNorm = applySynonyms(msgNorm);
   const msgWords = msgNorm.split(' ');
+
+  if(isEscalation(msgNorm)){
+    if(lastHelpEntry && lastHelpEntry.escalatedResponse){
+      return "No worries — here's the direct answer: " + lastHelpEntry.escalatedResponse;
+    }
+    return "That's okay — tell me which specific challenge or line you're stuck on, and I'll be more direct about it.";
+  }
+
   let bestEntry = null, bestScore = 0;
   HELP_DATA.entries.forEach(entry=>{
     const s = scoreHelpEntry(msgNorm, msgWords, entry);
     if(s > bestScore){ bestScore = s; bestEntry = entry; }
   });
   if(bestEntry && bestScore >= 1){
+    lastHelpEntry = bestEntry;
     return bestEntry.response;
   }
   return HELP_FALLBACK;

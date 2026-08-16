@@ -629,7 +629,8 @@ const HELP_DATA = {
         "fee function",
         "flat fee"
       ],
-      "response": "calculateTotal just needs amount plus the flat \u00a35 fee: return amount + 5;"
+      "response": "Think about what the function needs to give back \u2014 you already saw a very similar shape in the worked example above. What operator combines two numbers into a bigger one?",
+      "escalatedResponse": "calculateTotal just needs amount plus the flat \u00a35 fee: return amount + 5;"
     },
     {
       "id": "ishighrisk-stuck",
@@ -638,7 +639,8 @@ const HELP_DATA = {
         "high risk function",
         "risk threshold"
       ],
-      "response": "isHighRisk needs a single comparison, returned directly: return amount > 10000; \u2014 no if statement needed."
+      "response": "This one's really a yes/no question in disguise \u2014 is the amount over 10000? What do you already know about what a comparison like that actually returns on its own?",
+      "escalatedResponse": "isHighRisk needs a single comparison, returned directly: return amount > 10000; \u2014 no if statement needed."
     },
     {
       "id": "categorise-stuck",
@@ -648,7 +650,8 @@ const HELP_DATA = {
         "three bands",
         "flagged review standard"
       ],
-      "response": "Check the most extreme case first: if it's flagged-level, return 'flagged' immediately. Otherwise check review-level. Otherwise it's standard \u2014 that's your three branches, in that order."
+      "response": "Try tackling the most extreme case first, then work down through the others \u2014 which band should be checked before the rest, and why?",
+      "escalatedResponse": "Check the most extreme case first: if it's flagged-level, return 'flagged' immediately. Otherwise check review-level. Otherwise it's standard \u2014 that's your three branches, in that order."
     },
     {
       "id": "loyalty-discount-stuck",
@@ -658,7 +661,8 @@ const HELP_DATA = {
         "ispremium",
         "two parameters"
       ],
-      "response": "This one takes two inputs \u2014 amount and isPremium. Since isPremium is already true or false, you can use it directly: return isPremium ? amount * 0.9 : amount;"
+      "response": "This one takes two inputs, and isPremium is already true or false. Is there a way to use that directly to pick between two outcomes, without writing a full if/else block?",
+      "escalatedResponse": "This one takes two inputs \u2014 amount and isPremium. Since isPremium is already true or false, you can use it directly: return isPremium ? amount * 0.9 : amount;"
     },
     {
       "id": "interest-stuck",
@@ -667,7 +671,8 @@ const HELP_DATA = {
         "interest function",
         "simple interest"
       ],
-      "response": "calculateInterest is balance multiplied by (rate divided by 100) \u2014 rate is given as a whole number like 5, meaning 5%, so it needs dividing by 100 first."
+      "response": "rate is given as a whole number like 5, meaning 5%. What do you need to do to a percentage like that before you can actually multiply by it?",
+      "escalatedResponse": "calculateInterest is balance multiplied by (rate divided by 100) \u2014 rate is given as a whole number like 5, meaning 5%, so it needs dividing by 100 first."
     },
     {
       "id": "suspicious-stuck",
@@ -677,7 +682,8 @@ const HELP_DATA = {
         "compound condition",
         "and logic"
       ],
-      "response": "This one needs both conditions true at once \u2014 use &&. amount > 5000 && country !== 'UK' \u2014 both sides have to be true for the whole thing to be true."
+      "response": "This one needs two conditions to BOTH be true at the same time. Do you know which JavaScript operator means 'both sides have to be true'?",
+      "escalatedResponse": "This one needs both conditions true at once \u2014 use &&. amount > 5000 && country !== 'UK' \u2014 both sides have to be true for the whole thing to be true."
     },
     {
       "id": "test-console-explain",
@@ -716,22 +722,34 @@ const HELP_DATA = {
         "dont know what to do",
         "confused",
         "not sure what to write",
-        "no idea"
+        "no idea",
+        "how do i even start",
+        "where do i begin",
+        "how do i start"
       ],
       "response": "Read the brief once more, slowly \u2014 it states the exact rule you need to translate into code. Then try the Hint button. If you're still stuck, flag a facilitator."
     }
-  ]
+  ],
+  "synonyms": {
+    "cash": "amount",
+    "money": "amount",
+    "output": "return",
+    "percent": "rate",
+    "percentage": "rate"
+  }
 };
 const HELP_FALLBACK = "I'm not totally sure about that one — no worries though. Try asking it a different way, tap the 💡 Hint button, or wave down a facilitator. You're doing fine.";
 const HELP_GREETING = "Hi! I'm here to help — genuinely ask me anything, there's no question too basic. I can explain an error message, walk through the syntax, or nudge you on whichever bit you're stuck on.";
+const ESCALATION_PHRASES = ["just tell me", "give me the answer", "tell me the answer", "im really stuck", "really stuck", "super stuck", "please just tell me", "just give me the code", "i give up", "cant figure it out", "cant work it out", "just show me", "give up"];
 
 let helpOpen = false;
 let helpGreeted = false;
+let lastHelpEntry = null;
 
 function normalizeHelp(s){
   return s.toLowerCase().replace(/[^\w\s]/g,' ').replace(/\s+/g,' ').trim();
 }
-const HELP_STOPWORDS = new Set(["what","does","do","is","are","the","a","an","to","of","in","on","for","and","or","i","my","how","this","that","it","me","you","your","did","doing","can","if","help","meaning","mean","means","explain","understand","understanding","know","knowing","work","working","works","use","using","used","need","needs","needed","want","wanted","wants","sure","right","correct","wrong","thing","things","stuff","way","ways","doesnt","dont","isnt","not","get","got","getting","should","would","could","will","with","when","where","why","which","who","from","have","has","had","about","some","any","just","really","actually","supposed","supposed"]);
+const HELP_STOPWORDS = new Set(["what","does","do","is","are","the","a","an","to","of","in","on","for","and","or","i","my","how","this","that","it","me","you","your","did","doing","can","if","help","meaning","mean","means","explain","understand","understanding","know","knowing","work","working","works","use","using","used","need","needs","needed","want","wanted","wants","sure","right","correct","wrong","thing","things","stuff","way","ways","doesnt","dont","isnt","not","get","got","getting","should","would","could","will","with","when","where","why","which","who","from","have","has","had","about","some","any","just","really","actually","supposed","supposed","stuck"]);
 function scoreHelpEntry(msgNorm, msgWords, entry){
   let best = 0;
   entry.keywords.forEach(kw=>{
@@ -745,15 +763,32 @@ function scoreHelpEntry(msgNorm, msgWords, entry){
   });
   return best;
 }
+function isEscalation(msgNorm){
+  return ESCALATION_PHRASES.some(p => msgNorm.includes(p));
+}
+function applySynonyms(msgNorm){
+  const syns = HELP_DATA.synonyms || {};
+  return msgNorm.split(' ').map(w => syns[w] || w).join(' ');
+}
 function findHelpResponse(userMsg){
-  const msgNorm = normalizeHelp(userMsg);
+  let msgNorm = normalizeHelp(userMsg);
+  msgNorm = applySynonyms(msgNorm);
   const msgWords = msgNorm.split(' ');
+
+  if(isEscalation(msgNorm)){
+    if(lastHelpEntry && lastHelpEntry.escalatedResponse){
+      return "No worries — here's the direct answer: " + lastHelpEntry.escalatedResponse;
+    }
+    return "That's okay — tell me which specific challenge or line you're stuck on, and I'll be more direct about it.";
+  }
+
   let bestEntry = null, bestScore = 0;
   HELP_DATA.entries.forEach(entry=>{
     const s = scoreHelpEntry(msgNorm, msgWords, entry);
     if(s > bestScore){ bestScore = s; bestEntry = entry; }
   });
   if(bestEntry && bestScore >= 1){
+    lastHelpEntry = bestEntry;
     return bestEntry.response;
   }
   return HELP_FALLBACK;

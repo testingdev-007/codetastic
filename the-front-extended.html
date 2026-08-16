@@ -55,6 +55,20 @@ h1{font-size:26px;margin:0 0 8px;font-weight:700;letter-spacing:-0.01em;color:va
 .we-body pre{background:#0D1117;border:none;border-radius:8px;padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#E6EDF3;line-height:1.65;margin:0 0 10px;white-space:pre-wrap;}
 .we-body .we-line{font-size:12.5px;color:var(--text-secondary);line-height:1.6;margin-bottom:4px;}
 
+.color-tool{display:flex;align-items:center;gap:10px;background:var(--surface-alt);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:14px;flex-wrap:wrap;}
+.color-tool label{font-size:12.5px;color:var(--text-secondary);font-weight:500;}
+.color-tool input[type=color]{width:34px;height:34px;padding:0;border:1px solid var(--border);border-radius:6px;cursor:pointer;background:none;}
+.color-tool code{background:#0D1117;color:#E6EDF3;padding:5px 10px;border-radius:5px;font-family:'JetBrains Mono',monospace;font-size:12.5px;}
+.mini-copy-btn{font-size:11px;font-weight:600;background:#fff;color:var(--accent);border:1px solid var(--accent-border);padding:5px 10px;border-radius:6px;cursor:pointer;}
+.mini-copy-btn:hover{background:var(--accent-bg);}
+.mini-copy-btn.copied{color:var(--success);border-color:var(--success-border);background:var(--success-bg);}
+.extensions-box{background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:10px;margin-top:14px;overflow:hidden;}
+.extensions-box summary{padding:11px 14px;cursor:pointer;font-size:13px;color:var(--accent);font-weight:600;list-style:none;}
+.extensions-box summary::-webkit-details-marker{display:none;}
+.ext-body{padding:2px 14px 14px;font-size:13px;color:var(--text-secondary);line-height:1.6;}
+.ext-body h4{font-size:11px;text-transform:uppercase;letter-spacing:.03em;color:var(--text);margin:12px 0 4px;}
+.ext-body h4:first-child{margin-top:0;}
+.ext-body li{margin-bottom:6px;}
 .editor-chrome{border:1px solid var(--border);border-radius:10px;overflow:hidden;}
 .editor-titlebar{padding:9px 14px;background:var(--surface-alt);border-bottom:1px solid var(--border);font-size:12px;color:var(--text-secondary);display:flex;justify-content:space-between;align-items:center;}
 .editor-titlebar span{color:var(--text);font-weight:600;font-family:'JetBrains Mono',monospace;}
@@ -185,6 +199,12 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
           <summary>📎 See a worked example first</summary>
           <div class="we-body" id="weBody"></div>
         </details>
+        <div class="color-tool">
+          <label for="colorPicker">🎨 Not sure what colour to use? Pick one:</label>
+          <input type="color" id="colorPicker" value="#2b2f3a" oninput="updateColorReadout()">
+          <code id="colorReadout">#2b2f3a</code>
+          <button class="mini-copy-btn" onclick="copyColorValue(this)">Copy</button>
+        </div>
         <div class="editor-chrome">
           <div class="editor-titlebar"><span>style.css</span> — scroll for all 4 sections, updates as you type</div>
           <textarea id="codeInput" spellcheck="false"></textarea>
@@ -195,6 +215,10 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
           <button class="btn-ghost" id="hintBtn" onclick="revealNextHint()">💡 Hint</button>
         </div>
         <div class="hint-box" id="hintBox"></div>
+        <details class="extensions-box" id="extensionsBox">
+          <summary>🌟 Done? Try these extensions</summary>
+          <div class="ext-body" id="extBody"></div>
+        </details>
       </div>
 
       <div class="right-col">
@@ -336,18 +360,18 @@ const STARTER = `/* SECTION 1 — Header
 
 `;
 
-const WORKED = `<pre>.toolbar { display: flex; align-items: center; gap: 16px; background: #2b2f3a; padding: 14px 20px; }
-.toolbar-title { font-weight: 700; }
+const WORKED = `<pre>.toolbar { display: flex; align-items: center; gap: 6px; background: #2b2f3a; padding: 14px 20px; }
+.toolbar-title { font-weight: 400; }
 
-.toolbar-nav { display: flex; gap: 16px; }
+.toolbar-nav { display: flex; gap: 6px; }
 
-.notice-box { background: #2b2f3a; border-radius: 12px; padding: 24px; display: flex; justify-content: space-between; align-items: center; }
-.notice-headline { font-size: 32px; font-weight: 700; }
+.notice-box { background: #2b2f3a; border-radius: 4px; padding: 8px; display: flex; justify-content: center; align-items: center; }
+.notice-headline { font-size: 16px; font-weight: 400; }
 
 .item-list { list-style-type: none; }
 .item-list li { display: flex; justify-content: space-between; }
 .item-list .highlight { color: #1a8a4c; }</pre>
-<div class="we-line">Same four patterns as the sections below, just on a differently-named page: a flex header bar with a bold title, a flex nav with spacing, a styled card row, and a list with bullets removed and one highlighted colour.</div>`;
+<div class="we-line">Same four patterns as the sections below, on a differently-named page — but the actual sizes and values here are deliberately small and plain, just to show where each property goes. Your version needs bigger gaps, bigger padding, a bolder title, a bigger balance, and — for the card — spacing to both edges rather than everything centred. Copying this exactly won't pass; you'll need to genuinely adjust the numbers.</div>`;
 
 const HINTS = [
   "Work through the four comment blocks one at a time. Every section needs display: flex somewhere — on the header, the nav, the card, and each list item — that's the one property that shows up in all four.",
@@ -373,6 +397,45 @@ let proactiveShown = false;
 
 function applyLiveStyle(){
   document.getElementById('liveStyle').textContent = document.getElementById('codeInput').value;
+}
+
+function updateColorReadout(){
+  const val = document.getElementById('colorPicker').value;
+  document.getElementById('colorReadout').textContent = val;
+}
+function copyColorValue(btn){
+  const val = document.getElementById('colorReadout').textContent;
+  navigator.clipboard.writeText(val).then(()=>{
+    const old = btn.textContent;
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent = old; btn.classList.remove('copied'); }, 1500);
+  }).catch(()=>{});
+}
+
+const EXTENSIONS = [
+  { label: "Header", items: [
+    "Add a subtle box-shadow under the header so it feels like it's sitting above the page.",
+    "Try letter-spacing on the title for a more polished logo feel."
+  ]},
+  { label: "Navigation", items: [
+    "Add a hover effect so each nav item changes colour when you point at it.",
+    "Try justify-content: flex-end to push the links to the right instead of spreading them out."
+  ]},
+  { label: "Account Card", items: [
+    "Add a hover effect on the Transfer button — its background lightens on :hover.",
+    "Add a subtle border or box-shadow around the whole card."
+  ]},
+  { label: "Transaction List", items: [
+    "Add spacing between list items with a border-bottom or margin.",
+    "Add a small icon or dot before each transaction name using ::before."
+  ]}
+];
+function renderExtensions(){
+  const body = document.getElementById('extBody');
+  body.innerHTML = EXTENSIONS.map(sec =>
+    `<h4>${sec.label}</h4><ul>${sec.items.map(i=>`<li>${i}</li>`).join('')}</ul>`
+  ).join('');
 }
 
 function renderTests(){
@@ -434,6 +497,8 @@ function resetAll(){
   document.getElementById('codeInput').value = STARTER;
   document.getElementById('weBody').innerHTML = WORKED;
   document.getElementById('workedExample').open = true;
+  document.getElementById('extensionsBox').open = false;
+  renderExtensions();
   document.getElementById('hintBox').style.display = 'none';
   document.getElementById('hintBox').innerHTML = '';
   document.getElementById('hintBtn').textContent = '💡 Hint';
@@ -605,7 +670,8 @@ const HELP_DATA = {
         "first screen help",
         "background radius padding help"
       ],
-      "response": "The Panel just needs three properties on .account-card: background, border-radius (8px or more), and padding (16px or more on every side)."
+      "response": "Three separate properties go here: a background, rounded corners, and padding on all sides. Check the brief for the minimum sizes \u2014 is your padding actually big enough to notice?",
+      "escalatedResponse": "The Panel just needs three properties on .account-card: background, border-radius (8px or more), and padding (16px or more on every side)."
     },
     {
       "id": "numbers-stuck",
@@ -614,7 +680,8 @@ const HELP_DATA = {
         "second screen help",
         "balance styling help"
       ],
-      "response": "The Numbers needs .account-balance styled with font-size (28px or more) and font-weight (600 or higher, or bold)."
+      "response": "Two properties control how prominent the balance looks \u2014 one for size, one for thickness. Are both actually big enough to read as a headline figure, not just slightly bigger than normal text?",
+      "escalatedResponse": "The Numbers needs .account-balance styled with font-size (28px or more) and font-weight (600 or higher, or bold)."
     },
     {
       "id": "layout-stuck",
@@ -623,7 +690,8 @@ const HELP_DATA = {
         "third screen help",
         "flex layout help"
       ],
-      "response": "The Layout needs .account-card to be display: flex; with justify-content: space-between; and align-items: center; \u2014 three properties, one selector."
+      "response": "This needs .account-card turned into a flex row, then two more properties to control the spacing and alignment. What turns a container into a flex row in the first place?",
+      "escalatedResponse": "The Layout needs .account-card to be display: flex; with justify-content: space-between; and align-items: center; \u2014 three properties, one selector."
     },
     {
       "id": "extended-sections-stuck",
@@ -651,22 +719,33 @@ const HELP_DATA = {
         "dont know what to do",
         "confused",
         "not sure what to write",
-        "no idea"
+        "no idea",
+        "how do i even start",
+        "where do i begin",
+        "how do i start"
       ],
       "response": "Look at the live preview and describe out loud what's different from what you want \u2014 that usually points straight at which property's missing. Try the Hint button, or flag a facilitator."
     }
-  ]
+  ],
+  "synonyms": {
+    "color": "colour",
+    "rounded": "radius",
+    "bold": "weight",
+    "thick": "weight"
+  }
 };
 const HELP_FALLBACK = "I'm not totally sure about that one — no worries though. Try asking it a different way, tap the 💡 Hint button, or wave down a facilitator. You're doing fine.";
 const HELP_GREETING = "Hi! I'm here to help — genuinely ask me anything, there's no question too basic. I can explain an error message, walk through the syntax, or nudge you on whichever bit you're stuck on.";
+const ESCALATION_PHRASES = ["just tell me", "give me the answer", "tell me the answer", "im really stuck", "really stuck", "super stuck", "please just tell me", "just give me the code", "i give up", "cant figure it out", "cant work it out", "just show me", "give up"];
 
 let helpOpen = false;
 let helpGreeted = false;
+let lastHelpEntry = null;
 
 function normalizeHelp(s){
   return s.toLowerCase().replace(/[^\w\s]/g,' ').replace(/\s+/g,' ').trim();
 }
-const HELP_STOPWORDS = new Set(["what","does","do","is","are","the","a","an","to","of","in","on","for","and","or","i","my","how","this","that","it","me","you","your","did","doing","can","if","help","meaning","mean","means","explain","understand","understanding","know","knowing","work","working","works","use","using","used","need","needs","needed","want","wanted","wants","sure","right","correct","wrong","thing","things","stuff","way","ways","doesnt","dont","isnt","not","get","got","getting","should","would","could","will","with","when","where","why","which","who","from","have","has","had","about","some","any","just","really","actually","supposed","supposed"]);
+const HELP_STOPWORDS = new Set(["what","does","do","is","are","the","a","an","to","of","in","on","for","and","or","i","my","how","this","that","it","me","you","your","did","doing","can","if","help","meaning","mean","means","explain","understand","understanding","know","knowing","work","working","works","use","using","used","need","needs","needed","want","wanted","wants","sure","right","correct","wrong","thing","things","stuff","way","ways","doesnt","dont","isnt","not","get","got","getting","should","would","could","will","with","when","where","why","which","who","from","have","has","had","about","some","any","just","really","actually","supposed","supposed","stuck"]);
 function scoreHelpEntry(msgNorm, msgWords, entry){
   let best = 0;
   entry.keywords.forEach(kw=>{
@@ -680,15 +759,32 @@ function scoreHelpEntry(msgNorm, msgWords, entry){
   });
   return best;
 }
+function isEscalation(msgNorm){
+  return ESCALATION_PHRASES.some(p => msgNorm.includes(p));
+}
+function applySynonyms(msgNorm){
+  const syns = HELP_DATA.synonyms || {};
+  return msgNorm.split(' ').map(w => syns[w] || w).join(' ');
+}
 function findHelpResponse(userMsg){
-  const msgNorm = normalizeHelp(userMsg);
+  let msgNorm = normalizeHelp(userMsg);
+  msgNorm = applySynonyms(msgNorm);
   const msgWords = msgNorm.split(' ');
+
+  if(isEscalation(msgNorm)){
+    if(lastHelpEntry && lastHelpEntry.escalatedResponse){
+      return "No worries — here's the direct answer: " + lastHelpEntry.escalatedResponse;
+    }
+    return "That's okay — tell me which specific challenge or line you're stuck on, and I'll be more direct about it.";
+  }
+
   let bestEntry = null, bestScore = 0;
   HELP_DATA.entries.forEach(entry=>{
     const s = scoreHelpEntry(msgNorm, msgWords, entry);
     if(s > bestScore){ bestScore = s; bestEntry = entry; }
   });
   if(bestEntry && bestScore >= 1){
+    lastHelpEntry = bestEntry;
     return bestEntry.response;
   }
   return HELP_FALLBACK;

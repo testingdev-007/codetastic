@@ -73,14 +73,11 @@ button.btn-primary:hover{background:var(--accent-hover);border-color:var(--accen
 button.btn-ghost{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-radius:8px;cursor:pointer;padding:11px 20px;background:#fff;color:var(--text-secondary);border:1px solid var(--border-strong);}
 button.btn-ghost:hover{background:var(--surface-alt);color:var(--text);}
 
-.bug-list{display:flex;flex-direction:column;gap:0;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
-.bug-row{display:flex;align-items:center;gap:11px;padding:12px 14px;border-bottom:1px solid var(--border);font-size:13.5px;background:#fff;}
-.bug-row:last-child{border-bottom:none;}
-.bug-row.fixed{background:var(--success-bg);}
-.bug-icon{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:700;border:1.5px solid var(--border-strong);color:transparent;}
-.bug-row.fixed .bug-icon{background:var(--success);border-color:var(--success);color:#fff;}
-.bug-desc{color:var(--text);flex:1;}
-.bug-row.fixed .bug-desc{color:var(--text-secondary);text-decoration:line-through;}
+.progress-track{height:10px;background:var(--surface-alt);border-radius:6px;overflow:hidden;border:1px solid var(--border);}
+.progress-fill{height:100%;background:var(--success);transition:width .4s ease;}
+.diff-block{margin-top:8px;border-radius:6px;overflow:hidden;font-family:'JetBrains Mono',monospace;font-size:11.5px;}
+.diff-old{background:#3d1418;color:#FDA29B;padding:8px 12px;white-space:pre-wrap;}
+.diff-new{background:#0d2818;color:#86EFAC;padding:8px 12px;white-space:pre-wrap;}
 
 .status-line{margin-top:14px;font-size:13px;color:var(--text-secondary);text-align:center;}
 .status-line.pass{color:var(--success);font-weight:600;}
@@ -99,7 +96,7 @@ button.btn-ghost:hover{background:var(--surface-alt);color:var(--text);}
   <div class="topbar">
     <div class="eyebrow">Financial Systems · Live Taster</div>
     <h1>The Helpdesk — Fix It Live</h1>
-    <p class="sub">You don't need any coding experience for this — genuinely none. The banking app on the right is broken in five ways. Play with it, tell the chat what's wrong in your own words, and it'll show you exactly what to change — and exactly where to find it.</p>
+    <p class="sub">You don't need any coding experience for this — genuinely none. The banking app on the right has real problems, some bugs and some rough edges. Play with it, then tell the chat exactly what you're seeing — it'll work out the fix, apply it, and show you what changed.</p>
   </div>
 
   <div id="game">
@@ -133,9 +130,9 @@ button.btn-ghost:hover{background:var(--surface-alt);color:var(--text);}
           </div>
         </div>
         <div class="panel">
-          <div class="panel-head"><h2>Known Issues</h2></div>
-          <div class="bug-list" id="bugList"></div>
-          <div class="status-line" id="statusLine">try the app, then ask chat about anything that looks wrong</div>
+          <div class="panel-head"><h2>Progress</h2></div>
+          <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+          <div class="status-line" id="statusLine">try the app, then tell chat about anything that looks or feels wrong — including things you'd just improve</div>
         </div>
       </div>
     </div>
@@ -230,23 +227,17 @@ const BUGS = [
   { id:'rounding', desc:'The balance displays a long, broken-looking number' }
 ];
 
-function renderBugList(fixedSet){
-  const list = document.getElementById('bugList');
-  list.innerHTML = '';
-  BUGS.forEach(b=>{
-    const row = document.createElement('div');
-    row.className = 'bug-row' + (fixedSet.has(b.id) ? ' fixed' : '');
-    row.innerHTML = `<span class="bug-icon">${fixedSet.has(b.id) ? '\u2713' : ''}</span><span class="bug-desc">${b.desc}</span>`;
-    list.appendChild(row);
-  });
+function updateProgress(fixedSet){
+  const pct = Math.round((fixedSet.size / BUGS.length) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
 }
 
 let debounceTimer = null;
 
 function loadApp(){
   document.getElementById('codeInput').value = STARTER_SCRIPT;
-  renderBugList(new Set());
-  document.getElementById('statusLine').textContent = 'try the app, then ask chat about anything that looks wrong';
+  updateProgress(new Set());
+  document.getElementById('statusLine').textContent = "try the app, then tell chat about anything that looks or feels wrong — including things you'd just improve";
   document.getElementById('statusLine').className = 'status-line';
   document.getElementById('game').style.display = 'block';
   document.getElementById('doneScreen').style.display = 'none';
@@ -347,15 +338,15 @@ function runAllChecks(){
     // a thrown error just means whatever check was running found something still broken
   }
 
-  renderBugList(fixed);
+  updateProgress(fixed);
   const status = document.getElementById('statusLine');
   if(fixed.size === BUGS.length){
-    status.textContent = 'all 5 issues resolved';
+    status.textContent = 'all issues resolved — nice work';
     status.className = 'status-line pass';
     document.getElementById('game').style.display = 'none';
     document.getElementById('doneScreen').style.display = 'block';
   } else {
-    status.textContent = `${fixed.size} of ${BUGS.length} fixed so far`;
+    status.textContent = `${fixed.size} of ${BUGS.length} found and fixed so far`;
     status.className = 'status-line';
   }
 }
@@ -376,38 +367,50 @@ function highlightInCode(searchText){
 
 const HELP_ENTRIES = [
   {
-    keywords: ["deposit doesn't add", "deposit resets balance", "deposit not adding", "balance wrong after deposit", "deposit overwrites", "deposit replaces"],
-    reply: "Looks like handleDeposit() is replacing your balance instead of adding to it. Here's the line to find:",
+    keywords: ["deposit doesn't add", "deposit resets balance", "deposit not adding", "balance wrong after deposit", "deposit overwrites", "deposit replaces", "balance becomes whatever i deposit", "deposit sets the balance", "balance equal the deposit amount", "depositing doesn't increase", "total doesn't go up when i add money", "adding money isn't working"],
+    summary: "The deposit function is overwriting your balance instead of adding to it.",
     code: "balance = amt;",
     fixCode: "balance += amt;"
   },
   {
-    keywords: ["withdraw doesn't work", "withdraw button broken", "nothing happens when i withdraw", "withdraw not working", "cant withdraw", "withdraw button does nothing"],
-    reply: "The Withdraw button is looking for a function called handleWithdraw(), but it's actually spelled differently. Here's the line to find:",
+    keywords: ["withdraw doesn't work", "withdraw button broken", "nothing happens when i withdraw", "withdraw not working", "cant withdraw", "withdraw button does nothing", "withdraw is broken", "clicking withdraw does nothing", "withdraw button seems dead", "nothing changes when i withdraw", "withdraw isn't triggering", "withdraw feature doesn't respond"],
+    summary: "The Withdraw button is wired to a function name that doesn't quite match how it's actually spelled.",
     code: "function handelWithdraw(){",
     fixCode: "function handleWithdraw(){"
   },
   {
-    keywords: ["last transaction missing", "transaction list wrong", "history not showing everything", "one transaction missing", "list is missing", "not all transactions show"],
-    reply: "The list is stopping one transaction early. Here's the line to find:",
+    keywords: ["last transaction missing", "transaction list wrong", "history not showing everything", "one transaction missing", "list is missing", "not all transactions show", "can't see all my transactions", "transaction history incomplete", "most recent action isn't logged", "list doesn't update with my latest", "history cutting off the last item"],
+    summary: "The transaction list is stopping one entry early, so the newest one never shows.",
     code: "for (let i = 0; i < transactions.length - 1; i++) {",
     fixCode: "for (let i = 0; i < transactions.length; i++) {"
   },
   {
-    keywords: ["transfer negative amount", "balance goes negative", "transfer too much", "no validation on transfer", "overdraft", "transfer more than i have", "negative balance"],
-    reply: "handleTransfer() doesn't check the amount at all before taking it out. Here's the line to find:",
+    keywords: ["transfer negative amount", "balance goes negative", "transfer too much", "no validation on transfer", "overdraft", "transfer more than i have", "negative balance", "shouldn't be able to transfer negative", "app let me transfer negative", "no limit on transfers", "transferred more than i had", "should stop invalid transfers"],
+    summary: "handleTransfer() doesn't check the amount at all before taking it out — negative or oversized transfers both go through.",
     code: "const amt = Number(document.getElementById('transferAmt').value);\n  balance -= amt;",
     fixCode: "const amt = Number(document.getElementById('transferAmt').value);\n  if (amt > 0 && amt <= balance) {\n    balance -= amt;\n  } else {\n    alert('Enter a valid amount');\n    return;\n  }"
   },
   {
-    keywords: ["balance shows weird number", "too many decimal places", "balance looks broken", "ugly number", "long decimal", "balance has loads of numbers", "weird decimals"],
-    reply: "JavaScript maths can produce long decimal numbers like 30.299999999999997. Here's the line to find:",
+    keywords: ["balance shows weird number", "too many decimal places", "balance looks broken", "ugly number", "long decimal", "balance has loads of numbers", "weird decimals", "balance number looks broken", "why so many decimal places", "balance isn't formatted properly", "money shouldn't have that many decimals", "number displayed is too long"],
+    summary: "JavaScript maths can produce long decimal numbers like 30.299999999999997 — the display needs rounding.",
     code: "document.getElementById('balance').textContent = balance;",
     fixCode: "document.getElementById('balance').textContent = balance.toFixed(2);"
+  },
+  {
+    keywords: ["clear the input after depositing", "amount stays in the box", "input doesn't clear", "amount field doesn't reset", "old amount still shows after i submit", "box should empty after i deposit", "deposit field never clears"],
+    summary: "Nice catch — that's not broken, just a bit rough. Clearing the amount box after a successful deposit is a small usability improvement.",
+    code: "transactions.push('Deposited £' + amt);",
+    fixCode: "transactions.push('Deposited £' + amt);\n  document.getElementById('depositAmt').value = '';"
+  },
+  {
+    keywords: ["add commas to big numbers", "hard to read the balance", "large numbers are hard to read", "add thousand separators", "format the balance with commas", "big balance is hard to read", "balance needs commas"],
+    summary: "Good instinct — large balances are genuinely easier to read with thousands separators. toLocaleString() adds those commas automatically.",
+    code: "document.getElementById('balance').textContent = balance.toFixed(2);",
+    fixCode: "document.getElementById('balance').textContent = balance.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});"
   }
 ];
-const CHAT_FALLBACK = "I'm not totally sure which issue that is — try each part of the app (deposit, withdraw, transfer) and tell me exactly what looks or acts wrong.";
-const CHAT_GREETING = "Hi! I'm the support chat for this app. Try the buttons on the right, then tell me anything that looks or behaves wrong — I'll show you exactly what to change.";
+const CHAT_FALLBACK = "I'm not totally sure which issue that is — try each part of the app (deposit, withdraw, transfer), watch what actually happens, and describe exactly what you're seeing.";
+const CHAT_GREETING = "Hi! I'm the support chat for this app. Try the buttons on the right, then tell me anything that looks or behaves wrong — including things you'd just improve. I'll figure out the fix and apply it, then show you exactly what changed.";
 
 function normalizeChat(s){
   return s.toLowerCase().replace(/[^\w\s]/g,' ').replace(/\s+/g,' ').trim();
@@ -425,8 +428,13 @@ function scoreEntry(msgNorm, msgWords, entry){
   });
   return best;
 }
+const CHAT_SYNONYMS = { "cash": "amount", "money": "amount", "log": "transaction", "record": "transaction" };
+function applyChatSynonyms(msgNorm){
+  return msgNorm.split(' ').map(w => CHAT_SYNONYMS[w] || w).join(' ');
+}
 function findFix(userMsg){
-  const msgNorm = normalizeChat(userMsg);
+  let msgNorm = normalizeChat(userMsg);
+  msgNorm = applyChatSynonyms(msgNorm);
   const msgWords = msgNorm.split(' ');
   let bestEntry = null, bestScore = 0;
   HELP_ENTRIES.forEach(entry=>{
@@ -447,7 +455,24 @@ function addChatMsg(html, who){
 function escapeHtml(s){
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
-let fixCounter = 0;
+
+function applyMatchedFix(match){
+  const ta = document.getElementById('codeInput');
+  const current = ta.value;
+  if(!current.includes(match.code)){
+    addChatMsg("I can't find that exact spot right now — it might already be fixed, or another change needs to land first. Try describing what you're still seeing.", 'bot');
+    return;
+  }
+  addChatMsg(escapeHtml(match.summary), 'bot');
+  const updated = current.replace(match.code, match.fixCode);
+  ta.value = updated;
+  const diffHtml = `<div class="diff-block"><div class="diff-old">- ${escapeHtml(match.code)}</div><div class="diff-new">+ ${escapeHtml(match.fixCode)}</div></div>`;
+  addChatMsg(`Here's the change I made:${diffHtml}`, 'bot');
+  highlightInCode(match.fixCode.split('\n')[0]);
+  clearTimeout(debounceTimer);
+  buildFrame(updated, true);
+}
+
 function sendChat(){
   const input = document.getElementById('chatInput');
   const msg = input.value.trim();
@@ -457,35 +482,11 @@ function sendChat(){
   setTimeout(()=>{
     const match = findFix(msg);
     if(match){
-      fixCounter++;
-      const varName = 'fix' + fixCounter;
-      window[varName] = match;
-      const html = `${match.reply}<pre>${escapeHtml(match.code)}</pre>Change it to:<pre>${escapeHtml(match.fixCode)}</pre>
-        <div class="btn-row">
-          <button class="mini-btn" onclick="showInCode('${varName}', this)">Show me in the code</button>
-          <button class="mini-btn" onclick="copyFix('${varName}', this)">Copy fix</button>
-        </div>`;
-      addChatMsg(html, 'bot');
+      applyMatchedFix(match);
     } else {
       addChatMsg(escapeHtml(CHAT_FALLBACK), 'bot');
     }
   }, 250);
-}
-function showInCode(varName, btn){
-  const match = window[varName];
-  const found = highlightInCode(match.code);
-  const old = btn.textContent;
-  btn.textContent = found ? 'Found it \u2191' : 'Already changed?';
-  setTimeout(()=>{ btn.textContent = old; }, 1500);
-}
-function copyFix(varName, btn){
-  const match = window[varName];
-  navigator.clipboard.writeText(match.fixCode).then(()=>{
-    const old = btn.textContent;
-    btn.textContent = 'Copied!';
-    btn.classList.add('copied');
-    setTimeout(()=>{ btn.textContent = old; btn.classList.remove('copied'); }, 1500);
-  }).catch(()=>{});
 }
 
 addChatMsg(escapeHtml(CHAT_GREETING), 'bot');

@@ -39,7 +39,7 @@ h1{font-size:26px;margin:0 0 8px;font-weight:700;letter-spacing:-0.01em;color:va
 .tl-line.done{background:var(--success);}
 
 .cols{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-@media (max-width:860px){.cols{grid-template-columns:1fr;}}
+@media (max-width:860px){.cols{grid-template-columns:1fr;}.cols .panel:first-child{order:2;}.right-col{order:1;}}
 .right-col{display:flex;flex-direction:column;gap:20px;}
 
 .panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;box-shadow:var(--shadow-sm);}
@@ -185,7 +185,8 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
         <div class="panel">
           <div class="panel-head"><h2>Data Feed — ledger</h2></div>
           <table class="ledger-table" id="ledgerTable"></table>
-          <p class="ledger-note">This exact array is passed into your function as <code>transactions</code>. A couple of test rows use a second, hidden set of data too — so the logic has to actually work, not just match these numbers.</p>
+          <p class="ledger-note"><b>How this becomes code:</b> row 1 in the table above is <code>groceries, £120</code> — in your code, that's <code>transactions[0].category</code> (which is <code>"groceries"</code>) and <code>transactions[0].amount</code> (which is <code>120</code>). The <code>[0]</code> means "first row" — arrays start counting at 0, not 1. <code>transactions.length</code> tells you how many rows there are in total (8).</p>
+          <p class="ledger-note" style="margin-top:10px;">One more thing: a couple of test rows also try a second, unseen set of data — that's just to prove your code really works, not to catch you out.</p>
         </div>
         <div class="panel">
           <div class="panel-head"><h2>Test Console</h2></div>
@@ -278,6 +279,8 @@ function totalSpend(transactions) {
 for (let i = 0; i < dailyLogs.length; i++) {
   steps += dailyLogs[i].count;
 }</pre>
+<div class="we-line"><b>dailyLogs[i]</b> — one single entry from the list, the one at position i.</div>
+<div class="we-line"><b>dailyLogs[i].count</b> — the count field on that one entry.</div>
 <div class="we-line">steps starts at 0, then every time round the loop it grows by that day's count. By the end, steps holds the running total of every day added together — same idea works for adding up amounts.</div>`
   },
   {
@@ -538,6 +541,16 @@ const HELP_DATA = {
   "module": "ledger",
   "entries": [
     {
+      "id": "what-is-function-general",
+      "keywords": [
+        "whats a function",
+        "what is a function",
+        "what does function mean",
+        "how do functions work"
+      ],
+      "response": "A function does something when you call it. function totalSpend(transactions) { ... } names it and says what input it takes \u2014 transactions here is the list you're working with."
+    },
+    {
       "id": "what-is-array",
       "keywords": [
         "what is an array",
@@ -553,7 +566,10 @@ const HELP_DATA = {
         "what is an object",
         "dot notation",
         "what does .amount mean",
-        "object property"
+        "object property",
+        "what does a row look like",
+        "what does a transaction look like",
+        "what does an entry look like"
       ],
       "response": "An object holds named fields. transactions[i].amount means 'the amount field of the i-th transaction' \u2014 the dot gets you the named value out."
     },
@@ -605,7 +621,8 @@ const HELP_DATA = {
         "total spend help",
         "sum all transactions"
       ],
-      "response": "totalSpend just needs the accumulator pattern with no filtering \u2014 add every single amount onto the running total, no if needed."
+      "response": "This one doesn't need any filtering \u2014 every transaction counts. What pattern have you already seen for building up a running total across a whole list?",
+      "escalatedResponse": "totalSpend just needs the accumulator pattern with no filtering \u2014 add every single amount onto the running total, no if needed."
     },
     {
       "id": "sumbycategory-stuck",
@@ -614,7 +631,8 @@ const HELP_DATA = {
         "category function help",
         "filter by category"
       ],
-      "response": "sumByCategory needs the accumulator plus a check: only add the amount when transactions[i].category === category is true."
+      "response": "This is the accumulator pattern again, but with one extra condition. What would you need to check before adding an amount onto the total?",
+      "escalatedResponse": "sumByCategory needs the accumulator plus a check: only add the amount when transactions[i].category === category is true."
     },
     {
       "id": "counthighvalue-stuck",
@@ -623,7 +641,8 @@ const HELP_DATA = {
         "count function help",
         "threshold counting"
       ],
-      "response": "This one counts instead of sums \u2014 start let count = 0;, and inside the loop do count++; (not += amount) whenever transactions[i].amount > threshold."
+      "response": "This one counts matches rather than adding amounts up. What's different about counting compared to summing \u2014 what would you increase, and by how much each time?",
+      "escalatedResponse": "This one counts instead of sums \u2014 start let count = 0;, and inside the loop do count++; (not += amount) whenever transactions[i].amount > threshold."
     },
     {
       "id": "largest-stuck",
@@ -633,7 +652,8 @@ const HELP_DATA = {
         "find the maximum",
         "running max"
       ],
-      "response": "Track the biggest value seen so far. Start let biggest = 0;, then inside the loop: if (transactions[i].amount > biggest) { biggest = transactions[i].amount; } \u2014 no sorting needed."
+      "response": "You don't need to sort anything here \u2014 just keep track of the biggest value you've seen so far as you go. What would you need to compare each amount against?",
+      "escalatedResponse": "Track the biggest value seen so far. Start let biggest = 0;, then inside the loop: if (transactions[i].amount > biggest) { biggest = transactions[i].amount; } \u2014 no sorting needed."
     },
     {
       "id": "average-stuck",
@@ -642,7 +662,8 @@ const HELP_DATA = {
         "average function help",
         "rounding average"
       ],
-      "response": "Sum everything first with the usual accumulator pattern, then divide by transactions.length, then wrap the whole thing in Math.round() to round to the nearest whole number."
+      "response": "An average is really two steps you already know how to do separately \u2014 what are they, and in what order?",
+      "escalatedResponse": "Sum everything first with the usual accumulator pattern, then divide by transactions.length, then wrap the whole thing in Math.round() to round to the nearest whole number."
     },
     {
       "id": "sumbycategories-stuck",
@@ -652,7 +673,8 @@ const HELP_DATA = {
         "array of categories",
         "includes method"
       ],
-      "response": "categories.includes(transactions[i].category) checks if that transaction's category is anywhere in your list of categories \u2014 use it inside the if, same accumulator pattern as before."
+      "response": "This is similar to matching one category, but now you're checking against a whole list of them. Is there a method that checks if something appears anywhere inside an array?",
+      "escalatedResponse": "categories.includes(transactions[i].category) checks if that transaction's category is anywhere in your list of categories \u2014 use it inside the if, same accumulator pattern as before."
     },
     {
       "id": "nan-error",
@@ -681,22 +703,36 @@ const HELP_DATA = {
         "dont know what to do",
         "confused",
         "not sure what to write",
-        "no idea"
+        "no idea",
+        "how do i even start",
+        "where do i begin",
+        "how do i start"
       ],
       "response": "Start with the accumulator pattern (let total = 0 before the loop, update it inside), then add filtering with an if if the brief needs it. Try the Hint button, or flag a facilitator."
     }
-  ]
+  ],
+  "synonyms": {
+    "list": "array",
+    "table": "array",
+    "row": "transaction",
+    "entry": "transaction",
+    "cash": "amount",
+    "money": "amount",
+    "tally": "total"
+  }
 };
 const HELP_FALLBACK = "I'm not totally sure about that one — no worries though. Try asking it a different way, tap the 💡 Hint button, or wave down a facilitator. You're doing fine.";
 const HELP_GREETING = "Hi! I'm here to help — genuinely ask me anything, there's no question too basic. I can explain an error message, walk through the syntax, or nudge you on whichever bit you're stuck on.";
+const ESCALATION_PHRASES = ["just tell me", "give me the answer", "tell me the answer", "im really stuck", "really stuck", "super stuck", "please just tell me", "just give me the code", "i give up", "cant figure it out", "cant work it out", "just show me", "give up"];
 
 let helpOpen = false;
 let helpGreeted = false;
+let lastHelpEntry = null;
 
 function normalizeHelp(s){
   return s.toLowerCase().replace(/[^\w\s]/g,' ').replace(/\s+/g,' ').trim();
 }
-const HELP_STOPWORDS = new Set(["what","does","do","is","are","the","a","an","to","of","in","on","for","and","or","i","my","how","this","that","it","me","you","your","did","doing","can","if","help","meaning","mean","means","explain","understand","understanding","know","knowing","work","working","works","use","using","used","need","needs","needed","want","wanted","wants","sure","right","correct","wrong","thing","things","stuff","way","ways","doesnt","dont","isnt","not","get","got","getting","should","would","could","will","with","when","where","why","which","who","from","have","has","had","about","some","any","just","really","actually","supposed","supposed"]);
+const HELP_STOPWORDS = new Set(["what","does","do","is","are","the","a","an","to","of","in","on","for","and","or","i","my","how","this","that","it","me","you","your","did","doing","can","if","help","meaning","mean","means","explain","understand","understanding","know","knowing","work","working","works","use","using","used","need","needs","needed","want","wanted","wants","sure","right","correct","wrong","thing","things","stuff","way","ways","doesnt","dont","isnt","not","get","got","getting","should","would","could","will","with","when","where","why","which","who","from","have","has","had","about","some","any","just","really","actually","supposed","supposed","stuck","function","functions"]);
 function scoreHelpEntry(msgNorm, msgWords, entry){
   let best = 0;
   entry.keywords.forEach(kw=>{
@@ -710,15 +746,32 @@ function scoreHelpEntry(msgNorm, msgWords, entry){
   });
   return best;
 }
+function isEscalation(msgNorm){
+  return ESCALATION_PHRASES.some(p => msgNorm.includes(p));
+}
+function applySynonyms(msgNorm){
+  const syns = HELP_DATA.synonyms || {};
+  return msgNorm.split(' ').map(w => syns[w] || w).join(' ');
+}
 function findHelpResponse(userMsg){
-  const msgNorm = normalizeHelp(userMsg);
+  let msgNorm = normalizeHelp(userMsg);
+  msgNorm = applySynonyms(msgNorm);
   const msgWords = msgNorm.split(' ');
+
+  if(isEscalation(msgNorm)){
+    if(lastHelpEntry && lastHelpEntry.escalatedResponse){
+      return "No worries — here's the direct answer: " + lastHelpEntry.escalatedResponse;
+    }
+    return "That's okay — tell me which specific challenge or line you're stuck on, and I'll be more direct about it.";
+  }
+
   let bestEntry = null, bestScore = 0;
   HELP_DATA.entries.forEach(entry=>{
     const s = scoreHelpEntry(msgNorm, msgWords, entry);
     if(s > bestScore){ bestScore = s; bestEntry = entry; }
   });
   if(bestEntry && bestScore >= 1){
+    lastHelpEntry = bestEntry;
     return bestEntry.response;
   }
   return HELP_FALLBACK;
