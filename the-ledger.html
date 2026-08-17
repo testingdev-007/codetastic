@@ -54,6 +54,17 @@ h1{font-size:26px;margin:0 0 8px;font-weight:700;letter-spacing:-0.01em;color:va
 .we-body{padding:2px 14px 14px;}
 .we-body pre{background:#0D1117;border:none;border-radius:8px;padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#E6EDF3;line-height:1.65;margin:0 0 10px;white-space:pre-wrap;}
 .we-body .we-line{font-size:12.5px;color:var(--text-secondary);line-height:1.6;margin-bottom:4px;}
+.we-try{margin-top:12px;padding-top:12px;border-top:1px dashed var(--accent-border);display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.we-try-inputs{display:flex;gap:8px;flex-wrap:wrap;}
+.we-try-inputs .we-item{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.we-try-inputs .we-item-label{font-size:10.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.03em;font-weight:600;}
+.we-try-inputs input{width:64px;padding:6px 8px;border-radius:6px;border:1px solid var(--accent-border);font-family:'JetBrains Mono',monospace;font-size:12.5px;background:#fff;text-align:center;}
+.we-try-inputs input:focus{outline:none;border-color:var(--accent);}
+.we-try-btn{padding:7px 14px !important;font-size:12.5px !important;}
+.we-try-result{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--text-muted);font-weight:600;}
+.we-try-result.show{color:var(--success);}
+.help-msg.hint{background:var(--accent-bg);border:1px solid var(--accent-border);}
+.help-msg.blocked{background:var(--warning-bg);border:1px solid #FEDF89;color:#B54708;font-weight:600;}
 
 .editor-chrome{border:1px solid var(--border);border-radius:10px;overflow:hidden;}
 .editor-titlebar{padding:9px 14px;background:var(--surface-alt);border-bottom:1px solid var(--border);font-size:12px;color:var(--text-secondary);display:flex;justify-content:space-between;align-items:center;}
@@ -69,7 +80,6 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
 .btn-ghost{background:#fff;color:var(--text-secondary);border:1px solid var(--border-strong);}
 .btn-ghost:hover{background:var(--surface-alt);color:var(--text);}
 
-.hint-box{margin-top:12px;font-size:13px;padding:12px 14px;border-radius:8px;display:none;line-height:1.6;white-space:pre-wrap;color:var(--text);background:var(--accent-bg);border:1px solid var(--accent-border);}
 .error-box{margin-top:12px;font-size:13px;padding:12px 14px;border-radius:8px;display:none;line-height:1.6;white-space:pre-wrap;color:#B42318;background:var(--danger-bg);border:1px solid var(--danger-border);}
 
 .test-list{display:flex;flex-direction:column;gap:0;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
@@ -134,7 +144,7 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
 <button class="help-fab" id="helpFab" onclick="toggleHelp()">💬<span class="fab-dot" id="helpDot"></span></button>
 <div class="help-panel" id="helpPanel">
   <div class="help-head">
-    <span class="htitle">System Assist</span>
+    <span class="htitle">Help &amp; Hints</span>
     <button onclick="toggleHelp()">✕</button>
   </div>
   <div class="help-log" id="helpLog"></div>
@@ -165,19 +175,26 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
         </div>
         <p class="brief" id="briefText"></p>
         <details class="worked-example" id="workedExample" open>
-          <summary>📎 See a worked example first</summary>
-          <div class="we-body" id="weBody"></div>
+          <summary>📎 See a worked example — then try it yourself</summary>
+          <div class="we-body">
+            <pre id="weCode"></pre>
+            <div id="weExplain"></div>
+            <div class="we-try">
+              <div class="we-try-inputs" id="weTryInputs"></div>
+              <button class="btn-ghost we-try-btn" onclick="runWorkedExample()">▶ Try it</button>
+              <span class="we-try-result" id="weTryResult"></span>
+            </div>
+          </div>
         </details>
         <div class="editor-chrome">
-          <div class="editor-titlebar"><span>root@ledger:~$</span> query.js</div>
+          <div class="editor-titlebar"><span>query.js</span> — updates as you type</div>
           <textarea id="codeInput" spellcheck="false"></textarea>
         </div>
         <div class="actions">
           <button class="btn-primary" onclick="runTests()">▶ Run Query</button>
           <button class="btn-ghost" onclick="resetChallenge()">↺ Reset</button>
-          <button class="btn-ghost" id="hintBtn" onclick="revealNextHint()">💡 Hint</button>
+          <button class="btn-ghost" id="hintBtn" onclick="requestHint()">💡 Hint</button>
         </div>
-        <div class="hint-box" id="hintBox"></div>
         <div class="error-box" id="errorBox"></div>
       </div>
 
@@ -275,13 +292,25 @@ function totalSpend(transactions) {
       "Inside the loop, add each amount onto your total: total += transactions[i].amount;",
       "for (let i = 0; i < transactions.length; i++) {\n  total += transactions[i].amount;\n}"
     ],
-    worked: `<pre>let steps = 0;
-for (let i = 0; i < dailyLogs.length; i++) {
-  steps += dailyLogs[i].count;
-}</pre>
-<div class="we-line"><b>dailyLogs[i]</b> — one single entry from the list, the one at position i.</div>
-<div class="we-line"><b>dailyLogs[i].count</b> — the count field on that one entry.</div>
-<div class="we-line">steps starts at 0, then every time round the loop it grows by that day's count. By the end, steps holds the running total of every day added together — same idea works for adding up amounts.</div>`
+    workedFn: "sumSteps",
+    workedField: "count",
+    workedCode: `function sumSteps(dailyLogs) {
+  let steps = 0;
+  for (let i = 0; i < dailyLogs.length; i++) {
+    steps += dailyLogs[i].count;
+  }
+  return steps;
+}`,
+    workedArrayItems: [
+      {label:"day 1", value:3000},
+      {label:"day 2", value:5200},
+      {label:"day 3", value:8100}
+    ],
+    workedExplain: [
+      "<b>dailyLogs[i]</b> — one single entry from the list, the one at position i.",
+      "<b>dailyLogs[i].count</b> — the count field on that one entry.",
+      "Try changing the numbers below and click Try it — steps always ends up as their sum. Same idea works for adding up amounts."
+    ]
   },
   {
     fnName: "sumByCategory",
@@ -309,13 +338,26 @@ function sumByCategory(transactions, category) {
       "Put an if check inside the loop before you add anything: if (transactions[i].category === category) { ... }",
       "for (let i = 0; i < transactions.length; i++) {\n  if (transactions[i].category === category) {\n    total += transactions[i].amount;\n  }\n}"
     ],
-    worked: `<pre>let foodTotal = 0;
-for (let i = 0; i < purchases.length; i++) {
-  if (purchases[i].type === "food") {
-    foodTotal += purchases[i].cost;
+    workedFn: "sumFoodCost",
+    workedField: "cost",
+    workedCode: `function sumFoodCost(purchases) {
+  let foodTotal = 0;
+  for (let i = 0; i < purchases.length; i++) {
+    if (purchases[i].type === "food") {
+      foodTotal += purchases[i].cost;
+    }
   }
-}</pre>
-<div class="we-line">The if check runs on every purchase, but foodTotal only grows when purchases[i].type actually says "food" — everything else gets skipped.</div>`
+  return foodTotal;
+}`,
+    workedArrayItems: [
+      {label:"food", value:12},
+      {label:"food", value:30},
+      {label:"other", value:45}
+    ],
+    workedExplain: [
+      "The if check runs on every purchase, but foodTotal only grows when purchases[i].type actually says \"food\" — everything else gets skipped.",
+      "Change the numbers below and click Try it — only the two \"food\" ones ever count, however big you make \"other\"."
+    ]
   },
   {
     fnName: "countHighValue",
@@ -342,13 +384,26 @@ function countHighValue(transactions, threshold) {
       "Inside the loop: if (transactions[i].amount > threshold) { count++; } — count++ just means \"add one.\"",
       "for (let i = 0; i < transactions.length; i++) {\n  if (transactions[i].amount > threshold) {\n    count++;\n  }\n}"
     ],
-    worked: `<pre>let hotDays = 0;
-for (let i = 0; i < days.length; i++) {
-  if (days[i].temp > 25) {
-    hotDays++;
+    workedFn: "countHotDays",
+    workedField: "temp",
+    workedCode: `function countHotDays(days) {
+  let hotDays = 0;
+  for (let i = 0; i < days.length; i++) {
+    if (days[i].temp > 25) {
+      hotDays++;
+    }
   }
-}</pre>
-<div class="we-line">hotDays starts at 0 and only goes up by one each time a day's temp is actually over 25 — count++ means "add one," nothing more. No amounts involved, just counting matches.</div>`
+  return hotDays;
+}`,
+    workedArrayItems: [
+      {label:"day 1", value:22},
+      {label:"day 2", value:28},
+      {label:"day 3", value:31}
+    ],
+    workedExplain: [
+      "hotDays starts at 0 and only goes up by one each time a day's temp is actually over 25 — count++ means \"add one,\" nothing more. No amounts involved, just counting matches.",
+      "Try pushing all three below under 25, then back over — watch the count change."
+    ]
   }
 ];
 
@@ -388,16 +443,19 @@ function loadChallenge(idx){
   current = idx;
   failCount = 0;
   hintTier = 0;
+  hasRunSinceHint = true;
   proactiveShown = false;
   const c = CHALLENGES[idx];
   document.getElementById('challengeTitle').textContent = c.fnName;
   document.getElementById('conceptTag').textContent = c.concept.split(' · ')[0];
   document.getElementById('briefText').textContent = c.brief;
   document.getElementById('codeInput').value = c.starter;
-  document.getElementById('weBody').innerHTML = c.worked;
+  document.getElementById('weCode').textContent = c.workedCode;
+  document.getElementById('weExplain').innerHTML = c.workedExplain.map(e=>`<div class="we-line">${e}</div>`).join('');
+  renderWeTryInputs(c);
+  document.getElementById('weTryResult').textContent = '';
+  document.getElementById('weTryResult').className = 'we-try-result';
   document.getElementById('workedExample').open = true;
-  document.getElementById('hintBox').style.display = 'none';
-  document.getElementById('hintBox').innerHTML = '';
   document.getElementById('hintBtn').textContent = '💡 Hint';
   document.getElementById('errorBox').style.display = 'none';
   document.getElementById('helpDot').style.display = 'none';
@@ -408,6 +466,35 @@ function loadChallenge(idx){
   status.className = 'status-line';
 }
 function resetChallenge(){ loadChallenge(current); }
+
+function renderWeTryInputs(c){
+  const wrap = document.getElementById('weTryInputs');
+  wrap.innerHTML = c.workedArrayItems.map((item,i) =>
+    `<div class="we-item"><span class="we-item-label">${item.label}</span><input type="number" id="weItem${i}" value="${item.value}" step="any"></div>`
+  ).join('');
+}
+
+function runWorkedExample(){
+  const c = CHALLENGES[current];
+  const resultEl = document.getElementById('weTryResult');
+  try{
+    const fn = new Function(c.workedCode + `\nreturn ${c.workedFn};`)();
+    const arr = c.workedArrayItems.map((item,i) => {
+      const obj = {};
+      obj[c.workedField] = Number(document.getElementById('weItem'+i).value);
+      if(item.label && isNaN(Number(item.label))){
+        obj.type = item.label; // preserves the fixed category label for the filtering example
+      }
+      return obj;
+    });
+    const result = fn(arr);
+    resultEl.textContent = `→ ${c.workedFn}([...]) = ${JSON.stringify(result)}`;
+    resultEl.className = 'we-try-result show';
+  }catch(e){
+    resultEl.textContent = 'error — try a different number';
+    resultEl.className = 'we-try-result';
+  }
+}
 
 function renderTests(c){
   const list = document.getElementById('testList');
@@ -421,17 +508,25 @@ function renderTests(c){
   });
 }
 
+let hasRunSinceHint = true;
+function requestHint(){
+  if(!helpOpen) toggleHelp();
+  revealNextHint();
+}
+
 function revealNextHint(){
   const c = CHALLENGES[current];
-  const box = document.getElementById('hintBox');
   const btn = document.getElementById('hintBtn');
-  box.style.display = 'block';
+
+  if(hintTier > 0 && hintTier < c.hints.length && !hasRunSinceHint){
+    addHelpMsg('⏸ Try running your code first — click ▶ Run Query, then I\u2019ll give you the next hint.', 'bot blocked');
+    return;
+  }
+
   if(hintTier < c.hints.length){
     hintTier++;
-    const line = document.createElement('div');
-    line.textContent = `${hintTier}. ${c.hints[hintTier-1]}`;
-    line.style.marginBottom = '6px';
-    box.appendChild(line);
+    addHelpMsg(`${hintTier}. ${c.hints[hintTier-1]}`, 'bot hint');
+    hasRunSinceHint = false;
   }
   btn.textContent = hintTier >= c.hints.length ? '💡 That\u2019s the full hint' : '💡 Tell me more';
 }
@@ -440,7 +535,7 @@ function maybeNudgeHint(){
   const status = document.getElementById('statusLine');
   if(failCount >= 2){
     document.getElementById('helpDot').style.display = 'block';
-    if(document.getElementById('hintBox').style.display !== 'block'){
+    if(hintTier === 0){
       status.textContent = "No rush — try the 💡 Hint button below, it'll walk you through it step by step.";
     }
   }
@@ -452,6 +547,7 @@ function maybeNudgeHint(){
 }
 
 function runTests(){
+  hasRunSinceHint = true;
   const c = CHALLENGES[current];
   const src = document.getElementById('codeInput').value;
   const errorBox = document.getElementById('errorBox');
@@ -615,68 +711,6 @@ const HELP_DATA = {
       "response": "Put an if check inside the loop before you add to the total \u2014 if (transactions[i].category === category) { total += transactions[i].amount; } \u2014 only matching items get added."
     },
     {
-      "id": "totalspend-stuck",
-      "keywords": [
-        "totalspend stuck",
-        "total spend help",
-        "sum all transactions"
-      ],
-      "response": "This one doesn't need any filtering \u2014 every transaction counts. What pattern have you already seen for building up a running total across a whole list?",
-      "escalatedResponse": "totalSpend just needs the accumulator pattern with no filtering \u2014 add every single amount onto the running total, no if needed."
-    },
-    {
-      "id": "sumbycategory-stuck",
-      "keywords": [
-        "sumbycategory stuck",
-        "category function help",
-        "filter by category"
-      ],
-      "response": "This is the accumulator pattern again, but with one extra condition. What would you need to check before adding an amount onto the total?",
-      "escalatedResponse": "sumByCategory needs the accumulator plus a check: only add the amount when transactions[i].category === category is true."
-    },
-    {
-      "id": "counthighvalue-stuck",
-      "keywords": [
-        "counthighvalue stuck",
-        "count function help",
-        "threshold counting"
-      ],
-      "response": "This one counts matches rather than adding amounts up. What's different about counting compared to summing \u2014 what would you increase, and by how much each time?",
-      "escalatedResponse": "This one counts instead of sums \u2014 start let count = 0;, and inside the loop do count++; (not += amount) whenever transactions[i].amount > threshold."
-    },
-    {
-      "id": "largest-stuck",
-      "keywords": [
-        "largesttransaction stuck",
-        "biggest transaction",
-        "find the maximum",
-        "running max"
-      ],
-      "response": "You don't need to sort anything here \u2014 just keep track of the biggest value you've seen so far as you go. What would you need to compare each amount against?",
-      "escalatedResponse": "Track the biggest value seen so far. Start let biggest = 0;, then inside the loop: if (transactions[i].amount > biggest) { biggest = transactions[i].amount; } \u2014 no sorting needed."
-    },
-    {
-      "id": "average-stuck",
-      "keywords": [
-        "averagetransaction stuck",
-        "average function help",
-        "rounding average"
-      ],
-      "response": "An average is really two steps you already know how to do separately \u2014 what are they, and in what order?",
-      "escalatedResponse": "Sum everything first with the usual accumulator pattern, then divide by transactions.length, then wrap the whole thing in Math.round() to round to the nearest whole number."
-    },
-    {
-      "id": "sumbycategories-stuck",
-      "keywords": [
-        "sumbycategories stuck",
-        "multiple categories",
-        "array of categories",
-        "includes method"
-      ],
-      "response": "This is similar to matching one category, but now you're checking against a whole list of them. Is there a method that checks if something appears anywhere inside an array?",
-      "escalatedResponse": "categories.includes(transactions[i].category) checks if that transaction's category is anywhere in your list of categories \u2014 use it inside the if, same accumulator pattern as before."
-    },
-    {
       "id": "nan-error",
       "keywords": [
         "nan error",
@@ -694,21 +728,6 @@ const HELP_DATA = {
         "hardcoded number"
       ],
       "response": "If the visible ledger test passes but the hidden one doesn't, that's usually a sign the number's been typed in directly rather than calculated \u2014 the function needs to work on any list it's given, not just this one."
-    },
-    {
-      "id": "general-stuck",
-      "keywords": [
-        "im stuck",
-        "help",
-        "dont know what to do",
-        "confused",
-        "not sure what to write",
-        "no idea",
-        "how do i even start",
-        "where do i begin",
-        "how do i start"
-      ],
-      "response": "Start with the accumulator pattern (let total = 0 before the loop, update it inside), then add filtering with an if if the brief needs it. Try the Hint button, or flag a facilitator."
     }
   ],
   "synonyms": {
@@ -721,13 +740,12 @@ const HELP_DATA = {
     "tally": "total"
   }
 };
-const HELP_FALLBACK = "I'm not totally sure about that one — no worries though. Try asking it a different way, tap the 💡 Hint button, or wave down a facilitator. You're doing fine.";
-const HELP_GREETING = "Hi! I'm here to help — genuinely ask me anything, there's no question too basic. I can explain an error message, walk through the syntax, or nudge you on whichever bit you're stuck on.";
-const ESCALATION_PHRASES = ["just tell me", "give me the answer", "tell me the answer", "im really stuck", "really stuck", "super stuck", "please just tell me", "just give me the code", "i give up", "cant figure it out", "cant work it out", "just show me", "give up"];
+const HELP_FALLBACK = "I'm not totally sure about that one — no worries though. Try asking it a different way, tap 💡 Hint below, or wave down a facilitator. You're doing fine.";
+const HELP_GREETING = "Hi! I'm here to help — ask me anything, there's no question too basic, or tap 💡 Hint below for a step-by-step nudge on whatever you're working on right now.";
+const STUCK_PHRASES = ["im stuck", "i'm stuck", "help", "dont know what to do", "don't know what to do", "confused", "not sure what to write", "no idea", "how do i even start", "where do i begin", "how do i start", "just tell me", "give me the answer", "tell me the answer", "im really stuck", "really stuck", "super stuck", "please just tell me", "just give me the code", "i give up", "cant figure it out", "cant work it out", "just show me", "give up"];
 
 let helpOpen = false;
 let helpGreeted = false;
-let lastHelpEntry = null;
 
 function normalizeHelp(s){
   return s.toLowerCase().replace(/[^\w\s]/g,' ').replace(/\s+/g,' ').trim();
@@ -746,8 +764,8 @@ function scoreHelpEntry(msgNorm, msgWords, entry){
   });
   return best;
 }
-function isEscalation(msgNorm){
-  return ESCALATION_PHRASES.some(p => msgNorm.includes(p));
+function isStuckPhrase(msgNorm){
+  return STUCK_PHRASES.some(p => msgNorm.includes(p));
 }
 function applySynonyms(msgNorm){
   const syns = HELP_DATA.synonyms || {};
@@ -758,20 +776,12 @@ function findHelpResponse(userMsg){
   msgNorm = applySynonyms(msgNorm);
   const msgWords = msgNorm.split(' ');
 
-  if(isEscalation(msgNorm)){
-    if(lastHelpEntry && lastHelpEntry.escalatedResponse){
-      return "No worries — here's the direct answer: " + lastHelpEntry.escalatedResponse;
-    }
-    return "That's okay — tell me which specific challenge or line you're stuck on, and I'll be more direct about it.";
-  }
-
   let bestEntry = null, bestScore = 0;
   HELP_DATA.entries.forEach(entry=>{
     const s = scoreHelpEntry(msgNorm, msgWords, entry);
     if(s > bestScore){ bestScore = s; bestEntry = entry; }
   });
   if(bestEntry && bestScore >= 1){
-    lastHelpEntry = bestEntry;
     return bestEntry.response;
   }
   return HELP_FALLBACK;
@@ -781,6 +791,9 @@ function toggleHelp(){
   helpOpen = !helpOpen;
   const panel = document.getElementById('helpPanel');
   panel.classList.toggle('open', helpOpen);
+  if(helpOpen){
+    document.getElementById('helpDot').style.display = 'none';
+  }
   if(helpOpen && !helpGreeted){
     addHelpMsg(HELP_GREETING, 'bot');
     helpGreeted = true;
@@ -802,7 +815,12 @@ function sendHelp(){
   addHelpMsg(msg, 'user');
   input.value = '';
   setTimeout(()=>{
-    addHelpMsg(findHelpResponse(msg), 'bot');
+    const msgNorm = applySynonyms(normalizeHelp(msg));
+    if(isStuckPhrase(msgNorm)){
+      revealNextHint();
+    } else {
+      addHelpMsg(findHelpResponse(msg), 'bot');
+    }
   }, 220);
 }
 

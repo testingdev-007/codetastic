@@ -69,7 +69,8 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
 .btn-ghost{background:#fff;color:var(--text-secondary);border:1px solid var(--border-strong);}
 .btn-ghost:hover{background:var(--surface-alt);color:var(--text);}
 
-.hint-box{margin-top:12px;font-size:13px;padding:12px 14px;border-radius:8px;display:none;line-height:1.6;white-space:pre-wrap;color:var(--text);background:var(--accent-bg);border:1px solid var(--accent-border);}
+.help-msg.hint{background:var(--accent-bg);border:1px solid var(--accent-border);}
+.help-msg.blocked{background:var(--warning-bg);border:1px solid #FEDF89;color:#B54708;font-weight:600;}
 .error-box{margin-top:12px;font-size:13px;padding:12px 14px;border-radius:8px;display:none;line-height:1.6;white-space:pre-wrap;color:#B42318;background:var(--danger-bg);border:1px solid var(--danger-border);}
 
 .test-list{display:flex;flex-direction:column;gap:0;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
@@ -271,9 +272,8 @@ input[type=text]:focus{outline:none;border-color:var(--accent);}
         <div class="actions">
           <button class="btn-primary" onclick="runCode()">▶ Run Code</button>
           <button class="btn-ghost" onclick="resetLevel()">↺ Reset</button>
-          <button class="btn-ghost" id="hintBtn" onclick="revealNextHint()">💡 Hint</button>
+          <button class="btn-ghost" id="hintBtn" onclick="requestHint()">💡 Hint</button>
         </div>
-        <div class="hint-box" id="hintBox"></div>
         <div class="error-box" id="errorBox"></div>
       </div>
 
@@ -429,20 +429,35 @@ moveForward();</pre>
     title: "THE LOOP",
     concept: "LOOPS",
     size: 6,
-    start: {x:0,y:3,dir:'E'},
-    target: {x:5,y:3},
+    start: {x:0,y:0,dir:'E'},
+    target: {x:5,y:5},
     walls: [],
-    starter: `// Writing moveForward() five times works —\n// but a loop does it in 3 lines instead of 5.\n\nfor (let i = 0; i < 5; i++) {\n  moveForward();\n}`,
-    brief: "The final exit is far away. Rather than repeating moveForward() by hand, use a for-loop to repeat it automatically.",
+    starter: `// The path staircases across the grid — it's not\n// a straight line. Get there however you like.\n\nmoveForward();`,
+    brief: "The exit isn't in a straight line — the path staircases diagonally across the grid. Get there however you like: one command at a time, or with a loop that repeats a whole pattern, not just a single move.",
     hints: [
-      "Five moveForward() calls in a row would work, but there's a shorter way to write a repeated action.",
-      "A loop's middle number controls how many times it repeats — count the actual distance to the exit.",
-      "for (let i = 0; i < 5; i++) { moveForward(); } — change the 5 if your path length differs."
+      "Look at the shape of the path rather than the distance — what repeats, and how many times does it repeat?",
+      "The repeating part is four commands: move, turn, move, turn back — a loop's body can hold more than one line, not just a single moveForward().",
+      "for (let i = 0; i < 5; i++) { moveForward(); turnRight(); moveForward(); turnLeft(); }"
     ],
-    worked: `<pre>for (let i = 0; i < 4; i++) {
+    worked: `<pre>// The manual way — twenty lines:
+waterPlant();
+turnRight();
+waterPlant();
+turnLeft();
+waterPlant();
+turnRight();
+waterPlant();
+turnLeft();
+// ...repeated three more times
+
+// The loop way — same result, four lines:
+for (let i = 0; i < 5; i++) {
   waterPlant();
+  turnRight();
+  waterPlant();
+  turnLeft();
 }</pre>
-<div class="we-line">waterPlant() runs exactly 4 times because of the middle number — same idea as writing moveForward() four times in a row, just far less to type.</div>`
+<div class="we-line">The repeating unit here is four commands, not one — water, turn, water, turn back. The loop's body just holds all four lines instead of one, and repeats the whole block together each time. This is where a loop starts saving real effort, not just a line or two.</div>`
   }
 ];
 
@@ -543,8 +558,6 @@ function loadLevel(idx){
   document.getElementById('codeInput').value = lvl.starter;
   document.getElementById('weBody').innerHTML = lvl.worked;
   document.getElementById('workedExample').open = true;
-  document.getElementById('hintBox').style.display = 'none';
-  document.getElementById('hintBox').innerHTML = '';
   document.getElementById('hintBtn').textContent = '💡 Hint';
   document.getElementById('errorBox').style.display = 'none';
   document.getElementById('helpDot').style.display = 'none';
@@ -633,17 +646,25 @@ let failCount = 0;
 let hintTier = 0;
 let proactiveShown = false;
 
+let hasRunSinceHint = true;
+function requestHint(){
+  if(!helpOpen) toggleHelp();
+  revealNextHint();
+}
+
 function revealNextHint(){
   const lvl = activeLevel;
-  const box = document.getElementById('hintBox');
   const btn = document.getElementById('hintBtn');
-  box.style.display = 'block';
+
+  if(hintTier > 0 && hintTier < lvl.hints.length && !hasRunSinceHint){
+    addHelpMsg('⏸ Try running your code first — click ▶ Run Code, then I\u2019ll give you the next hint.', 'bot blocked');
+    return;
+  }
+
   if(hintTier < lvl.hints.length){
     hintTier++;
-    const line = document.createElement('div');
-    line.textContent = `${hintTier}. ${lvl.hints[hintTier-1]}`;
-    line.style.marginBottom = '6px';
-    box.appendChild(line);
+    addHelpMsg(`${hintTier}. ${lvl.hints[hintTier-1]}`, 'bot hint');
+    hasRunSinceHint = false;
   }
   btn.textContent = hintTier >= lvl.hints.length ? '💡 That\u2019s the full hint' : '💡 Tell me more';
 }
@@ -670,6 +691,7 @@ function fireUplink(){
 }
 
 function runCode(){
+  hasRunSinceHint = true;
   const lvl = activeLevel;
   const src = document.getElementById('codeInput').value;
   const errorBox = document.getElementById('errorBox');
@@ -815,8 +837,6 @@ function startBonus(){
   document.getElementById('codeInput').value = BONUS.starter;
   document.getElementById('weBody').innerHTML = BONUS.worked;
   document.getElementById('workedExample').open = true;
-  document.getElementById('hintBox').style.display = 'none';
-  document.getElementById('hintBox').innerHTML = '';
   document.getElementById('hintBtn').textContent = '💡 Hint';
   document.getElementById('errorBox').style.display = 'none';
   document.getElementById('helpDot').style.display = 'none';
@@ -857,7 +877,7 @@ function finishGame(){
 <button class="help-fab" id="helpFab" onclick="toggleHelp()">💬<span class="fab-dot" id="helpDot"></span></button>
 <div class="help-panel" id="helpPanel">
   <div class="help-head">
-    <span class="htitle">System Assist</span>
+    <span class="htitle">Help &amp; Hints</span>
     <button onclick="toggleHelp()">✕</button>
   </div>
   <div class="help-log" id="helpLog"></div>
@@ -954,41 +974,6 @@ const HELP_DATA = {
       "response": "Check the number in your loop condition against the actual distance to the exit \u2014 a loop that says i < 3 only runs 3 times, so if the exit is 4 cells away it'll stop one short."
     },
     {
-      "id": "wake-up-stuck",
-      "keywords": [
-        "wake up stuck",
-        "first construct",
-        "level 1 stuck",
-        "first level help",
-        "construct 1"
-      ],
-      "response": "How many cells sit between the rover and the exit on this one? What's the smallest possible number of commands that could cover that?",
-      "escalatedResponse": "Wake Up just needs one moveForward(); \u2014 the exit is a single cell away. One line, brackets, semicolon."
-    },
-    {
-      "id": "the-path-stuck",
-      "keywords": [
-        "the path stuck",
-        "second construct",
-        "level 2 help",
-        "construct 2"
-      ],
-      "response": "Count the cells between the rover and the exit \u2014 what does that tell you about how many times you need to call the same command?",
-      "escalatedResponse": "The Path is further away \u2014 count the cells, then write that many moveForward(); calls, one per line, in order."
-    },
-    {
-      "id": "the-turn-stuck",
-      "keywords": [
-        "the turn stuck",
-        "third construct",
-        "level 3 help",
-        "combining moves and turns",
-        "construct 3"
-      ],
-      "response": "This one needs a change of direction partway through. What three things happen in order \u2014 move, then what, then move again?",
-      "escalatedResponse": "The Turn needs you to move, then turn, then move again. Get the rover moving in the first direction first, then add a turnRight() or turnLeft() before continuing."
-    },
-    {
       "id": "bonus-glitch",
       "keywords": [
         "bonus",
@@ -1019,7 +1004,7 @@ const HELP_DATA = {
         "how do hints work",
         "using the hint"
       ],
-      "response": "The Hint button under Run and Reset shows a nudge specific to the construct you're on \u2014 worth trying before asking here if you haven't already."
+      "response": "The Hint button under Run and Reset opens this same chat and posts a nudge specific to the construct you're on \u2014 one click, no need to type anything."
     },
     {
       "id": "reset-lost-code",
@@ -1053,21 +1038,6 @@ const HELP_DATA = {
         "actual coding"
       ],
       "response": "Yes \u2014 this is genuine JavaScript, the same language that runs on most websites you use. moveForward(), the loop, all of it would work the same way in a real script."
-    },
-    {
-      "id": "general-stuck",
-      "keywords": [
-        "im stuck",
-        "help",
-        "dont know what to do",
-        "confused",
-        "not sure what to write",
-        "no idea",
-        "how do i even start",
-        "where do i begin",
-        "how do i start"
-      ],
-      "response": "Start by reading the brief again slowly \u2014 it usually states exactly what's needed. If you're still stuck after that, try the Hint button, or put your hand up for a facilitator."
     }
   ],
   "synonyms": {
@@ -1085,13 +1055,12 @@ const HELP_DATA = {
     "goal": "exit"
   }
 };
-const HELP_FALLBACK = "I'm not totally sure about that one — no worries though. Try asking it a different way, tap the 💡 Hint button, or wave down a facilitator. You're doing fine.";
-const HELP_GREETING = "Hi! I'm here to help — genuinely ask me anything, there's no question too basic. I can explain an error message, walk through the syntax, or nudge you on whichever bit you're stuck on.";
-const ESCALATION_PHRASES = ["just tell me", "give me the answer", "tell me the answer", "im really stuck", "really stuck", "super stuck", "please just tell me", "just give me the code", "i give up", "cant figure it out", "cant work it out", "just show me", "give up"];
+const HELP_FALLBACK = "I'm not totally sure about that one — no worries though. Try asking it a different way, tap 💡 Hint below, or wave down a facilitator. You're doing fine.";
+const HELP_GREETING = "Hi! I'm here to help — ask me anything, there's no question too basic, or tap 💡 Hint below for a step-by-step nudge on whatever you're working on right now.";
+const STUCK_PHRASES = ["im stuck", "i'm stuck", "help", "dont know what to do", "don't know what to do", "confused", "not sure what to write", "no idea", "how do i even start", "where do i begin", "how do i start", "just tell me", "give me the answer", "tell me the answer", "im really stuck", "really stuck", "super stuck", "please just tell me", "just give me the code", "i give up", "cant figure it out", "cant work it out", "just show me", "give up"];
 
 let helpOpen = false;
 let helpGreeted = false;
-let lastHelpEntry = null;
 
 function normalizeHelp(s){
   return s.toLowerCase().replace(/[^\w\s]/g,' ').replace(/\s+/g,' ').trim();
@@ -1110,8 +1079,8 @@ function scoreHelpEntry(msgNorm, msgWords, entry){
   });
   return best;
 }
-function isEscalation(msgNorm){
-  return ESCALATION_PHRASES.some(p => msgNorm.includes(p));
+function isStuckPhrase(msgNorm){
+  return STUCK_PHRASES.some(p => msgNorm.includes(p));
 }
 function applySynonyms(msgNorm){
   const syns = HELP_DATA.synonyms || {};
@@ -1122,20 +1091,12 @@ function findHelpResponse(userMsg){
   msgNorm = applySynonyms(msgNorm);
   const msgWords = msgNorm.split(' ');
 
-  if(isEscalation(msgNorm)){
-    if(lastHelpEntry && lastHelpEntry.escalatedResponse){
-      return "No worries — here's the direct answer: " + lastHelpEntry.escalatedResponse;
-    }
-    return "That's okay — tell me which specific challenge or line you're stuck on, and I'll be more direct about it.";
-  }
-
   let bestEntry = null, bestScore = 0;
   HELP_DATA.entries.forEach(entry=>{
     const s = scoreHelpEntry(msgNorm, msgWords, entry);
     if(s > bestScore){ bestScore = s; bestEntry = entry; }
   });
   if(bestEntry && bestScore >= 1){
-    lastHelpEntry = bestEntry;
     return bestEntry.response;
   }
   return HELP_FALLBACK;
@@ -1145,6 +1106,9 @@ function toggleHelp(){
   helpOpen = !helpOpen;
   const panel = document.getElementById('helpPanel');
   panel.classList.toggle('open', helpOpen);
+  if(helpOpen){
+    document.getElementById('helpDot').style.display = 'none';
+  }
   if(helpOpen && !helpGreeted){
     addHelpMsg(HELP_GREETING, 'bot');
     helpGreeted = true;
@@ -1166,7 +1130,12 @@ function sendHelp(){
   addHelpMsg(msg, 'user');
   input.value = '';
   setTimeout(()=>{
-    addHelpMsg(findHelpResponse(msg), 'bot');
+    const msgNorm = applySynonyms(normalizeHelp(msg));
+    if(isStuckPhrase(msgNorm)){
+      revealNextHint();
+    } else {
+      addHelpMsg(findHelpResponse(msg), 'bot');
+    }
   }, 220);
 }
 

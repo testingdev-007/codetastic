@@ -83,7 +83,7 @@ footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--border);font-
     <a href="#ledger">Ledger</a>
     <a href="#front">Front</a>
     <a href="#helpdesk">Helpdesk</a>
-    <a href="#chat-capability">Help chat — what works</a>
+    <a href="#chat-capability">Help &amp; Hints — what works</a>
     <a href="#helpdesk-chat">Helpdesk chat — what works</a>
     <a href="#troubleshooting">Troubleshooting</a>
     <a href="#files">All files</a>
@@ -110,10 +110,10 @@ footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--border);font-
       <tr><td>2</td><td>The Path</td><td>four <code>moveForward()</code> calls in a row</td></tr>
       <tr><td>3</td><td>The Turn</td><td>move, turn, move again — combining direction changes</td></tr>
       <tr><td>4</td><td>The Relay</td><td>two turns — three straight stretches chained together</td></tr>
-      <tr><td>5</td><td>The Repeat</td><td>a straight run — solvable manually or with a loop, deliberately</td></tr>
+      <tr><td>5</td><td>The Repeat</td><td>a diagonal staircase — solvable manually or with a loop, deliberately</td></tr>
       <tr><td>Bonus</td><td>The Glitch</td><td>fix a loop that runs one time too few (debugging, not new syntax)</td></tr>
     </table>
-    <p style="margin-top:10px;"><b>The Repeat is worth knowing about specifically:</b> its worked example shows the exact same task solved two ways — six <code>moveForward()</code> calls, or a <code>for</code> loop — side by side, and says outright that either one is fine. The checking logic only ever looks at where the rover ends up, never at what code got it there, so this isn't just supportive copy — a fully manual solution and a fully looped one both genuinely pass.</p>
+    <p style="margin-top:10px;"><b>The Repeat is worth knowing about specifically:</b> the path staircases diagonally rather than running in a straight line — deliberately, after feedback that a straight run didn't feel meaningfully harder than earlier tasks, just longer. The repeating unit is four commands (move, turn, move, turn back), not one, so the manual solution is genuinely long (16 lines) while the loop version stays at 4 — a much more dramatic and honest demonstration of why loops matter. The checking logic still only ever looks at where the rover ends up, never at what code got it there, so both the 16-line manual solution and the 4-line loop genuinely pass.</p>
   </div>
 
   <h3>Scaffolded help</h3>
@@ -144,11 +144,15 @@ moveForward();
 turnLeft();
 moveForward();
 moveForward();</pre></div></details>
-  <details><summary>The Repeat (either solution passes)</summary><div class="answer-body"><pre>// Manual:
-moveForward(); × 6
+  <details><summary>The Repeat (either solution passes)</summary><div class="answer-body"><pre>// Loop (4 lines):
+for (let i = 0; i < 4; i++) {
+  moveForward();
+  turnRight();
+  moveForward();
+  turnLeft();
+}
 
-// Loop:
-for (let i = 0; i < 6; i++) { moveForward(); }</pre></div></details>
+// Manual: the same 4-line block repeated 4 times (16 lines) — also passes.</pre></div></details>
   <details><summary>Bonus — The Glitch</summary><div class="answer-body"><p>Change the loop condition from <code>i &lt; 3</code> to <code>i &lt; 4</code> — the exit is 4 cells away, the loop only ran 3 times.</p></div></details>
 
   <!-- ============ VAULT ============ -->
@@ -291,8 +295,9 @@ for (let i = 0; i < 6; i++) { moveForward(); }</pre></div></details>
       <tr><td>1</td><td>The Panel</td><td>background, rounded corners, padding</td></tr>
       <tr><td>2</td><td>The Numbers</td><td>font-size, font-weight</td></tr>
       <tr><td>3</td><td>The Layout</td><td>flexbox row, space-between, centred</td></tr>
+      <tr><td>Bonus</td><td>The Stylesheet Bug</td><td>find a real CSS typo (debugging, not new syntax)</td></tr>
     </table>
-    <p style="margin-top:10px;">Each screen also has a collapsed "🌟 Try these extensions" box with two optional, unchecked stretch ideas — a hover effect, a box-shadow, a text-shadow, and so on. Nobody needs to do these to pass; they're there for anyone who finishes early. The take-home extension restructures the taster into <b>one continuous page</b> (header, nav, card, transaction list) instead of resetting between screens, with 2 extensions per section (8 total).</p>
+    <p style="margin-top:10px;">Each screen also has a collapsed "🌟 Try these extensions" box with two optional, unchecked stretch ideas — a hover effect, a box-shadow, a text-shadow, and so on. Nobody needs to do these to pass; they're there for anyone who finishes early. The take-home extension restructures the taster into <b>one continuous page</b> (header, nav, card, transaction list) instead of resetting between screens, with 2 extensions per section (8 total). Finishing all three now leads to a done screen with real options — <b>↺ Try Again</b> resets everything, <b>⚡ Bonus Round</b> starts a genuine CSS debugging challenge (see below) rather than a dead end.</p>
   </div>
 
   <h3>Scaffolded help</h3>
@@ -328,6 +333,8 @@ for (let i = 0; i < 6; i++) { moveForward(); }</pre></div></details>
 .txn-list { list-style-type: none; }
 .txn-list li { display: flex; justify-content: space-between; }
 .txn-amount.positive { color: #1a8a4c; }</pre></div></details>
+  <details><summary>Bonus — The Stylesheet Bug</summary><div class="answer-body"><p>The CSS already has display: flex, justify-content, and align-items — but one property is misspelled and the browser silently ignores it, which is why the card looks stacked instead of laid out side by side.</p><pre>- dispay: flex;
++ display: flex;</pre></div></details>
 
   <!-- ============ HELPDESK ============ -->
   <h2 id="helpdesk">The Helpdesk</h2>
@@ -383,27 +390,26 @@ for (let i = 0; i < 6; i++) { moveForward(); }</pre></div></details>
   </div></details>
 
   <!-- ============ CHAT CAPABILITY ============ -->
-  <h2 id="chat-capability">Help chat — what works and what doesn't</h2>
+  <h2 id="chat-capability">Help &amp; Hints — what works and what doesn't</h2>
   <div class="card">
-    <p>Construct, Vault, Ledger, and Front each have a support chat (bottom-right corner). It's a keyword-matching system, not a real language model — it can't understand arbitrary phrasing the way a person would, but the net is wide and the behaviour is deliberate: <b>guidance first, the full answer only on genuine escalation.</b></p>
+    <p>Construct, Vault, Ledger, and Front each used to have <b>two separate</b> support systems — a Hint button with its own box, and a completely separate chat with its own escalation logic that quietly duplicated what hints already gave. Feedback was blunt and correct: two places doing the same job is confusing, not more helpful. They're now genuinely one system.</p>
   </div>
-  <h3>How it behaves</h3>
-  <div class="works"><b>First time asking about something:</b> a leading question or conceptual nudge — never the literal code. "This one's really a yes/no question in disguise — is the amount over 10000? What do you already know about what a comparison like that returns?" — not <code>return amount > 10000;</code>.</div>
-  <div class="works"><b>On genuine escalation:</b> phrases like "I'm really stuck", "just tell me", "give me the answer", or "I give up" reveal the direct answer for whatever was most recently discussed — prefixed with "No worries — here's the direct answer:". If nothing's been discussed yet, it asks what specifically they're stuck on instead of guessing.</div>
-  <div class="works"><b>General concept questions:</b> "what's a function", "what does return do", "what's the difference between > and >=" get genuine, direct explanations — these are teaching general syntax, not giving away a specific answer, so there's no need to hold back.</div>
-  <div class="works"><b>Everyday word choices are now understood too:</b> saying "cash" or "money" instead of "amount", "spin" instead of "turn", "colour" whether spelled the US or UK way, "tally" instead of "total" — a small synonym table normalizes these before matching, so someone doesn't need to guess the exact technical word to get a real answer.</div>
-  <div class="trouble"><b>What it still can't do:</b> understand a genuinely novel phrasing that doesn't overlap with any known keyword or synonym. If someone asks something reasonable that gets the generic fallback ("I'm not totally sure about that one..."), that's the system reaching its limit, not a bug — point them at the Hint button or step in yourself.</div>
+  <h3>How it works now</h3>
+  <div class="works"><b>One destination, two doors in:</b> clicking 💡 Hint (still in the main panel, same place as always) opens the chat panel and posts the hint there. Typing "I'm stuck" directly into the chat does the exact same thing — same counter, same progression, same gating. There's no second copy of the answer living anywhere else.</div>
+  <div class="works"><b>Gating still holds:</b> after the first hint, the next tier is blocked with a clear amber message until a genuine Run attempt happens — whether that next hint was requested by clicking the button or by typing "I'm stuck" again.</div>
+  <div class="works"><b>General concept questions</b> ("what's a function", "what does return do") are still answered directly and immediately in the same chat — these teach general syntax, not a specific answer, so there's no reason to hold them back or route them through hints.</div>
+  <div class="works"><b>Everyday word choices are understood too:</b> "cash"/"money" instead of "amount", "spin" instead of "turn", "colour" either spelling, "tally" instead of "total" — a small synonym table normalizes these before matching.</div>
+  <div class="trouble"><b>What it still can't do:</b> understand a genuinely novel phrasing that doesn't overlap with any known keyword, synonym, or stuck-phrase. That still gets the generic fallback — point them at 💡 Hint directly, or step in yourself.</div>
 
-  <h3>Example exchanges (Vault)</h3>
-  <div class="chatline"><span class="q">"ishighrisk stuck"</span><span class="a">→ a guiding question about what a comparison returns</span></div>
-  <div class="chatline"><span class="q">"im really stuck"</span><span class="a">→ reveals the direct answer for isHighRisk specifically</span></div>
-  <div class="chatline"><span class="q">"how do i even start"</span><span class="a">→ general encouragement, points at the brief and Hint button</span></div>
-  <div class="chatline"><span class="q">"whats a function"</span><span class="a">→ a real, direct explanation of function syntax</span></div>
-  <div class="chatline"><span class="q">"what does it output"</span><span class="a">→ ("output" → "return") explains the missing-return symptom directly</span></div>
+  <h3>Example exchange (Vault) — same hint state, two different doors in</h3>
+  <div class="chatline"><span class="q">clicks 💡 Hint</span><span class="a">→ chat opens, posts hint 1 (conceptual nudge)</span></div>
+  <div class="chatline"><span class="q">clicks 💡 Hint again (no run yet)</span><span class="a">→ blocked: "try running your code first"</span></div>
+  <div class="chatline"><span class="q">runs code, types "im really stuck"</span><span class="a">→ posts hint 2 — the SAME progression, triggered from chat instead of the button</span></div>
+  <div class="chatline"><span class="q">"whats a function"</span><span class="a">→ answered directly, doesn't touch hint progress at all</span></div>
 
-  <div class="snag"><b>A real bug was found and fixed during testing, worth knowing about:</b> the word "stuck" appeared in almost every challenge-specific keyword set, which meant a query like "interest stuck" could tie with several unrelated entries and silently return guidance for the wrong challenge. Fixed by treating "stuck" as a non-signal word everywhere — confirmed working correctly across all 8 activity files afterward.</div>
+  <div class="snag"><b>Rebuilding this surfaced real bugs, not just a UI tidy-up:</b> Vault Extended and both Construct files had never actually received the hint-gating fix from an earlier pass at all — hints could be spammed straight to the full answer with no gating, in those three files specifically, until this rebuild. Ledger's taster also had a second stale <code>root@ledger:~$</code> terminal-prompt leftover, caught while going file by file. All fixed and re-verified; the bonus-round paths in Construct and Front (which resolve hints through a separate active-challenge reference rather than the normal array) were specifically tested through the merge rather than assumed to still work.</div>
 
-  <div class="works" style="margin-top:16px;"><b>The synonym layer was measured, not assumed to help:</b> a 22-query before/after comparison across all four modules found 5 queries that used to hit the generic fallback now get a genuine, correct answer instead — "how do I spin it around", "how do I tally this up", "how do I pick a color" among them — with zero regressions on queries that already worked. Two of those tests also surfaced a real content gap: "what does each row look like" and "how do I make it walk forward" were weakly matching an unrelated entry by coincidence, purely because no entry actually covered those questions. Both were fixed by adding the missing keyword coverage to the correct existing entry, not by removing the synonym.</div>
+  <div class="works" style="margin-top:16px;"><b>The earlier synonym-layer work still applies</b> — a 22-query before/after comparison found 5 queries that used to hit the fallback now get a genuine answer, with zero regressions, and two coincidental false-matches it surfaced were fixed at the content level. That measurement and those fixes carried over unchanged into this rebuild.</div>
 
   <!-- ============ HELPDESK CHAT ============ -->
   <h2 id="helpdesk-chat">Helpdesk chat — what works and what doesn't</h2>
@@ -422,6 +428,16 @@ for (let i = 0; i < 6; i++) { moveForward(); }</pre></div></details>
   <div class="chatline"><span class="q">"large numbers are hard to read"</span><span class="a">→ works only after the rounding bug is already fixed; otherwise a graceful "can't find that" message</span></div>
   <div class="chatline"><span class="q">"what is the weather today"</span><span class="a">→ honest fallback, no fabricated fix</span></div>
 
+  <h3>A separate "I'm stuck" path, for the harder-to-spot bugs</h3>
+  <div class="card">
+    <p>Feedback during testing was specific: for someone with no coding background, finding the last one or two bugs by clicking around is genuinely hard — the transfer-validation and missing-transaction bugs especially don't announce themselves the way a visibly broken button does. Rather than add them to a visible list (which would recreate the exact spoiler problem the redesign removed), there's now a second, separate detection path in the same chat.</p>
+  </div>
+  <div class="works"><b>How it works:</b> phrases like "I'm stuck", "help", "what should I look for", or "I can't find any more bugs" are checked <i>before</i> the normal fix-matching — if recognised, the chat looks at which of the 5 real bugs haven't been found yet and nudges toward exploring one of them, without naming it. "Try transferring something unusual — a negative amount, or more than the balance actually has. What should happen, and what does?"</div>
+  <div class="works"><b>It tracks real progress, not a script:</b> the nudge is generated from the same pass/fail state "Check My Fixes" already tracks — it will never point someone back at a bug they've already fixed, and once all 5 are genuinely found it says so plainly instead of repeating itself.</div>
+  <div class="chatline"><span class="q">"im stuck" (nothing fixed yet)</span><span class="a">→ nudges toward the deposit bug specifically</span></div>
+  <div class="chatline"><span class="q">"can't find any more bugs" (3 of 5 fixed)</span><span class="a">→ nudges toward one of the 2 remaining, never a fixed one</span></div>
+  <div class="chatline"><span class="q">"help" (all 5 fixed)</span><span class="a">→ "you've actually found everything I know about"</span></div>
+
   <!-- ============ TROUBLESHOOTING ============ -->
   <h2 id="troubleshooting">Troubleshooting — user error, not the build</h2>
   <p>Every one of these has come up in testing and is a person doing something reasonable, not a bug in the files.</p>
@@ -435,7 +451,7 @@ for (let i = 0; i < 6; i++) { moveForward(); }</pre></div></details>
   <div class="trouble"><b>"Nothing in The Front changes when I edit the CSS."</b><span class="fix">Check the selector actually matches — <code>.account-card</code> needs the dot; without it, it silently targets nothing.</span></div>
   <div class="trouble"><b>"I copied the worked example exactly and it still failed."</b><span class="fix">Working as intended, not a bug — Front's worked examples deliberately use values too small (or, for Layout, a different value entirely) to pass the real checks. Explain this is on purpose: the pattern is right, the numbers need adjusting.</span></div>
 
-  <div class="snag" style="margin-top:24px;"><b>Construct taster vs. full build:</b> the taster is genuinely a different file (<code>mission-control-taster.html</code>) with 5 of the full build's tasks (missing Agents, which is take-home only) and a 6-minute timer. Don't hand out the full <code>mission-control.html</code> link during the live event by mistake — its timer now counts up with no deadline, which will look odd if someone's expecting a countdown.</div>
+  <div class="snag" style="margin-top:24px;"><b>Construct taster vs. full build — genuinely different levels 4 and 5, not just "full has one extra":</b> both share Wake Up, The Path, and The Turn, but then diverge — the taster's own levels 4–5 are The Relay and The Repeat (documented above), while the full build has Agents and its own version of The Loop instead. The full build's Loop got the identical staircase redesign as the taster's Repeat, for the same reason (a straight line didn't feel meaningfully harder) — just slightly longer (5 diagonal cycles instead of 4), since it's untimed take-home work. Loop's answer is the same shape as Repeat's: a 4-line loop body of move/turn/move/turn-back, repeated, or the fully manual 20-line equivalent — both genuinely pass. The taster is a genuinely different file (<code>mission-control-taster.html</code>) with its own 6-minute timer. Don't hand out the full <code>mission-control.html</code> link during the live event by mistake — its timer now counts up with no deadline, which will look odd if someone's expecting a countdown.</div>
 
   <!-- ============ FILES ============ -->
   <h2 id="files">All files</h2>
@@ -444,7 +460,7 @@ for (let i = 0; i < 6; i++) { moveForward(); }</pre></div></details>
       <a href="start-here.html">start-here.html</a> <span>— session intro, show this first</span>
       <a href="index.html">index.html</a> <span>— the dashboard</span>
       <a href="mission-control-taster.html">mission-control-taster.html</a> <span>— Construct, live taster (5 tasks + bonus)</span>
-      <a href="mission-control.html">mission-control.html</a> <span>— Construct, full/take-home (adds Agents)</span>
+      <a href="mission-control.html">mission-control.html</a> <span>— Construct, full/take-home (Agents + its own Loop, not Relay/Repeat)</span>
       <a href="the-vault.html">the-vault.html</a> <span>— Vault, live taster (5 challenges)</span>
       <a href="the-vault-extended.html">the-vault-extended.html</a> <span>— Vault, take-home (8 challenges)</span>
       <a href="the-ledger.html">the-ledger.html</a> <span>— Ledger, live taster</span>

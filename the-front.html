@@ -49,6 +49,7 @@ h1{font-size:26px;margin:0 0 8px;font-weight:700;letter-spacing:-0.01em;color:va
 .brief{color:var(--text-secondary);font-size:13.5px;line-height:1.65;margin:0 0 16px;}
 
 .worked-example{background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:10px;margin-bottom:16px;overflow:hidden;}
+.we-caveat{background:var(--warning-bg);border:1px solid #FEDF89;border-left:3px solid var(--warning);border-radius:0 8px 8px 0;padding:9px 12px;margin:0 14px 12px;font-size:12px;color:#B54708;font-weight:600;display:flex;align-items:center;gap:7px;}
 .worked-example summary{padding:11px 14px;cursor:pointer;font-size:13px;color:var(--accent);font-weight:600;list-style:none;}
 .worked-example summary::-webkit-details-marker{display:none;}
 .we-body{padding:2px 14px 14px;}
@@ -81,7 +82,8 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
 .btn-ghost{background:#fff;color:var(--text-secondary);border:1px solid var(--border-strong);}
 .btn-ghost:hover{background:var(--surface-alt);color:var(--text);}
 
-.hint-box{margin-top:12px;font-size:13px;padding:12px 14px;border-radius:8px;display:none;line-height:1.6;white-space:pre-wrap;color:var(--text);background:var(--accent-bg);border:1px solid var(--accent-border);}
+.help-msg.hint{background:var(--accent-bg);border:1px solid var(--accent-border);}
+.help-msg.blocked{background:var(--warning-bg);border:1px solid #FEDF89;color:#B54708;font-weight:600;}
 .error-box{margin-top:12px;font-size:13px;padding:12px 14px;border-radius:8px;display:none;line-height:1.6;white-space:pre-wrap;color:#B42318;background:var(--danger-bg);border:1px solid var(--danger-border);}
 
 .test-list{display:flex;flex-direction:column;gap:0;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
@@ -162,7 +164,7 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
 <button class="help-fab" id="helpFab" onclick="toggleHelp()">💬<span class="fab-dot" id="helpDot"></span></button>
 <div class="help-panel" id="helpPanel">
   <div class="help-head">
-    <span class="htitle">System Assist</span>
+    <span class="htitle">Help &amp; Hints</span>
     <button onclick="toggleHelp()">✕</button>
   </div>
   <div class="help-log" id="helpLog"></div>
@@ -199,6 +201,7 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
 &lt;/<span class="tagname">div</span>&gt;</div>
         <details class="worked-example" id="workedExample" open>
           <summary>📎 See a worked example first</summary>
+          <div class="we-caveat">⚠️ Don't copy this exact code — the values here are deliberately off. Use it for the pattern, not the numbers.</div>
           <div class="we-body" id="weBody"></div>
         </details>
         <div class="color-tool">
@@ -214,9 +217,8 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
         <div class="actions">
           <button class="btn-primary" onclick="runChecks()">▶ Run Checks</button>
           <button class="btn-ghost" onclick="resetChallenge()">↺ Reset</button>
-          <button class="btn-ghost" id="hintBtn" onclick="revealNextHint()">💡 Hint</button>
+          <button class="btn-ghost" id="hintBtn" onclick="requestHint()">💡 Hint</button>
         </div>
-        <div class="hint-box" id="hintBox"></div>
         <div class="error-box" id="errorBox"></div>
         <details class="extensions-box" id="extensionsBox">
           <summary>🌟 Done? Try these extensions</summary>
@@ -252,7 +254,22 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
       <div class="eyebrow" style="justify-content:center;">The Front</div>
       <h2>Interface Deployed</h2>
       <p>Background and spacing, typography, and a real flex layout — the three things almost every interface leans on.</p>
-      <p style="color:var(--green-bright);">The take-home Front builds one continuous page instead of resetting between challenges.</p>
+      <p style="color:var(--text-muted);font-size:12.5px;">The take-home Front builds one continuous page instead of resetting between challenges.</p>
+      <div class="actions" style="justify-content:center;margin-top:18px;">
+        <button class="btn-ghost" onclick="resetAllChallenges()">↺ Try Again</button>
+        <button class="btn-primary" onclick="startBonus()">⚡ Bonus Round</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="bonusScreen" style="display:none;">
+    <div class="done-card">
+      <div class="eyebrow" style="justify-content:center;">The Front · Bonus</div>
+      <h2>Bug Squashed</h2>
+      <p>That's most of real debugging — not a new concept to learn, just a careful read to spot what's actually there versus what you assumed was there.</p>
+      <div class="actions" style="justify-content:center;margin-top:18px;">
+        <button class="btn-ghost" onclick="resetAllChallenges()">↺ Try Again</button>
+      </div>
     </div>
   </div>
 
@@ -388,6 +405,30 @@ const CHALLENGES = [
   }
 ];
 
+const BONUS = {
+  title: "The Stylesheet Bug",
+  concept: "DEBUGGING",
+  brief: "Someone already wrote this CSS — it's meant to lay the card out as a flex row, but the layout looks stacked instead. Find the mistake and fix it. Nothing new to learn here, just a real typo to spot.",
+  starter: `.account-card {
+  background: #1a1f29;
+  border-radius: 12px;
+  padding: 24px;
+  dispay: flex;
+  justify-content: space-between;
+  align-items: center;
+}`,
+  checks: [
+    { desc: "card uses flexbox", prop: "display", test: ()=> ['flex','inline-flex'].includes(getComputedStyle(document.getElementById('previewCard')).display) },
+    { desc: "content spaced to both edges", prop: "justify-content", test: ()=> getComputedStyle(document.getElementById('previewCard')).justifyContent === 'space-between' },
+    { desc: "items vertically centred", prop: "align-items", test: ()=> getComputedStyle(document.getElementById('previewCard')).alignItems === 'center' }
+  ],
+  hints: [
+    "The layout properties are all there — space-between, center, padding — but one of them isn't actually working. Which one?",
+    "Browsers silently ignore any CSS property they don't recognise — they don't throw an error, they just skip that one line.",
+    "dispay: flex; should be display: flex; — a single missing letter."
+  ]
+};
+
 let current = 0;
 let failCount = 0;
 let hintTier = 0;
@@ -439,6 +480,8 @@ function copyColorValue(btn){
 }
 
 function loadChallenge(idx){
+  bonusMode = false;
+  document.getElementById('dots').style.visibility = 'visible';
   current = idx;
   failCount = 0;
   hintTier = 0;
@@ -449,11 +492,11 @@ function loadChallenge(idx){
   document.getElementById('briefText').textContent = c.brief;
   document.getElementById('codeInput').value = c.starter;
   document.getElementById('weBody').innerHTML = c.worked;
+  document.getElementById('workedExample').style.display = '';
   document.getElementById('workedExample').open = true;
   document.getElementById('extBody').innerHTML = '<ul>' + c.ext.map(e=>`<li>${e}</li>`).join('') + '</ul>';
+  document.getElementById('extensionsBox').style.display = '';
   document.getElementById('extensionsBox').open = false;
-  document.getElementById('hintBox').style.display = 'none';
-  document.getElementById('hintBox').innerHTML = '';
   document.getElementById('hintBtn').textContent = '💡 Hint';
   document.getElementById('errorBox').style.display = 'none';
   document.getElementById('helpDot').style.display = 'none';
@@ -478,17 +521,29 @@ function renderTests(c){
   });
 }
 
+function activeChallenge(){
+  return bonusMode ? BONUS : CHALLENGES[current];
+}
+
+let hasRunSinceHint = true;
+function requestHint(){
+  if(!helpOpen) toggleHelp();
+  revealNextHint();
+}
+
 function revealNextHint(){
-  const c = CHALLENGES[current];
-  const box = document.getElementById('hintBox');
+  const c = activeChallenge();
   const btn = document.getElementById('hintBtn');
-  box.style.display = 'block';
+
+  if(hintTier > 0 && hintTier < c.hints.length && !hasRunSinceHint){
+    addHelpMsg('⏸ Try running your code first — click ▶ Run Checks, then I\u2019ll give you the next hint.', 'bot blocked');
+    return;
+  }
+
   if(hintTier < c.hints.length){
     hintTier++;
-    const line = document.createElement('div');
-    line.textContent = `${hintTier}. ${c.hints[hintTier-1]}`;
-    line.style.marginBottom = '6px';
-    box.appendChild(line);
+    addHelpMsg(`${hintTier}. ${c.hints[hintTier-1]}`, 'bot hint');
+    hasRunSinceHint = false;
   }
   btn.textContent = hintTier >= c.hints.length ? '💡 That\u2019s the full hint' : '💡 Tell me more';
 }
@@ -497,7 +552,7 @@ function maybeNudgeHint(){
   const status = document.getElementById('statusLine');
   if(failCount >= 2){
     document.getElementById('helpDot').style.display = 'block';
-    if(document.getElementById('hintBox').style.display !== 'block'){
+    if(hintTier === 0){
       status.textContent = "No rush — try the 💡 Hint button below, it'll walk you through it step by step.";
     }
   }
@@ -509,7 +564,8 @@ function maybeNudgeHint(){
 }
 
 function runChecks(){
-  const c = CHALLENGES[current];
+  hasRunSinceHint = true;
+  const c = activeChallenge();
   const errorBox = document.getElementById('errorBox');
   errorBox.style.display = 'none';
   applyLiveStyle();
@@ -543,6 +599,13 @@ function runChecks(){
 }
 
 function showSuccess(){
+  if(bonusMode){
+    document.getElementById('successTitle').textContent = 'Bug Fixed';
+    document.getElementById('successText').textContent = "One missing letter, and the whole layout was stacked instead of spread out. That's most real debugging — small, findable, easy to miss.";
+    document.getElementById('nextBtn').textContent = 'Finish →';
+    document.getElementById('successOverlay').style.display = 'flex';
+    return;
+  }
   const isLast = current === CHALLENGES.length - 1;
   document.getElementById('successTitle').textContent = isLast ? 'Interface Deployed' : 'Checks Passing';
   document.getElementById('successText').textContent = isLast
@@ -554,12 +617,56 @@ function showSuccess(){
 
 function nextChallenge(){
   document.getElementById('successOverlay').style.display = 'none';
+  if(bonusMode){
+    endBonus();
+    return;
+  }
   if(current === CHALLENGES.length - 1){
     document.getElementById('game').style.display = 'none';
     document.getElementById('doneScreen').style.display = 'block';
   } else {
     loadChallenge(current + 1);
   }
+}
+
+function resetAllChallenges(){
+  document.getElementById('doneScreen').style.display = 'none';
+  document.getElementById('bonusScreen').style.display = 'none';
+  document.getElementById('game').style.display = 'block';
+  buildDots();
+  loadChallenge(0);
+}
+
+let bonusMode = false;
+function startBonus(){
+  bonusMode = true;
+  current = -1;
+  failCount = 0;
+  hintTier = 0;
+  proactiveShown = false;
+  document.getElementById('doneScreen').style.display = 'none';
+  document.getElementById('bonusScreen').style.display = 'none';
+  document.getElementById('game').style.display = 'block';
+  document.getElementById('dots').style.visibility = 'hidden';
+  document.getElementById('challengeTitle').textContent = BONUS.title;
+  document.getElementById('conceptTag').textContent = BONUS.concept;
+  document.getElementById('briefText').textContent = BONUS.brief;
+  document.getElementById('codeInput').value = BONUS.starter;
+  document.getElementById('workedExample').style.display = 'none';
+  document.getElementById('extensionsBox').style.display = 'none';
+  document.getElementById('hintBtn').textContent = '💡 Hint';
+  document.getElementById('errorBox').style.display = 'none';
+  document.getElementById('helpDot').style.display = 'none';
+  renderTests(BONUS);
+  applyLiveStyle();
+  const status = document.getElementById('statusLine');
+  status.textContent = 'awaiting check run';
+  status.className = 'status-line';
+}
+
+function endBonus(){
+  document.getElementById('game').style.display = 'none';
+  document.getElementById('bonusScreen').style.display = 'block';
 }
 
 document.getElementById('codeInput').addEventListener('input', applyLiveStyle);
@@ -669,36 +776,6 @@ const HELP_DATA = {
       "response": "align-items: center; centres items vertically within a flex row \u2014 useful when items are different heights and you want them lined up in the middle."
     },
     {
-      "id": "panel-stuck",
-      "keywords": [
-        "the panel stuck",
-        "first screen help",
-        "background radius padding help"
-      ],
-      "response": "Three separate properties go here: a background, rounded corners, and padding on all sides. Check the brief for the minimum sizes \u2014 is your padding actually big enough to notice?",
-      "escalatedResponse": "The Panel just needs three properties on .account-card: background, border-radius (8px or more), and padding (16px or more on every side)."
-    },
-    {
-      "id": "numbers-stuck",
-      "keywords": [
-        "the numbers stuck",
-        "second screen help",
-        "balance styling help"
-      ],
-      "response": "Two properties control how prominent the balance looks \u2014 one for size, one for thickness. Are both actually big enough to read as a headline figure, not just slightly bigger than normal text?",
-      "escalatedResponse": "The Numbers needs .account-balance styled with font-size (28px or more) and font-weight (600 or higher, or bold)."
-    },
-    {
-      "id": "layout-stuck",
-      "keywords": [
-        "the layout stuck",
-        "third screen help",
-        "flex layout help"
-      ],
-      "response": "This needs .account-card turned into a flex row, then two more properties to control the spacing and alignment. What turns a container into a flex row in the first place?",
-      "escalatedResponse": "The Layout needs .account-card to be display: flex; with justify-content: space-between; and align-items: center; \u2014 three properties, one selector."
-    },
-    {
       "id": "extended-sections-stuck",
       "keywords": [
         "extended front stuck",
@@ -715,21 +792,6 @@ const HELP_DATA = {
         "space between flex items"
       ],
       "response": "gap: 16px; adds space between flex items without needing margin on each individual one \u2014 much simpler when you've got several items in a row."
-    },
-    {
-      "id": "general-stuck",
-      "keywords": [
-        "im stuck",
-        "help",
-        "dont know what to do",
-        "confused",
-        "not sure what to write",
-        "no idea",
-        "how do i even start",
-        "where do i begin",
-        "how do i start"
-      ],
-      "response": "Look at the live preview and describe out loud what's different from what you want \u2014 that usually points straight at which property's missing. Try the Hint button, or flag a facilitator."
     }
   ],
   "synonyms": {
@@ -739,13 +801,12 @@ const HELP_DATA = {
     "thick": "weight"
   }
 };
-const HELP_FALLBACK = "I'm not totally sure about that one — no worries though. Try asking it a different way, tap the 💡 Hint button, or wave down a facilitator. You're doing fine.";
-const HELP_GREETING = "Hi! I'm here to help — genuinely ask me anything, there's no question too basic. I can explain an error message, walk through the syntax, or nudge you on whichever bit you're stuck on.";
-const ESCALATION_PHRASES = ["just tell me", "give me the answer", "tell me the answer", "im really stuck", "really stuck", "super stuck", "please just tell me", "just give me the code", "i give up", "cant figure it out", "cant work it out", "just show me", "give up"];
+const HELP_FALLBACK = "I'm not totally sure about that one — no worries though. Try asking it a different way, tap 💡 Hint below, or wave down a facilitator. You're doing fine.";
+const HELP_GREETING = "Hi! I'm here to help — ask me anything, there's no question too basic, or tap 💡 Hint below for a step-by-step nudge on whatever you're working on right now.";
+const STUCK_PHRASES = ["im stuck", "i'm stuck", "help", "dont know what to do", "don't know what to do", "confused", "not sure what to write", "no idea", "how do i even start", "where do i begin", "how do i start", "just tell me", "give me the answer", "tell me the answer", "im really stuck", "really stuck", "super stuck", "please just tell me", "just give me the code", "i give up", "cant figure it out", "cant work it out", "just show me", "give up"];
 
 let helpOpen = false;
 let helpGreeted = false;
-let lastHelpEntry = null;
 
 function normalizeHelp(s){
   return s.toLowerCase().replace(/[^\w\s]/g,' ').replace(/\s+/g,' ').trim();
@@ -764,8 +825,8 @@ function scoreHelpEntry(msgNorm, msgWords, entry){
   });
   return best;
 }
-function isEscalation(msgNorm){
-  return ESCALATION_PHRASES.some(p => msgNorm.includes(p));
+function isStuckPhrase(msgNorm){
+  return STUCK_PHRASES.some(p => msgNorm.includes(p));
 }
 function applySynonyms(msgNorm){
   const syns = HELP_DATA.synonyms || {};
@@ -776,20 +837,12 @@ function findHelpResponse(userMsg){
   msgNorm = applySynonyms(msgNorm);
   const msgWords = msgNorm.split(' ');
 
-  if(isEscalation(msgNorm)){
-    if(lastHelpEntry && lastHelpEntry.escalatedResponse){
-      return "No worries — here's the direct answer: " + lastHelpEntry.escalatedResponse;
-    }
-    return "That's okay — tell me which specific challenge or line you're stuck on, and I'll be more direct about it.";
-  }
-
   let bestEntry = null, bestScore = 0;
   HELP_DATA.entries.forEach(entry=>{
     const s = scoreHelpEntry(msgNorm, msgWords, entry);
     if(s > bestScore){ bestScore = s; bestEntry = entry; }
   });
   if(bestEntry && bestScore >= 1){
-    lastHelpEntry = bestEntry;
     return bestEntry.response;
   }
   return HELP_FALLBACK;
@@ -799,6 +852,9 @@ function toggleHelp(){
   helpOpen = !helpOpen;
   const panel = document.getElementById('helpPanel');
   panel.classList.toggle('open', helpOpen);
+  if(helpOpen){
+    document.getElementById('helpDot').style.display = 'none';
+  }
   if(helpOpen && !helpGreeted){
     addHelpMsg(HELP_GREETING, 'bot');
     helpGreeted = true;
@@ -820,7 +876,12 @@ function sendHelp(){
   addHelpMsg(msg, 'user');
   input.value = '';
   setTimeout(()=>{
-    addHelpMsg(findHelpResponse(msg), 'bot');
+    const msgNorm = applySynonyms(normalizeHelp(msg));
+    if(isStuckPhrase(msgNorm)){
+      revealNextHint();
+    } else {
+      addHelpMsg(findHelpResponse(msg), 'bot');
+    }
   }, 220);
 }
 

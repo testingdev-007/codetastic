@@ -83,7 +83,8 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
 .btn-ghost{background:#fff;color:var(--text-secondary);border:1px solid var(--border-strong);}
 .btn-ghost:hover{background:var(--surface-alt);color:var(--text);}
 
-.hint-box{margin-top:12px;font-size:13px;padding:12px 14px;border-radius:8px;display:none;line-height:1.6;white-space:pre-wrap;color:var(--text);background:var(--accent-bg);border:1px solid var(--accent-border);}
+.help-msg.hint{background:var(--accent-bg);border:1px solid var(--accent-border);white-space:pre-wrap;font-family:'Inter',sans-serif;}
+.help-msg.blocked{background:var(--warning-bg);border:1px solid #FEDF89;color:#B54708;font-weight:600;}
 .error-box{margin-top:12px;font-size:13px;padding:12px 14px;border-radius:8px;display:none;line-height:1.6;white-space:pre-wrap;color:#B42318;background:var(--danger-bg);border:1px solid var(--danger-border);}
 
 .test-list{display:flex;flex-direction:column;gap:0;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
@@ -212,9 +213,8 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
         <div class="actions">
           <button class="btn-primary" onclick="runChecks()">▶ Run Checks</button>
           <button class="btn-ghost" onclick="resetAll()">↺ Reset</button>
-          <button class="btn-ghost" id="hintBtn" onclick="revealNextHint()">💡 Hint</button>
+          <button class="btn-ghost" id="hintBtn" onclick="requestHint()">💡 Hint</button>
         </div>
-        <div class="hint-box" id="hintBox"></div>
         <details class="extensions-box" id="extensionsBox">
           <summary>🌟 Done? Try these extensions</summary>
           <div class="ext-body" id="extBody"></div>
@@ -456,24 +456,28 @@ function renderTests(){
   });
 }
 
+let hasRunSinceHint = true;
+function requestHint(){
+  if(!helpOpen) toggleHelp();
+  revealNextHint();
+}
+
 function revealNextHint(){
-  const box = document.getElementById('hintBox');
   const btn = document.getElementById('hintBtn');
-  box.style.display = 'block';
+
+  if(hintTier > 0 && hintTier < HINTS.length && !hasRunSinceHint){
+    addHelpMsg('⏸ Try running your code first — click ▶ Run Checks, then I\u2019ll give you the next hint.', 'bot blocked');
+    return;
+  }
+
   if(hintTier < HINTS.length){
     hintTier++;
-    const line = document.createElement('div');
-    line.style.marginBottom = '6px';
     if(hintTier === HINTS.length){
-      line.textContent = `${hintTier}. ${HINTS[hintTier-1]}`;
-      const pre = document.createElement('pre');
-      pre.textContent = HINT;
-      box.appendChild(line);
-      box.appendChild(pre);
+      addHelpMsg(`${hintTier}. ${HINTS[hintTier-1]}\n\n${HINT}`, 'bot hint');
     } else {
-      line.textContent = `${hintTier}. ${HINTS[hintTier-1]}`;
-      box.appendChild(line);
+      addHelpMsg(`${hintTier}. ${HINTS[hintTier-1]}`, 'bot hint');
     }
+    hasRunSinceHint = false;
   }
   btn.textContent = hintTier >= HINTS.length ? '💡 That\u2019s the full hint' : '💡 Tell me more';
 }
@@ -482,7 +486,7 @@ function maybeNudgeHint(){
   const status = document.getElementById('statusLine');
   if(failCount >= 2){
     document.getElementById('helpDot').style.display = 'block';
-    if(document.getElementById('hintBox').style.display !== 'block'){
+    if(hintTier === 0){
       status.textContent = "No rush — try the 💡 Hint button below, it'll walk you through it step by step.";
     }
   }
@@ -499,12 +503,11 @@ function resetAll(){
   document.getElementById('workedExample').open = true;
   document.getElementById('extensionsBox').open = false;
   renderExtensions();
-  document.getElementById('hintBox').style.display = 'none';
-  document.getElementById('hintBox').innerHTML = '';
   document.getElementById('hintBtn').textContent = '💡 Hint';
   document.getElementById('helpDot').style.display = 'none';
   failCount = 0;
   hintTier = 0;
+  hasRunSinceHint = true;
   proactiveShown = false;
   applyLiveStyle();
   renderTests();
@@ -516,6 +519,7 @@ function resetAll(){
 }
 
 function runChecks(){
+  hasRunSinceHint = true;
   applyLiveStyle();
   let allPass = true;
   SECTIONS.forEach((section, si)=>{
@@ -553,7 +557,7 @@ resetAll();
 <button class="help-fab" id="helpFab" onclick="toggleHelp()">💬<span class="fab-dot" id="helpDot"></span></button>
 <div class="help-panel" id="helpPanel">
   <div class="help-head">
-    <span class="htitle">System Assist</span>
+    <span class="htitle">Help &amp; Hints</span>
     <button onclick="toggleHelp()">✕</button>
   </div>
   <div class="help-log" id="helpLog"></div>
@@ -664,36 +668,6 @@ const HELP_DATA = {
       "response": "align-items: center; centres items vertically within a flex row \u2014 useful when items are different heights and you want them lined up in the middle."
     },
     {
-      "id": "panel-stuck",
-      "keywords": [
-        "the panel stuck",
-        "first screen help",
-        "background radius padding help"
-      ],
-      "response": "Three separate properties go here: a background, rounded corners, and padding on all sides. Check the brief for the minimum sizes \u2014 is your padding actually big enough to notice?",
-      "escalatedResponse": "The Panel just needs three properties on .account-card: background, border-radius (8px or more), and padding (16px or more on every side)."
-    },
-    {
-      "id": "numbers-stuck",
-      "keywords": [
-        "the numbers stuck",
-        "second screen help",
-        "balance styling help"
-      ],
-      "response": "Two properties control how prominent the balance looks \u2014 one for size, one for thickness. Are both actually big enough to read as a headline figure, not just slightly bigger than normal text?",
-      "escalatedResponse": "The Numbers needs .account-balance styled with font-size (28px or more) and font-weight (600 or higher, or bold)."
-    },
-    {
-      "id": "layout-stuck",
-      "keywords": [
-        "the layout stuck",
-        "third screen help",
-        "flex layout help"
-      ],
-      "response": "This needs .account-card turned into a flex row, then two more properties to control the spacing and alignment. What turns a container into a flex row in the first place?",
-      "escalatedResponse": "The Layout needs .account-card to be display: flex; with justify-content: space-between; and align-items: center; \u2014 three properties, one selector."
-    },
-    {
       "id": "extended-sections-stuck",
       "keywords": [
         "extended front stuck",
@@ -710,21 +684,6 @@ const HELP_DATA = {
         "space between flex items"
       ],
       "response": "gap: 16px; adds space between flex items without needing margin on each individual one \u2014 much simpler when you've got several items in a row."
-    },
-    {
-      "id": "general-stuck",
-      "keywords": [
-        "im stuck",
-        "help",
-        "dont know what to do",
-        "confused",
-        "not sure what to write",
-        "no idea",
-        "how do i even start",
-        "where do i begin",
-        "how do i start"
-      ],
-      "response": "Look at the live preview and describe out loud what's different from what you want \u2014 that usually points straight at which property's missing. Try the Hint button, or flag a facilitator."
     }
   ],
   "synonyms": {
@@ -734,13 +693,12 @@ const HELP_DATA = {
     "thick": "weight"
   }
 };
-const HELP_FALLBACK = "I'm not totally sure about that one — no worries though. Try asking it a different way, tap the 💡 Hint button, or wave down a facilitator. You're doing fine.";
-const HELP_GREETING = "Hi! I'm here to help — genuinely ask me anything, there's no question too basic. I can explain an error message, walk through the syntax, or nudge you on whichever bit you're stuck on.";
-const ESCALATION_PHRASES = ["just tell me", "give me the answer", "tell me the answer", "im really stuck", "really stuck", "super stuck", "please just tell me", "just give me the code", "i give up", "cant figure it out", "cant work it out", "just show me", "give up"];
+const HELP_FALLBACK = "I'm not totally sure about that one — no worries though. Try asking it a different way, tap 💡 Hint below, or wave down a facilitator. You're doing fine.";
+const HELP_GREETING = "Hi! I'm here to help — ask me anything, there's no question too basic, or tap 💡 Hint below for a step-by-step nudge on whatever you're working on right now.";
+const STUCK_PHRASES = ["im stuck", "i'm stuck", "help", "dont know what to do", "don't know what to do", "confused", "not sure what to write", "no idea", "how do i even start", "where do i begin", "how do i start", "just tell me", "give me the answer", "tell me the answer", "im really stuck", "really stuck", "super stuck", "please just tell me", "just give me the code", "i give up", "cant figure it out", "cant work it out", "just show me", "give up"];
 
 let helpOpen = false;
 let helpGreeted = false;
-let lastHelpEntry = null;
 
 function normalizeHelp(s){
   return s.toLowerCase().replace(/[^\w\s]/g,' ').replace(/\s+/g,' ').trim();
@@ -759,8 +717,8 @@ function scoreHelpEntry(msgNorm, msgWords, entry){
   });
   return best;
 }
-function isEscalation(msgNorm){
-  return ESCALATION_PHRASES.some(p => msgNorm.includes(p));
+function isStuckPhrase(msgNorm){
+  return STUCK_PHRASES.some(p => msgNorm.includes(p));
 }
 function applySynonyms(msgNorm){
   const syns = HELP_DATA.synonyms || {};
@@ -771,20 +729,12 @@ function findHelpResponse(userMsg){
   msgNorm = applySynonyms(msgNorm);
   const msgWords = msgNorm.split(' ');
 
-  if(isEscalation(msgNorm)){
-    if(lastHelpEntry && lastHelpEntry.escalatedResponse){
-      return "No worries — here's the direct answer: " + lastHelpEntry.escalatedResponse;
-    }
-    return "That's okay — tell me which specific challenge or line you're stuck on, and I'll be more direct about it.";
-  }
-
   let bestEntry = null, bestScore = 0;
   HELP_DATA.entries.forEach(entry=>{
     const s = scoreHelpEntry(msgNorm, msgWords, entry);
     if(s > bestScore){ bestScore = s; bestEntry = entry; }
   });
   if(bestEntry && bestScore >= 1){
-    lastHelpEntry = bestEntry;
     return bestEntry.response;
   }
   return HELP_FALLBACK;
@@ -794,6 +744,9 @@ function toggleHelp(){
   helpOpen = !helpOpen;
   const panel = document.getElementById('helpPanel');
   panel.classList.toggle('open', helpOpen);
+  if(helpOpen){
+    document.getElementById('helpDot').style.display = 'none';
+  }
   if(helpOpen && !helpGreeted){
     addHelpMsg(HELP_GREETING, 'bot');
     helpGreeted = true;
@@ -815,7 +768,12 @@ function sendHelp(){
   addHelpMsg(msg, 'user');
   input.value = '';
   setTimeout(()=>{
-    addHelpMsg(findHelpResponse(msg), 'bot');
+    const msgNorm = applySynonyms(normalizeHelp(msg));
+    if(isStuckPhrase(msgNorm)){
+      revealNextHint();
+    } else {
+      addHelpMsg(findHelpResponse(msg), 'bot');
+    }
   }, 220);
 }
 

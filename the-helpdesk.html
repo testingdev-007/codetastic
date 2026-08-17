@@ -227,6 +227,31 @@ const BUGS = [
   { id:'rounding', desc:'The balance displays a long, broken-looking number' }
 ];
 
+let lastFixedSet = new Set();
+
+const BUG_NUDGES = {
+  deposit: "Try depositing twice in a row and watch the balance closely after each one — does it look like it's adding, or something else?",
+  withdraw: "Have you actually clicked Withdraw and watched what happens — or doesn't? Try it with the browser's eyes wide open.",
+  txnlist: "Make three or four different transactions in a row, then count the rows in the list below against how many you actually made.",
+  validation: "Try transferring something unusual — a negative amount, or more than the balance actually has. What should happen, and what does?",
+  rounding: "Look closely at the balance the moment the page first loads, before you touch anything at all."
+};
+
+function nudgeTowardUnfound(){
+  const unfound = BUGS.filter(b => !lastFixedSet.has(b.id));
+  if(unfound.length === 0){
+    return "Looks like you've actually found everything I know about — if something still feels off, describe exactly what you're seeing and I'll take a proper look.";
+  }
+  const pick = unfound[0];
+  return `No worries — try this: ${BUG_NUDGES[pick.id]}`;
+}
+
+const STUCK_PHRASES = ["im stuck", "i'm stuck", "help", "what should i look for", "cant find", "can't find", "dont know what to look for", "no idea what's wrong", "not sure what's wrong", "give me a hint", "any hints", "what am i missing", "still looking"];
+function isStuckMessage(msg){
+  const norm = msg.toLowerCase().replace(/[^\w\s']/g,' ').replace(/\s+/g,' ').trim();
+  return STUCK_PHRASES.some(p => norm.includes(p));
+}
+
 function updateProgress(fixedSet){
   const pct = Math.round((fixedSet.size / BUGS.length) * 100);
   document.getElementById('progressFill').style.width = pct + '%';
@@ -338,6 +363,7 @@ function runAllChecks(){
     // a thrown error just means whatever check was running found something still broken
   }
 
+  lastFixedSet = fixed;
   updateProgress(fixed);
   const status = document.getElementById('statusLine');
   if(fixed.size === BUGS.length){
@@ -410,7 +436,7 @@ const HELP_ENTRIES = [
   }
 ];
 const CHAT_FALLBACK = "I'm not totally sure which issue that is — try each part of the app (deposit, withdraw, transfer), watch what actually happens, and describe exactly what you're seeing.";
-const CHAT_GREETING = "Hi! I'm the support chat for this app. Try the buttons on the right, then tell me anything that looks or behaves wrong — including things you'd just improve. I'll figure out the fix and apply it, then show you exactly what changed.";
+const CHAT_GREETING = "Hi! I'm the support chat for this app. Try the buttons on the right, then tell me anything that looks or behaves wrong — including things you'd just improve. I'll figure out the fix and apply it, then show you exactly what changed. If you're not sure what to try next, just say \"I'm stuck\" and I'll point you somewhere.";
 
 function normalizeChat(s){
   return s.toLowerCase().replace(/[^\w\s]/g,' ').replace(/\s+/g,' ').trim();
@@ -480,6 +506,10 @@ function sendChat(){
   addChatMsg(escapeHtml(msg), 'user');
   input.value = '';
   setTimeout(()=>{
+    if(isStuckMessage(msg)){
+      addChatMsg(escapeHtml(nudgeTowardUnfound()), 'bot');
+      return;
+    }
     const match = findFix(msg);
     if(match){
       applyMatchedFix(match);
