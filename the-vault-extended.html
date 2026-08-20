@@ -52,12 +52,24 @@ h1{font-size:26px;margin:0 0 8px;font-weight:700;letter-spacing:-0.01em;color:va
 .worked-example summary{padding:11px 14px;cursor:pointer;font-size:13px;color:var(--accent);font-weight:600;list-style:none;}
 .worked-example summary::-webkit-details-marker{display:none;}
 .we-body{padding:2px 14px 14px;}
+.we-try{margin-top:12px;padding-top:12px;border-top:1px dashed var(--accent-border);display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.we-try-inputs{display:flex;gap:10px;flex-wrap:wrap;}
+.we-try-inputs label{font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:5px;font-weight:600;}
+.we-try-inputs input[type="number"]{width:70px;padding:6px 8px;border-radius:6px;border:1px solid var(--accent-border);font-family:'JetBrains Mono',monospace;font-size:12.5px;background:#fff;}
+.we-try-inputs input[type="number"]:focus{outline:none;border-color:var(--accent);}
+.we-try-inputs input[type="checkbox"]{width:16px;height:16px;}
+.we-try-btn{padding:7px 14px !important;font-size:12.5px !important;}
+.we-try-result{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--text-muted);font-weight:600;}
+.we-try-result.show{color:var(--success);}
 .we-body pre{background:#0D1117;border:none;border-radius:8px;padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#E6EDF3;line-height:1.65;margin:0 0 10px;white-space:pre-wrap;}
 .we-body .we-line{font-size:12.5px;color:var(--text-secondary);line-height:1.6;margin-bottom:4px;}
 
 .editor-chrome{border:1px solid var(--border);border-radius:10px;overflow:hidden;}
 .editor-titlebar{padding:9px 14px;background:var(--surface-alt);border-bottom:1px solid var(--border);font-size:12px;color:var(--text-secondary);display:flex;justify-content:space-between;align-items:center;}
 .editor-titlebar span{color:var(--text);font-weight:600;font-family:'JetBrains Mono',monospace;}
+.editor-titlebar .syntax-status{font-size:11px;font-weight:600;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:4px;white-space:nowrap;}
+.editor-titlebar .syntax-status.ok{color:var(--success);}
+.editor-titlebar .syntax-status.error{color:var(--danger);cursor:help;}
 textarea{width:100%;min-height:170px;background:#0D1117;color:#E6EDF3;border:none;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.65;padding:14px 16px;resize:vertical;tab-size:2;}
 textarea:focus{outline:none;}
 .editor-chrome:focus-within{box-shadow:0 0 0 3px var(--accent-bg);}
@@ -96,6 +108,11 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
 
 #doneScreen{display:none;text-align:center;padding:50px 20px;}
 .done-card{max-width:520px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:44px 38px;box-shadow:var(--shadow-md);}
+.learn-more{text-align:left;background:var(--surface-alt);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-top:20px;}
+.learn-more h4{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);font-weight:700;margin:0 0 10px;}
+.learn-more a{display:flex;align-items:center;gap:8px;color:var(--accent);font-weight:600;font-size:13px;text-decoration:none;padding:6px 0;}
+.learn-more a:hover{text-decoration:underline;}
+.learn-more a .lm-sub{color:var(--text-muted);font-weight:400;font-size:12px;}
 .done-card h2{font-size:22px;color:var(--text);margin:0 0 10px;font-weight:700;}
 .done-card p{color:var(--text-secondary);font-size:13.5px;line-height:1.6;margin:0 0 8px;}
 
@@ -103,6 +120,8 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
 .help-fab{position:fixed;bottom:22px;right:22px;z-index:80;width:56px;height:56px;border-radius:50%;background:var(--accent);color:#fff;border:none;cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-md);}
 .help-fab:hover{background:var(--accent-hover);}
 .help-fab .fab-dot{position:absolute;top:-2px;right:-2px;width:12px;height:12px;border-radius:50%;background:var(--danger);border:2px solid #fff;display:none;}
+.help-fab .fab-dot.pulse{animation:fabpulse 1.4s ease-in-out infinite;}
+@keyframes fabpulse{0%,100%{transform:scale(1);}50%{transform:scale(1.35);}}
 .help-panel{position:fixed;bottom:90px;right:22px;z-index:80;width:340px;max-width:calc(100vw - 40px);height:440px;max-height:calc(100vh - 130px);background:var(--surface);border:1px solid var(--border);border-radius:14px;display:none;flex-direction:column;overflow:hidden;box-shadow:0 12px 40px rgba(16,24,40,0.15);}
 .help-panel.open{display:flex;}
 .help-head{padding:12px 14px;background:var(--surface-alt);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
@@ -115,15 +134,24 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
 .help-msg.bot{background:var(--surface-alt);border:1px solid var(--border);color:var(--text);align-self:flex-start;}
 .help-msg.user{background:var(--accent);border:1px solid var(--accent);color:#fff;align-self:flex-end;}
 .help-inputrow{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--border);background:var(--surface-alt);}
+.menu-area{padding:10px 12px;border-top:1px solid var(--border);background:var(--surface-alt);display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto;}
+.menu-btn{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid var(--border);color:var(--text);font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;padding:9px 12px;border-radius:8px;cursor:pointer;text-align:left;width:100%;}
+.menu-btn:hover{border-color:var(--accent-border);background:var(--accent-bg);}
+.menu-btn.back{color:var(--text-muted);font-weight:500;background:var(--surface-alt);}
+.menu-btn .mi{font-size:14px;flex-shrink:0;}
 .help-inputrow input{flex:1;background:#fff;border:1px solid var(--border);color:var(--text);font-family:'Inter',sans-serif;font-size:12.5px;padding:9px 11px;border-radius:8px;}
 .help-inputrow input:focus{outline:none;border-color:var(--accent);}
 .help-inputrow button{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:0 14px;font-weight:600;font-size:12px;}
 .help-inputrow button:hover{background:var(--accent-hover);}
 
 
+.home-btn{position:fixed;top:16px;left:16px;z-index:90;width:40px;height:40px;border-radius:10px;background:#fff;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;text-decoration:none;box-shadow:0 1px 2px rgba(16,24,40,0.05);color:var(--text-secondary);transition:border-color .15s ease, color .15s ease;}
+.home-btn:hover{border-color:var(--accent-border);background:var(--accent-bg);color:var(--accent);}
 </style>
 </head>
 <body>
+<a href="index.html" class="home-btn" title="Back to dashboard">🏠</a>
+
 
 <div class="wrap">
 
@@ -145,12 +173,23 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
         </div>
         <p class="brief" id="briefText"></p>
         <details class="worked-example" id="workedExample" open>
-          <summary>📎 See a worked example first</summary>
-          <div class="we-body" id="weBody"></div>
+          <summary>📎 See a worked example — then try it yourself</summary>
+          <div class="we-body">
+            <pre id="weCode"></pre>
+            <div id="weExplain"></div>
+            <div class="we-try">
+              <div class="we-try-inputs" id="weTryInputs"></div>
+              <button class="btn-ghost we-try-btn" onclick="runWorkedExample()">▶ Try it</button>
+              <span class="we-try-result" id="weTryResult"></span>
+            </div>
+          </div>
         </details>
         <div class="editor-chrome">
-          <div class="editor-titlebar"><span>risk.js</span> — updates as you type</div>
-          <textarea id="codeInput" spellcheck="false"></textarea>
+          <div class="editor-titlebar">
+            <div><span>risk.js</span> — updates as you type</div>
+            <span class="syntax-status" id="syntaxStatus"></span>
+          </div>
+          <textarea id="codeInput" spellcheck="false" oninput="checkSyntaxLive()"></textarea>
         </div>
         <div class="actions">
           <button class="btn-primary" onclick="runTests()">▶ Run Tests</button>
@@ -175,7 +214,15 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
       <div class="eyebrow" style="justify-content:center;">The Vault</div>
       <h2>All 6 patched</h2>
       <p>Every function passed its tests. That's the actual day-to-day loop for a lot of dev roles — read a rule, write the logic, run the tests, fix what fails.</p>
-      <p style="color:var(--green-bright);">The take-home Vault has more scenarios waiting, with trickier edge cases.</p>
+      <p style="color:var(--text-muted);">The take-home Vault has more scenarios waiting, with trickier edge cases.</p>
+      <div class="learn-more">
+        <h4>Keep learning</h4>
+        <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Functions" target="_blank" rel="noopener">MDN — Functions <span class="lm-sub">the full reference on what you just practiced</span></a>
+        <a href="https://javascript.info/" target="_blank" rel="noopener">javascript.info <span class="lm-sub">a free, beginner-friendly full course</span></a>
+      </div>
+      <div class="actions" style="justify-content:center;margin-top:18px;">
+        <a href="index.html" class="btn-ghost" style="text-decoration:none;display:inline-flex;align-items:center;font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-radius:8px;cursor:pointer;padding:11px 20px;">🏠 Return Home</a>
+      </div>
     </div>
   </div>
 
@@ -215,12 +262,16 @@ function calculateTotal(amount) {
       "You need a return statement. The shape is: return amount + ___;",
       "return amount + 5;"
     ],
-    worked: `<pre>function addServiceCharge(price) {
+    workedFn: "addServiceCharge",
+    workedCode: `function addServiceCharge(price) {
   return price + 2;
-}</pre>
-<div class="we-line"><b>function addServiceCharge(price)</b> — this names the function and says what goes in: price.</div>
-<div class="we-line"><b>return price + 2;</b> — this is what comes back out: price, plus 2.</div>
-<div class="we-line"><b>example</b> — addServiceCharge(10) gives back 12. That's the whole shape you need below, just with a different number and name.</div>`
+}`,
+    workedParams: [{name:"price", default:10}],
+    workedExplain: [
+      "<b>function addServiceCharge(price)</b> — this names the function and says what goes in: price.",
+      "<b>return price + 2;</b> — this is what comes back out: price, plus 2.",
+      "Try changing the number below and clicking <b>Try it</b> — watch the answer change. That's the whole shape you need below, just with a different number and name."
+    ]
   },
   {
     fnName: "isHighRisk",
@@ -242,12 +293,16 @@ function isHighRisk(amount) {
       "A comparison like amount > 10000 already gives you true or false directly — you can return it as-is.",
       "return amount > 10000;"
     ],
-    worked: `<pre>function isAdult(age) {
+    workedFn: "isAdult",
+    workedCode: `function isAdult(age) {
   return age >= 18;
-}</pre>
-<div class="we-line"><b>age >= 18</b> — this is a question with a yes/no answer: true or false.</div>
-<div class="we-line"><b>return age >= 18;</b> — sends that yes/no answer straight back. No need to write "if this is true, return true" — the comparison already IS true or false.</div>
-<div class="we-line"><b>example</b> — isAdult(20) gives back true. isAdult(15) gives back false.</div>`
+}`,
+    workedParams: [{name:"age", default:20}],
+    workedExplain: [
+      "<b>age >= 18</b> — read as one operator, \"greater than or equal to\" (there's no single ≥ key on a keyboard, so code writes it as &gt; and = back to back). This is a question with a yes/no answer: true or false.",
+      "<b>return age >= 18;</b> — sends that yes/no answer straight back. No need to write \"if this is true, return true\" — the comparison already IS true or false.",
+      "Try changing the number below and clicking <b>Try it</b> — watch it flip between true and false around 18."
+    ]
   },
   {
     fnName: "categoriseTransaction",
@@ -272,15 +327,19 @@ function categoriseTransaction(amount) {
       "Start with: if (amount > 10000) return 'flagged'; then add another if for the next band.",
       "if (amount > 10000) return 'flagged';\nif (amount >= 1000) return 'review';\nreturn 'standard';"
     ],
-    worked: `<pre>function gradeScore(score) {
+    workedFn: "gradeScore",
+    workedCode: `function gradeScore(score) {
   if (score > 90) return 'A';
   if (score >= 70) return 'B';
   return 'C';
-}</pre>
-<div class="we-line"><b>if (score > 90) return 'A';</b> — checked first. If this matches, it stops here.</div>
-<div class="we-line"><b>if (score >= 70) return 'B';</b> — only checked if the first one didn't match.</div>
-<div class="we-line"><b>return 'C';</b> — if neither matched, this runs last, with no "if" needed.</div>
-<div class="we-line"><b>example</b> — gradeScore(95) gives 'A'. gradeScore(75) gives 'B'. gradeScore(40) gives 'C'.</div>`
+}`,
+    workedParams: [{name:"score", default:85}],
+    workedExplain: [
+      "<b>if (score > 90) return 'A';</b> — checked first. If this matches, it stops here.",
+      "<b>if (score >= 70) return 'B';</b> — only checked if the first one didn't match.",
+      "<b>return 'C';</b> — if neither matched, this runs last, with no \"if\" needed.",
+      "Try sliding the number below across 90 and 70 — watch which letter comes back."
+    ]
   },
   {
     fnName: "applyLoyaltyDiscount",
@@ -303,11 +362,15 @@ function applyLoyaltyDiscount(amount, isPremium) {
       "A ternary is a shorthand if/else in one line: condition ? valueIfTrue : valueIfFalse.",
       "return isPremium ? amount * 0.9 : amount;"
     ],
-    worked: `<pre>function applyMemberPrice(price, isMember) {
+    workedFn: "applyMemberPrice",
+    workedCode: `function applyMemberPrice(price, isMember) {
   return isMember ? price * 0.8 : price;
-}</pre>
-<div class="we-line"><b>isMember ? price * 0.8 : price</b> — a shorthand if/else. If isMember is true, use the first value; otherwise use the second.</div>
-<div class="we-line"><b>example</b> — applyMemberPrice(100, true) gives 80. applyMemberPrice(100, false) gives 100.</div>`
+}`,
+    workedParams: [{name:"price", default:100}, {name:"isMember", default:true, type:"boolean"}],
+    workedExplain: [
+      "<b>isMember ? price * 0.8 : price</b> — a shorthand if/else. If isMember is true, use the first value; otherwise use the second.",
+      "Try ticking and unticking the checkbox below — watch the discount switch on and off."
+    ]
   },
   {
     fnName: "calculateInterest",
@@ -329,12 +392,16 @@ function calculateInterest(balance, rate) {
       "Dividing by 100 turns a percentage like 5 into 0.05 — then multiply that by balance.",
       "return balance * (rate / 100);"
     ],
-    worked: `<pre>function calculateCommission(sale, percent) {
+    workedFn: "calculateCommission",
+    workedCode: `function calculateCommission(sale, percent) {
   return sale * (percent / 100);
-}</pre>
-<div class="we-line"><b>percent / 100</b> — turns a whole number like 10 into a fraction like 0.1.</div>
-<div class="we-line"><b>sale * (percent / 100)</b> — multiplies the sale by that fraction to get the commission amount.</div>
-<div class="we-line"><b>example</b> — calculateCommission(1000, 10) gives 100.</div>`
+}`,
+    workedParams: [{name:"sale", default:1000}, {name:"percent", default:10}],
+    workedExplain: [
+      "<b>percent / 100</b> — turns a whole number like 10 into a fraction like 0.1.",
+      "<b>sale * (percent / 100)</b> — multiplies the sale by that fraction to get the commission amount.",
+      "Try changing either number below and clicking <b>Try it</b>."
+    ]
   },
   {
     fnName: "flagSuspiciousActivity",
@@ -357,11 +424,15 @@ function flagSuspiciousActivity(amount, country) {
       "&& only returns true when BOTH sides are true. Try: amount > 5000 && country !== 'UK'",
       "return amount > 5000 && country !== 'UK';"
     ],
-    worked: `<pre>function needsApproval(age, amount) {
+    workedFn: "needsApproval",
+    workedCode: `function needsApproval(age, amount) {
   return age < 18 && amount > 50;
-}</pre>
-<div class="we-line"><b>age < 18 && amount > 50</b> — both sides have to be true for the whole thing to be true.</div>
-<div class="we-line"><b>example</b> — needsApproval(16, 100) gives true. needsApproval(16, 20) gives false — only one condition matched.</div>`
+}`,
+    workedParams: [{name:"age", default:16}, {name:"amount", default:100}],
+    workedExplain: [
+      "<b>age &lt; 18 && amount &gt; 50</b> — both sides have to be true for the whole thing to be true.",
+      "Try pushing age above 18, or amount below 50 — either one alone is enough to flip the result to false."
+    ]
   }
 ];
 
@@ -407,11 +478,18 @@ function loadChallenge(idx){
   document.getElementById('conceptTag').textContent = c.concept;
   document.getElementById('briefText').textContent = c.brief;
   document.getElementById('codeInput').value = c.starter;
-  document.getElementById('weBody').innerHTML = c.worked;
+  document.getElementById('weCode').textContent = c.workedCode;
+  document.getElementById('weExplain').innerHTML = c.workedExplain.map(e=>`<div class="we-line">${e}</div>`).join('');
+  renderWeTryInputs(c);
+  document.getElementById('weTryResult').textContent = '';
+  document.getElementById('weTryResult').className = 'we-try-result';
   document.getElementById('workedExample').open = true;
   document.getElementById('hintBtn').textContent = '💡 Hint';
   document.getElementById('errorBox').style.display = 'none';
   document.getElementById('helpDot').style.display = 'none';
+  document.getElementById('syntaxStatus').textContent = '';
+  document.getElementById('syntaxStatus').className = 'syntax-status';
+  clearTimeout(syntaxCheckTimer);
   refreshDots();
   renderTests(c);
   const status = document.getElementById('statusLine');
@@ -455,6 +533,7 @@ function revealNextHint(){
   btn.textContent = hintTier >= c.hints.length ? '💡 That\u2019s the full hint' : '💡 Tell me more';
 }
 
+let pendingNudge = null;
 function maybeNudgeHint(){
   const status = document.getElementById('statusLine');
   if(failCount >= 2){
@@ -463,11 +542,78 @@ function maybeNudgeHint(){
       status.textContent = "No rush — try the 💡 Hint button below, it'll walk you through it step by step.";
     }
   }
-  if(failCount >= 3 && !proactiveShown && !helpOpen){
+  if(failCount >= 3 && !proactiveShown){
     proactiveShown = true;
-    toggleHelp();
-    addHelpMsg("Hey — I noticed this one's putting up a fight. That's completely normal, not a sign you're doing anything wrong. Want to tell me what's happening, or ask me something specific about it?", 'bot');
+    document.getElementById('helpDot').classList.add('pulse');
+    const msg = "Hey — this one's putting up a fight. That's completely normal, not a sign you're doing anything wrong. Whenever you're ready, tell me what's happening or ask something specific about it.";
+    if(helpOpen){
+      addHelpMsg(msg, 'bot');
+    } else {
+      pendingNudge = msg;
+    }
   }
+}
+
+function renderWeTryInputs(c){
+  const wrap = document.getElementById('weTryInputs');
+  wrap.innerHTML = c.workedParams.map((p,i) => {
+    if(p.type === 'boolean'){
+      return `<label>${p.name} <input type="checkbox" id="weParam${i}" ${p.default ? 'checked' : ''}></label>`;
+    }
+    return `<label>${p.name} <input type="number" id="weParam${i}" value="${p.default}" step="any"></label>`;
+  }).join('');
+}
+
+function runWorkedExample(){
+  const c = CHALLENGES[current];
+  const resultEl = document.getElementById('weTryResult');
+  try{
+    const fn = new Function(c.workedCode + `\nreturn ${c.workedFn};`)();
+    const args = c.workedParams.map((p,i) => {
+      const el = document.getElementById('weParam'+i);
+      return p.type === 'boolean' ? el.checked : Number(el.value);
+    });
+    const result = fn(...args);
+    resultEl.textContent = `→ ${c.workedFn}(${args.join(', ')}) = ${JSON.stringify(result)}`;
+    resultEl.className = 'we-try-result show';
+  }catch(e){
+    resultEl.textContent = 'error — try a different value';
+    resultEl.className = 'we-try-result';
+  }
+}
+
+let syntaxCheckTimer;
+function checkSyntaxLive(){
+  clearTimeout(syntaxCheckTimer);
+  syntaxCheckTimer = setTimeout(()=>{
+    const code = document.getElementById('codeInput').value;
+    const statusEl = document.getElementById('syntaxStatus');
+    if(!code.trim()){
+      statusEl.textContent = '';
+      statusEl.className = 'syntax-status';
+      statusEl.title = '';
+      return;
+    }
+    try{
+      new Function(code);
+      statusEl.textContent = '✓ syntax OK';
+      statusEl.className = 'syntax-status ok';
+      statusEl.title = '';
+    }catch(e){
+      statusEl.textContent = '⚠ ' + describeSyntaxError(e);
+      statusEl.className = 'syntax-status error';
+      statusEl.title = e.message;
+    }
+  }, 500);
+}
+function describeSyntaxError(e){
+  const msg = e.message;
+  if(/Unexpected end of input/.test(msg)) return "a bracket, brace, or parenthesis isn't closed";
+  if(/Unexpected token '\}'/.test(msg)) return "an extra } somewhere, or one closed too early";
+  if(/Unexpected token '\)'/.test(msg)) return "an extra ) somewhere";
+  if(/missing \) after argument list/.test(msg)) return "a function call is missing its closing )";
+  if(/Unexpected identifier/.test(msg)) return "check for a missing comma, operator, or semicolon nearby";
+  return "syntax error — hover for details";
 }
 
 function runTests(){
@@ -560,10 +706,7 @@ loadChallenge(0);
     <button onclick="toggleHelp()">✕</button>
   </div>
   <div class="help-log" id="helpLog"></div>
-  <div class="help-inputrow">
-    <input type="text" id="helpInput" placeholder="Ask a question…" onkeydown="if(event.key==='Enter')sendHelp()">
-    <button onclick="sendHelp()">Send</button>
-  </div>
+  <div class="menu-area" id="menuArea"></div>
 </div>
 
 
@@ -666,51 +809,88 @@ const HELP_DATA = {
     "percentage": "rate"
   }
 };
-const HELP_FALLBACK = "I'm not totally sure about that one — no worries though. Try asking it a different way, tap 💡 Hint below, or wave down a facilitator. You're doing fine.";
-const HELP_GREETING = "Hi! I'm here to help — ask me anything, there's no question too basic, or tap 💡 Hint below for a step-by-step nudge on whatever you're working on right now.";
-const STUCK_PHRASES = ["im stuck", "i'm stuck", "help", "dont know what to do", "don't know what to do", "confused", "not sure what to write", "no idea", "how do i even start", "where do i begin", "how do i start", "just tell me", "give me the answer", "tell me the answer", "im really stuck", "really stuck", "super stuck", "please just tell me", "just give me the code", "i give up", "cant figure it out", "cant work it out", "just show me", "give up"];
+const HELP_GREETING = "Hi! Tap 💡 Hint for a step-by-step nudge on whatever you're working on, or ❓ Help for general syntax and troubleshooting — just click, no typing needed.";
 
 let helpOpen = false;
 let helpGreeted = false;
 
-function normalizeHelp(s){
-  return s.toLowerCase().replace(/[^\w\s]/g,' ').replace(/\s+/g,' ').trim();
-}
-const HELP_STOPWORDS = new Set(["what","does","do","is","are","the","a","an","to","of","in","on","for","and","or","i","my","how","this","that","it","me","you","your","did","doing","can","if","help","meaning","mean","means","explain","understand","understanding","know","knowing","work","working","works","use","using","used","need","needs","needed","want","wanted","wants","sure","right","correct","wrong","thing","things","stuff","way","ways","doesnt","dont","isnt","not","get","got","getting","should","would","could","will","with","when","where","why","which","who","from","have","has","had","about","some","any","just","really","actually","supposed","supposed","stuck"]);
-function scoreHelpEntry(msgNorm, msgWords, entry){
-  let best = 0;
-  entry.keywords.forEach(kw=>{
-    const kwNorm = normalizeHelp(kw);
-    let score = 0;
-    if(msgNorm.includes(kwNorm)) score += 4;
-    const kwWords = kwNorm.split(' ').filter(w=>w.length>2 && !HELP_STOPWORDS.has(w));
-    const overlap = kwWords.filter(w=>msgWords.includes(w)).length;
-    score += overlap;
-    if(score > best) best = score;
-  });
-  return best;
-}
-function isStuckPhrase(msgNorm){
-  return STUCK_PHRASES.some(p => msgNorm.includes(p));
-}
-function applySynonyms(msgNorm){
-  const syns = HELP_DATA.synonyms || {};
-  return msgNorm.split(' ').map(w => syns[w] || w).join(' ');
-}
-function findHelpResponse(userMsg){
-  let msgNorm = normalizeHelp(userMsg);
-  msgNorm = applySynonyms(msgNorm);
-  const msgWords = msgNorm.split(' ');
+function findHelpEntry(id){ return HELP_DATA.entries.find(e => e.id === id); }
 
-  let bestEntry = null, bestScore = 0;
-  HELP_DATA.entries.forEach(entry=>{
-    const s = scoreHelpEntry(msgNorm, msgWords, entry);
-    if(s > bestScore){ bestScore = s; bestEntry = entry; }
-  });
-  if(bestEntry && bestScore >= 1){
-    return bestEntry.response;
+const MENU = {
+  root: {
+    prompt: null,
+    options: [
+      { label: "Hint for this challenge", icon: "💡", action: "hint" },
+      { label: "Help", icon: "❓", goto: "help" }
+    ]
+  },
+  help: {
+    prompt: "What kind of help?",
+    options: [
+      { label: "Syntax — how do I write this?", icon: "📖", goto: "syntax" },
+      { label: "Troubleshooting — why isn't this working?", icon: "🐛", goto: "trouble" },
+      { label: "Back", icon: "←", goto: "root", back: true }
+    ]
+  },
+  syntax: {
+    prompt: "Pick a topic:",
+    options: [
+      { label: "How do I write a function?", icon: "📖", entry: "what-is-function-def" },
+      { label: "What's a boolean / comparison?", icon: "📖", entry: "boolean-explain" },
+      { label: "What do >, >=, etc. mean?", icon: "📖", entry: "comparison-operators" },
+      { label: "How does if/else work?", icon: "📖", entry: "if-else-syntax" },
+      { label: "Back", icon: "←", goto: "help", back: true }
+    ]
+  },
+  trouble: {
+    prompt: "Pick what's happening:",
+    options: [
+      { label: "My function says \"undefined\"", icon: "🐛", entry: "missing-return" },
+      { label: "What does the test console show me?", icon: "🐛", entry: "test-console-explain" },
+      { label: "My exact match isn't working", icon: "🐛", entry: "case-sensitive" },
+      { label: "My function isn't being found", icon: "🐛", entry: "function-name-typo" },
+      { label: "Back", icon: "←", goto: "help", back: true }
+    ]
   }
-  return HELP_FALLBACK;
+};
+
+function renderMenu(state){
+  const area = document.getElementById('menuArea');
+  const menu = MENU[state];
+  area.innerHTML = '';
+  if(menu.prompt){
+    addHelpMsg(menu.prompt, 'bot');
+  }
+  menu.options.forEach(opt=>{
+    const btn = document.createElement('button');
+    btn.className = 'menu-btn' + (opt.back ? ' back' : '');
+    btn.innerHTML = `<span class="mi">${opt.icon}</span>${opt.label}`;
+    btn.onclick = () => selectMenuOption(opt);
+    area.appendChild(btn);
+  });
+}
+
+function selectMenuOption(opt){
+  if(!opt.back){
+    addHelpMsg(opt.label, 'user');
+  }
+  if(opt.goto){
+    renderMenu(opt.goto);
+    return;
+  }
+  if(opt.action === 'hint'){
+    setTimeout(()=>{
+      revealNextHint();
+      renderMenu('root');
+    }, 200);
+    return;
+  }
+  if(opt.entry){
+    setTimeout(()=>{
+      addHelpMsg(findHelpEntry(opt.entry).response, 'bot');
+      renderMenu('root');
+    }, 200);
+  }
 }
 
 function toggleHelp(){
@@ -719,12 +899,17 @@ function toggleHelp(){
   panel.classList.toggle('open', helpOpen);
   if(helpOpen){
     document.getElementById('helpDot').style.display = 'none';
+    document.getElementById('helpDot').classList.remove('pulse');
   }
   if(helpOpen && !helpGreeted){
     addHelpMsg(HELP_GREETING, 'bot');
     helpGreeted = true;
+    renderMenu('root');
   }
-  if(helpOpen) document.getElementById('helpInput').focus();
+  if(helpOpen && pendingNudge){
+    addHelpMsg(pendingNudge, 'bot');
+    pendingNudge = null;
+  }
 }
 function addHelpMsg(text, who){
   const log = document.getElementById('helpLog');
@@ -733,21 +918,6 @@ function addHelpMsg(text, who){
   div.textContent = text;
   log.appendChild(div);
   log.scrollTop = log.scrollHeight;
-}
-function sendHelp(){
-  const input = document.getElementById('helpInput');
-  const msg = input.value.trim();
-  if(!msg) return;
-  addHelpMsg(msg, 'user');
-  input.value = '';
-  setTimeout(()=>{
-    const msgNorm = applySynonyms(normalizeHelp(msg));
-    if(isStuckPhrase(msgNorm)){
-      revealNextHint();
-    } else {
-      addHelpMsg(findHelpResponse(msg), 'bot');
-    }
-  }, 220);
 }
 
 </script>

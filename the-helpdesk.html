@@ -49,6 +49,11 @@ h1{font-size:26px;margin:0 0 8px;font-weight:700;letter-spacing:-0.01em;color:va
 .chat-msg .mini-btn:hover{background:var(--accent-bg);}
 .chat-msg .mini-btn.copied{color:var(--success);border-color:var(--success-border);background:var(--success-bg);}
 .chat-inputrow{display:flex;gap:8px;padding-top:12px;border-top:1px solid var(--border);margin-top:12px;}
+.menu-area{padding-top:12px;border-top:1px solid var(--border);margin-top:12px;display:flex;flex-direction:column;gap:7px;}
+.menu-btn{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid var(--border);color:var(--text);font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;padding:10px 13px;border-radius:8px;cursor:pointer;text-align:left;width:100%;}
+.menu-btn:hover{border-color:var(--accent-border);background:var(--accent-bg);}
+.menu-btn.back{color:var(--text-muted);font-weight:500;background:var(--surface-alt);}
+.menu-btn .mi{font-size:15px;flex-shrink:0;}
 .chat-inputrow input{flex:1;background:var(--surface-alt);border:1px solid var(--border);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;padding:10px 13px;border-radius:8px;}
 .chat-inputrow input:focus{outline:none;border-color:var(--accent);background:#fff;}
 .chat-inputrow button{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:0 18px;font-weight:600;font-size:13px;cursor:pointer;}
@@ -87,16 +92,20 @@ button.btn-ghost:hover{background:var(--surface-alt);color:var(--text);}
 .done-card .check-badge{width:56px;height:56px;border-radius:50%;background:var(--success);color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 18px;}
 .done-card h2{font-size:22px;color:var(--text);margin:0 0 12px;font-weight:700;}
 .done-card p{color:var(--text-secondary);font-size:14px;line-height:1.6;margin:0 0 8px;}
+.home-btn{position:fixed;top:16px;left:16px;z-index:90;width:40px;height:40px;border-radius:10px;background:#fff;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;text-decoration:none;box-shadow:0 1px 2px rgba(16,24,40,0.05);color:var(--text-secondary);transition:border-color .15s ease, color .15s ease;}
+.home-btn:hover{border-color:var(--accent-border);background:var(--accent-bg);color:var(--accent);}
 </style>
 </head>
 <body>
+<a href="index.html" class="home-btn" title="Back to dashboard">🏠</a>
+
 
 <div class="wrap">
 
   <div class="topbar">
     <div class="eyebrow">Financial Systems · Live Taster</div>
     <h1>The Helpdesk — Fix It Live</h1>
-    <p class="sub">You don't need any coding experience for this — genuinely none. The banking app on the right has real problems, some bugs and some rough edges. Play with it, then tell the chat exactly what you're seeing — it'll work out the fix, apply it, and show you what changed.</p>
+    <p class="sub">You don't need any coding experience for this — genuinely none. The banking app on the right has real problems, some bugs and some rough edges. Play with it, then click through the menu below to say what you noticed — no typing needed. It'll work out the fix, apply it, and show you what changed.</p>
   </div>
 
   <div id="game">
@@ -104,10 +113,7 @@ button.btn-ghost:hover{background:var(--surface-alt);color:var(--text);}
       <div class="panel chat-panel">
         <div class="panel-head"><h2>Support Chat</h2></div>
         <div class="chat-log" id="chatLog"></div>
-        <div class="chat-inputrow">
-          <input type="text" id="chatInput" placeholder="Tell me what's wrong…" onkeydown="if(event.key==='Enter')sendChat()">
-          <button onclick="sendChat()">Send</button>
-        </div>
+        <div class="menu-area" id="menuArea"></div>
       </div>
 
       <div class="right-col">
@@ -244,12 +250,6 @@ function nudgeTowardUnfound(){
   }
   const pick = unfound[0];
   return `No worries — try this: ${BUG_NUDGES[pick.id]}`;
-}
-
-const STUCK_PHRASES = ["im stuck", "i'm stuck", "help", "what should i look for", "cant find", "can't find", "dont know what to look for", "no idea what's wrong", "not sure what's wrong", "give me a hint", "any hints", "what am i missing", "still looking"];
-function isStuckMessage(msg){
-  const norm = msg.toLowerCase().replace(/[^\w\s']/g,' ').replace(/\s+/g,' ').trim();
-  return STUCK_PHRASES.some(p => norm.includes(p));
 }
 
 function updateProgress(fixedSet){
@@ -393,83 +393,50 @@ function highlightInCode(searchText){
 
 const HELP_ENTRIES = [
   {
-    keywords: ["deposit doesn't add", "deposit resets balance", "deposit not adding", "balance wrong after deposit", "deposit overwrites", "deposit replaces", "balance becomes whatever i deposit", "deposit sets the balance", "balance equal the deposit amount", "depositing doesn't increase", "total doesn't go up when i add money", "adding money isn't working"],
+    id: "deposit",
     summary: "The deposit function is overwriting your balance instead of adding to it.",
     code: "balance = amt;",
     fixCode: "balance += amt;"
   },
   {
-    keywords: ["withdraw doesn't work", "withdraw button broken", "nothing happens when i withdraw", "withdraw not working", "cant withdraw", "withdraw button does nothing", "withdraw is broken", "clicking withdraw does nothing", "withdraw button seems dead", "nothing changes when i withdraw", "withdraw isn't triggering", "withdraw feature doesn't respond"],
+    id: "withdraw",
     summary: "The Withdraw button is wired to a function name that doesn't quite match how it's actually spelled.",
     code: "function handelWithdraw(){",
     fixCode: "function handleWithdraw(){"
   },
   {
-    keywords: ["last transaction missing", "transaction list wrong", "history not showing everything", "one transaction missing", "list is missing", "not all transactions show", "can't see all my transactions", "transaction history incomplete", "most recent action isn't logged", "list doesn't update with my latest", "history cutting off the last item"],
+    id: "txnlist",
     summary: "The transaction list is stopping one entry early, so the newest one never shows.",
     code: "for (let i = 0; i < transactions.length - 1; i++) {",
     fixCode: "for (let i = 0; i < transactions.length; i++) {"
   },
   {
-    keywords: ["transfer negative amount", "balance goes negative", "transfer too much", "no validation on transfer", "overdraft", "transfer more than i have", "negative balance", "shouldn't be able to transfer negative", "app let me transfer negative", "no limit on transfers", "transferred more than i had", "should stop invalid transfers"],
+    id: "validation",
     summary: "handleTransfer() doesn't check the amount at all before taking it out — negative or oversized transfers both go through.",
     code: "const amt = Number(document.getElementById('transferAmt').value);\n  balance -= amt;",
     fixCode: "const amt = Number(document.getElementById('transferAmt').value);\n  if (amt > 0 && amt <= balance) {\n    balance -= amt;\n  } else {\n    alert('Enter a valid amount');\n    return;\n  }"
   },
   {
-    keywords: ["balance shows weird number", "too many decimal places", "balance looks broken", "ugly number", "long decimal", "balance has loads of numbers", "weird decimals", "balance number looks broken", "why so many decimal places", "balance isn't formatted properly", "money shouldn't have that many decimals", "number displayed is too long"],
+    id: "rounding",
     summary: "JavaScript maths can produce long decimal numbers like 30.299999999999997 — the display needs rounding.",
     code: "document.getElementById('balance').textContent = balance;",
     fixCode: "document.getElementById('balance').textContent = balance.toFixed(2);"
   },
   {
-    keywords: ["clear the input after depositing", "amount stays in the box", "input doesn't clear", "amount field doesn't reset", "old amount still shows after i submit", "box should empty after i deposit", "deposit field never clears"],
+    id: "clear-input",
     summary: "Nice catch — that's not broken, just a bit rough. Clearing the amount box after a successful deposit is a small usability improvement.",
     code: "transactions.push('Deposited £' + amt);",
     fixCode: "transactions.push('Deposited £' + amt);\n  document.getElementById('depositAmt').value = '';"
   },
   {
-    keywords: ["add commas to big numbers", "hard to read the balance", "large numbers are hard to read", "add thousand separators", "format the balance with commas", "big balance is hard to read", "balance needs commas"],
+    id: "thousands",
     summary: "Good instinct — large balances are genuinely easier to read with thousands separators. toLocaleString() adds those commas automatically.",
     code: "document.getElementById('balance').textContent = balance.toFixed(2);",
     fixCode: "document.getElementById('balance').textContent = balance.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});"
   }
 ];
-const CHAT_FALLBACK = "I'm not totally sure which issue that is — try each part of the app (deposit, withdraw, transfer), watch what actually happens, and describe exactly what you're seeing.";
-const CHAT_GREETING = "Hi! I'm the support chat for this app. Try the buttons on the right, then tell me anything that looks or behaves wrong — including things you'd just improve. I'll figure out the fix and apply it, then show you exactly what changed. If you're not sure what to try next, just say \"I'm stuck\" and I'll point you somewhere.";
-
-function normalizeChat(s){
-  return s.toLowerCase().replace(/[^\w\s]/g,' ').replace(/\s+/g,' ').trim();
-}
-const CHAT_STOPWORDS = new Set(["what","does","do","is","are","the","a","an","to","of","in","on","for","and","or","i","my","how","this","that","it","me","you","your","did","doing","can","if","when","doesnt","dont","isnt","not","get","got","with"]);
-function scoreEntry(msgNorm, msgWords, entry){
-  let best = 0;
-  entry.keywords.forEach(kw=>{
-    const kwNorm = normalizeChat(kw);
-    let score = 0;
-    if(msgNorm.includes(kwNorm)) score += 4;
-    const kwWords = kwNorm.split(' ').filter(w=>w.length>2 && !CHAT_STOPWORDS.has(w));
-    score += kwWords.filter(w=>msgWords.includes(w)).length;
-    if(score > best) best = score;
-  });
-  return best;
-}
-const CHAT_SYNONYMS = { "cash": "amount", "money": "amount", "log": "transaction", "record": "transaction" };
-function applyChatSynonyms(msgNorm){
-  return msgNorm.split(' ').map(w => CHAT_SYNONYMS[w] || w).join(' ');
-}
-function findFix(userMsg){
-  let msgNorm = normalizeChat(userMsg);
-  msgNorm = applyChatSynonyms(msgNorm);
-  const msgWords = msgNorm.split(' ');
-  let bestEntry = null, bestScore = 0;
-  HELP_ENTRIES.forEach(entry=>{
-    const s = scoreEntry(msgNorm, msgWords, entry);
-    if(s > bestScore){ bestScore = s; bestEntry = entry; }
-  });
-  return (bestEntry && bestScore >= 1) ? bestEntry : null;
-}
-
+function findEntry(id){ return HELP_ENTRIES.find(e => e.id === id); }
+const CHAT_GREETING = "Hi! I'm the support helper for this app. Try the buttons on the right, then use the menu below to tell me what you noticed — click through, no typing needed.";
 function addChatMsg(html, who){
   const log = document.getElementById('chatLog');
   const div = document.createElement('div');
@@ -486,7 +453,8 @@ function applyMatchedFix(match){
   const ta = document.getElementById('codeInput');
   const current = ta.value;
   if(!current.includes(match.code)){
-    addChatMsg("I can't find that exact spot right now — it might already be fixed, or another change needs to land first. Try describing what you're still seeing.", 'bot');
+    addChatMsg("I can't find that exact spot right now — it might already be fixed, or another change needs to land first. Try a different area from the menu below, or check what's changed already.", 'bot');
+    renderMenu('root');
     return;
   }
   addChatMsg(escapeHtml(match.summary), 'bot');
@@ -497,29 +465,80 @@ function applyMatchedFix(match){
   highlightInCode(match.fixCode.split('\n')[0]);
   clearTimeout(debounceTimer);
   buildFrame(updated, true);
+  renderMenu('root');
 }
 
-function sendChat(){
-  const input = document.getElementById('chatInput');
-  const msg = input.value.trim();
-  if(!msg) return;
-  addChatMsg(escapeHtml(msg), 'user');
-  input.value = '';
-  setTimeout(()=>{
-    if(isStuckMessage(msg)){
+/* ---------------- Menu-driven navigation — click, never type ---------------- */
+const MENU = {
+  root: {
+    prompt: null,
+    options: [
+      { label: "I noticed something wrong", icon: "🔍", goto: "wrong" },
+      { label: "I noticed something that could be nicer", icon: "💡", goto: "nicer" },
+      { label: "Not sure what to check next", icon: "🤔", action: "nudge" }
+    ]
+  },
+  wrong: {
+    prompt: "Which part of the app?",
+    options: [
+      { label: "Deposit", icon: "💰", entry: "deposit" },
+      { label: "Withdraw", icon: "💸", entry: "withdraw" },
+      { label: "Transfer", icon: "🔁", entry: "validation" },
+      { label: "The balance display", icon: "🔢", entry: "rounding" },
+      { label: "The transaction list", icon: "📜", entry: "txnlist" },
+      { label: "Back", icon: "←", goto: "root", back: true }
+    ]
+  },
+  nicer: {
+    prompt: "What did you notice?",
+    options: [
+      { label: "The deposit box doesn't clear after use", icon: "💡", entry: "clear-input" },
+      { label: "Big numbers are hard to read", icon: "💡", entry: "thousands" },
+      { label: "Back", icon: "←", goto: "root", back: true }
+    ]
+  }
+};
+
+function renderMenu(state){
+  const area = document.getElementById('menuArea');
+  const menu = MENU[state];
+  area.innerHTML = '';
+  if(menu.prompt){
+    addChatMsg(escapeHtml(menu.prompt), 'bot');
+  }
+  menu.options.forEach(opt=>{
+    const btn = document.createElement('button');
+    btn.className = 'menu-btn' + (opt.back ? ' back' : '');
+    btn.innerHTML = `<span class="mi">${opt.icon}</span>${opt.label}`;
+    btn.onclick = () => selectMenuOption(opt);
+    area.appendChild(btn);
+  });
+}
+
+function selectMenuOption(opt){
+  if(!opt.back){
+    addChatMsg(escapeHtml(opt.label), 'user');
+  }
+  if(opt.goto){
+    renderMenu(opt.goto);
+    return;
+  }
+  if(opt.action === 'nudge'){
+    setTimeout(()=>{
       addChatMsg(escapeHtml(nudgeTowardUnfound()), 'bot');
-      return;
-    }
-    const match = findFix(msg);
-    if(match){
-      applyMatchedFix(match);
-    } else {
-      addChatMsg(escapeHtml(CHAT_FALLBACK), 'bot');
-    }
-  }, 250);
+      renderMenu('root');
+    }, 200);
+    return;
+  }
+  if(opt.entry){
+    setTimeout(()=>{
+      applyMatchedFix(findEntry(opt.entry));
+    }, 200);
+  }
 }
 
 addChatMsg(escapeHtml(CHAT_GREETING), 'bot');
+renderMenu('root');
 loadApp();
 </script>
 </body>

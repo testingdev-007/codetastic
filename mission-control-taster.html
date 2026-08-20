@@ -58,6 +58,9 @@ h1{font-size:26px;margin:0 0 8px;font-weight:700;letter-spacing:-0.01em;color:va
 .editor-chrome{border:1px solid var(--border);border-radius:10px;overflow:hidden;}
 .editor-titlebar{padding:9px 14px;background:var(--surface-alt);border-bottom:1px solid var(--border);font-size:12px;color:var(--text-secondary);display:flex;justify-content:space-between;align-items:center;}
 .editor-titlebar span{color:var(--text);font-weight:600;font-family:'JetBrains Mono',monospace;}
+.editor-titlebar .syntax-status{font-size:11px;font-weight:600;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:4px;white-space:nowrap;}
+.editor-titlebar .syntax-status.ok{color:var(--success);}
+.editor-titlebar .syntax-status.error{color:var(--danger);cursor:help;}
 textarea{width:100%;min-height:170px;background:#0D1117;color:#E6EDF3;border:none;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.65;padding:14px 16px;resize:vertical;tab-size:2;}
 textarea:focus{outline:none;}
 .editor-chrome:focus-within{box-shadow:0 0 0 3px var(--accent-bg);}
@@ -88,6 +91,15 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
 .status-line.pass{color:var(--success);font-weight:600;}
 
 #successOverlay{display:none;position:fixed;inset:0;background:rgba(16,24,40,0.45);backdrop-filter:blur(2px);align-items:center;justify-content:center;z-index:50;padding:20px;}
+#badgeOverlay{display:none;position:fixed;inset:0;background:rgba(16,24,40,0.5);backdrop-filter:blur(3px);align-items:center;justify-content:center;z-index:55;padding:20px;}
+.badge-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:38px 34px;max-width:400px;text-align:center;box-shadow:var(--shadow-md);}
+.badge-medal{width:76px;height:76px;border-radius:50%;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;font-size:34px;background:linear-gradient(135deg,#F7B955,#D97C0C);box-shadow:0 6px 16px rgba(217,124,12,0.35);}
+.badge-medal.gold{background:linear-gradient(135deg,#FFE066,#E8B923);box-shadow:0 6px 16px rgba(232,185,35,0.4);}
+.badge-card h3{font-size:21px;margin:0 0 8px;color:var(--text);font-weight:800;letter-spacing:-0.01em;}
+.badge-card .badge-sub{font-size:11.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;font-weight:700;margin-bottom:14px;}
+.badge-card p{color:var(--text-secondary);font-size:13.5px;line-height:1.6;margin:0 0 22px;}
+.badge-actions{display:flex;flex-direction:column;gap:9px;}
+.badge-earned-strip{display:inline-flex;align-items:center;gap:8px;background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:20px;padding:7px 16px;font-size:12px;font-weight:700;color:var(--accent);margin-top:14px;}
 .success-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:36px 32px;max-width:380px;text-align:center;box-shadow:var(--shadow-md);}
 .ping{width:56px;height:56px;border-radius:50%;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;background:var(--success-bg);border:1px solid var(--success-border);}
 .ping-dot{width:14px;height:14px;border-radius:50%;background:var(--success);}
@@ -103,6 +115,8 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
 .help-fab{position:fixed;bottom:22px;right:22px;z-index:80;width:56px;height:56px;border-radius:50%;background:var(--accent);color:#fff;border:none;cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-md);}
 .help-fab:hover{background:var(--accent-hover);}
 .help-fab .fab-dot{position:absolute;top:-2px;right:-2px;width:12px;height:12px;border-radius:50%;background:var(--danger);border:2px solid #fff;display:none;}
+.help-fab .fab-dot.pulse{animation:fabpulse 1.4s ease-in-out infinite;}
+@keyframes fabpulse{0%,100%{transform:scale(1);}50%{transform:scale(1.35);}}
 .help-panel{position:fixed;bottom:90px;right:22px;z-index:80;width:340px;max-width:calc(100vw - 40px);height:440px;max-height:calc(100vh - 130px);background:var(--surface);border:1px solid var(--border);border-radius:14px;display:none;flex-direction:column;overflow:hidden;box-shadow:0 12px 40px rgba(16,24,40,0.15);}
 .help-panel.open{display:flex;}
 .help-head{padding:12px 14px;background:var(--surface-alt);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
@@ -115,6 +129,11 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
 .help-msg.bot{background:var(--surface-alt);border:1px solid var(--border);color:var(--text);align-self:flex-start;}
 .help-msg.user{background:var(--accent);border:1px solid var(--accent);color:#fff;align-self:flex-end;}
 .help-inputrow{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--border);background:var(--surface-alt);}
+.menu-area{padding:10px 12px;border-top:1px solid var(--border);background:var(--surface-alt);display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto;}
+.menu-btn{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid var(--border);color:var(--text);font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;padding:9px 12px;border-radius:8px;cursor:pointer;text-align:left;width:100%;}
+.menu-btn:hover{border-color:var(--accent-border);background:var(--accent-bg);}
+.menu-btn.back{color:var(--text-muted);font-weight:500;background:var(--surface-alt);}
+.menu-btn .mi{font-size:14px;flex-shrink:0;}
 .help-inputrow input{flex:1;background:#fff;border:1px solid var(--border);color:var(--text);font-family:'Inter',sans-serif;font-size:12.5px;padding:9px 11px;border-radius:8px;}
 .help-inputrow input:focus{outline:none;border-color:var(--accent);}
 .help-inputrow button{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:0 14px;font-weight:600;font-size:12px;}
@@ -187,6 +206,11 @@ input[type=text]:focus{outline:none;border-color:var(--accent);}
 /* certificate */
 #certScreen{display:none;text-align:center;padding:50px 20px;}
 .cert{max-width:520px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:44px 38px;box-shadow:var(--shadow-md);}
+.learn-more{text-align:left;background:var(--surface-alt);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-top:20px;}
+.learn-more h4{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);font-weight:700;margin:0 0 10px;}
+.learn-more a{display:flex;align-items:center;gap:8px;color:var(--accent);font-weight:600;font-size:13px;text-decoration:none;padding:6px 0;}
+.learn-more a:hover{text-decoration:underline;}
+.learn-more a .lm-sub{color:var(--text-muted);font-weight:400;font-size:12px;}
 .badge{width:64px;height:64px;border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;background:var(--success-bg);border:1px solid var(--success-border);}
 .badge::before{display:none;}
 .badge .b-inner{font-size:26px;color:var(--success);}
@@ -203,9 +227,13 @@ input[type=text]:focus{outline:none;border-color:var(--accent);}
 .confetti-piece{position:fixed;top:-20px;width:8px;height:8px;z-index:60;border-radius:2px;pointer-events:none;animation:fall linear forwards;}
 @keyframes fall{to{transform:translateY(105vh) rotate(360deg); opacity:0.2;}}
 
+.home-btn{position:fixed;top:16px;left:16px;z-index:90;width:40px;height:40px;border-radius:10px;background:#fff;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;text-decoration:none;box-shadow:0 1px 2px rgba(16,24,40,0.05);color:var(--text-secondary);transition:border-color .15s ease, color .15s ease;}
+.home-btn:hover{border-color:var(--accent-border);background:var(--accent-bg);color:var(--accent);}
 </style>
 </head>
 <body>
+<a href="index.html" class="home-btn" title="Back to dashboard">🏠</a>
+
 <!-- Help widget -->
 <button class="help-fab" id="helpFab" onclick="toggleHelp()">💬<span class="fab-dot" id="helpDot"></span></button>
 <div class="help-panel" id="helpPanel">
@@ -214,45 +242,19 @@ input[type=text]:focus{outline:none;border-color:var(--accent);}
     <button onclick="toggleHelp()">✕</button>
   </div>
   <div class="help-log" id="helpLog"></div>
-  <div class="help-inputrow">
-    <input type="text" id="helpInput" placeholder="Ask a question…" onkeydown="if(event.key==='Enter')sendHelp()">
-    <button onclick="sendHelp()">Send</button>
-  </div>
+  <div class="menu-area" id="menuArea"></div>
 </div>
 
 
 <div class="wrap">
 
   <!-- INTRO -->
-  <div id="intro">
-    <div>
-      <div class="eyebrow">Financial Systems · Live Taster</div>
-      <h1>Write real code.<br>Guide it to the exit.</h1>
-      <p class="lead">You don't need any coding experience for this — genuinely none. This is real JavaScript, and each construct shows you a worked example first, so you'll always have something concrete to copy the shape of.</p>
-      <div class="name-row">
-        <input type="text" id="cadetName" placeholder="your name (optional)" maxlength="24">
-        <button class="btn-primary" onclick="startMission()">Start →</button>
-      </div>
-      <div class="concepts">
-        <span class="chip" data-n="01">functions</span>
-        <span class="chip" data-n="02">sequencing</span>
-        <span class="chip" data-n="03">parameters</span>
-        <span class="chip" data-n="04">loops</span>
-      </div>
-    </div>
-    <div class="intro-visual">
-      <div class="sweep"></div>
-      <div class="rings"><div class="r1"></div><div class="r2"></div><div class="r3"></div></div>
-      <div class="mini-grid" id="introGrid"></div>
-    </div>
-  </div>
-
   <!-- GAME -->
   <div id="game">
     <div class="topbar">
       <div>
-        <div class="mission-id">CONSTRUCT <b id="levelNum">1</b> / 3</div>
-        <div style="font-weight:700;font-size:16px;margin-top:4px;text-transform:uppercase;letter-spacing:.03em;color:var(--green-bright);" id="levelTitle">WAKE UP</div>
+        <div class="mission-id">CONSTRUCT <b id="levelNum">1</b> / <span id="levelTotal"></span></div>
+        <div style="font-weight:700;font-size:16px;margin-top:4px;text-transform:uppercase;letter-spacing:.03em;color:var(--accent);" id="levelTitle">WAKE UP</div>
       </div>
       <div class="timeline" id="dots"></div>
       <div class="timer-wrap">
@@ -277,10 +279,11 @@ input[type=text]:focus{outline:none;border-color:var(--accent);}
         </details>
         <div class="editor-chrome">
           <div class="editor-titlebar">
-            <span class="tdot on"></span>
-            <span class="path">rover.js</span> — updates as you type
+            <div><span class="tdot on"></span>
+            <span class="path">rover.js</span> — updates as you type</div>
+            <span class="syntax-status" id="syntaxStatus"></span>
           </div>
-          <textarea id="codeInput" spellcheck="false"></textarea>
+          <textarea id="codeInput" spellcheck="false" oninput="checkSyntaxLive()"></textarea>
         </div>
         <div class="actions">
           <button class="btn-primary" onclick="runCode()">▶ Run Code</button>
@@ -306,24 +309,33 @@ input[type=text]:focus{outline:none;border-color:var(--accent);}
   <!-- CERTIFICATE -->
   <div id="certScreen">
     <div class="cert">
-      <div class="badge"><div class="b-inner">◉</div></div>
+      <div class="badge-medal gold" style="margin:0 auto 18px;">🥇</div>
       <div class="eyebrow">The Construct · Taster</div>
       <h2>All Constructs Complete</h2>
       <div class="cadet" id="certName">you</div>
+      <div class="badge-earned-strip">🥇 Advanced Badge — Construct Expert</div>
       <div class="stat-row">
         <div class="stat"><b id="certTime">--:--</b><span>Time in the construct</span></div>
         <div class="stat"><b id="certRuns">0</b><span>Compiles run</span></div>
-        <div class="stat"><b>3/3</b><span>Constructs cleared</span></div>
+        <div class="stat"><b id="certCleared">5/5</b><span>Constructs cleared</span></div>
       </div>
       <div class="concept-list">
-        <li><b>Calling functions</b> — you triggered actions by name: <code style="color:var(--green);">moveForward()</code></li>
+        <li><b>Calling functions</b> — you triggered actions by name: <code>moveForward()</code></li>
         <li><b>Sequencing</b> — order matters; the program ran your lines top to bottom</li>
         <li><b>Turning &amp; state</b> — the program's direction changed based on your commands</li>
+        <li><b>Combining moves and turns</b> — chaining multiple direction changes into one route</li>
+        <li><b>Loops</b> — repeating a whole pattern without writing it out by hand every time</li>
       </div>
-      <p style="color:var(--green-bright);font-size:12.5px;margin-top:16px;">The full Construct build adds obstacles and loops — two more constructs, plus a bonus debugging round.</p>
+      <p style="color:var(--text-muted);font-size:12.5px;margin-top:16px;">The full Construct build adds Agents — a level with real obstacles to route around — plus its own longer version of the loop challenge, and a bonus debugging round.</p>
+      <div class="learn-more">
+        <h4>Keep learning</h4>
+        <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide" target="_blank" rel="noopener">MDN — JavaScript Guide <span class="lm-sub">the full reference on what you just practiced</span></a>
+        <a href="https://javascript.info/" target="_blank" rel="noopener">javascript.info <span class="lm-sub">a free, beginner-friendly full course</span></a>
+      </div>
       <div class="actions" style="justify-content:center;margin-top:24px;">
         <button class="btn-primary" onclick="startBonus()">⚡ Bonus Construct →</button>
         <button class="btn-ghost" onclick="location.reload()">↺ Run it again</button>
+        <a href="index.html" class="btn-ghost" style="text-decoration:none;display:inline-flex;align-items:center;font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-radius:8px;cursor:pointer;padding:11px 20px;">🏠 Return Home</a>
       </div>
     </div>
   </div>
@@ -337,6 +349,19 @@ input[type=text]:focus{outline:none;border-color:var(--accent);}
     <h3 id="successTitle">Node Cleared</h3>
     <p id="successText">Construct complete.</p>
     <button class="btn-teal" onclick="nextLevel()" id="nextBtn">Next Construct →</button>
+  </div>
+</div>
+
+<div id="badgeOverlay">
+  <div class="badge-card">
+    <div class="badge-medal">🥉</div>
+    <div class="badge-sub">Milestone reached</div>
+    <h3>Construct Certified</h3>
+    <p>You've called functions, sequenced them, and combined moves with turns. That's a genuine foundation, and a fine place to stop if you'd like.</p>
+    <div class="badge-actions">
+      <button class="btn-primary" onclick="keepGoingForGold()">Keep going for the Advanced Badge (2 more) →</button>
+      <a href="index.html" class="btn-ghost" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-radius:8px;cursor:pointer;padding:11px 20px;">🏠 I'm done — take my badge home</a>
+    </div>
   </div>
 </div>
 
@@ -374,8 +399,8 @@ const LEVELS = [
       "You've already got moveForward(); in the starter code as an example of the shape — you just need to actually call it.",
       "moveForward();"
     ],
-    worked: `<pre>cleanRoom();</pre>
-<div class="we-line">That's the whole pattern a function call needs: a name, then brackets (even with nothing inside), then a semicolon. moveForward() works exactly the same way — same shape, different name.</div>`
+    worked: `<pre>moveForward();</pre>
+<div class="we-line">That's the whole pattern a function call needs: a name, then brackets (even with nothing inside), then a semicolon.</div>`
   },
   {
     title: "THE PATH",
@@ -391,10 +416,9 @@ const LEVELS = [
       "You can call the same function more than once, one call per line, and each one runs in order.",
       "moveForward();\nmoveForward();\nmoveForward();\nmoveForward();"
     ],
-    worked: `<pre>cleanRoom();
-cleanRoom();
-cleanRoom();</pre>
-<div class="we-line">Calling the same function more than once just means writing it again on the next line — each call happens in order, one after another. Three calls here means "clean the room three times."</div>`
+    worked: `<pre>moveForward();
+moveForward();</pre>
+<div class="we-line">Calling the same function more than once just means writing it again on the next line — each call happens in order, one after another. Two calls here means "move forward twice" — count how many <i>your</i> exit actually needs.</div>`
   },
   {
     title: "THE TURN",
@@ -410,11 +434,11 @@ cleanRoom();</pre>
       "The shape is: move, move, move, then turn, then move again — turning doesn't move the rover, it just changes which way it's facing.",
       "moveForward();\nmoveForward();\nmoveForward();\nturnRight();\nmoveForward();\nmoveForward();\nmoveForward();"
     ],
-    worked: `<pre>faceNorth();
+    worked: `<pre>moveForward();
 moveForward();
-faceEast();
+turnLeft();
 moveForward();</pre>
-<div class="we-line">First you move one way, then you turn, then you move the new way — the turn itself doesn't move anything, it just changes the direction the next move() will go.</div>`
+<div class="we-line">First you move one way, then you turn, then you move the new way — the turn itself doesn't move anything, it just changes the direction the next moveForward() will go. This example uses turnLeft() and different move counts than your task — work out which turn and how many moves you actually need.</div>`
   },
   {
     title: "THE RELAY",
@@ -422,24 +446,20 @@ moveForward();</pre>
     size: 5,
     start: {x:0,y:0,dir:'E'},
     target: {x:4,y:2},
-    walls: [],
+    walls: [{x:0,y:1},{x:0,y:2},{x:0,y:3},{x:0,y:4},{x:1,y:1},{x:1,y:2},{x:1,y:3},{x:1,y:4},{x:2,y:3},{x:2,y:4},{x:3,y:0},{x:3,y:1},{x:3,y:3},{x:3,y:4},{x:4,y:0},{x:4,y:1},{x:4,y:3},{x:4,y:4}],
     starter: `// Two turns this time — plan each straight stretch\n// separately, then chain them together.\n\nmoveForward();\nmoveForward();`,
-    brief: "Two turns this time — east, then south, then east again. Chain your moves and turns in the right order to reach the exit.",
+    brief: "Two turns this time — east, then south, then east again. The walls only leave room for that route, so plan each straight stretch before chaining them together.",
     hints: [
       "Break it into three straight stretches: east, then south, then east again — plan each one separately before joining them up.",
       "After each stretch you'll need a turn before the next moveForward() calls, or the rover just keeps going the same way.",
       "moveForward();\nmoveForward();\nturnRight();\nmoveForward();\nmoveForward();\nturnLeft();\nmoveForward();\nmoveForward();"
     ],
-    worked: `<pre>faceEast();
+    worked: `<pre>moveForward();
+turnRight();
 moveForward();
-moveForward();
-faceSouth();
-moveForward();
-moveForward();
-faceEast();
-moveForward();
+turnLeft();
 moveForward();</pre>
-<div class="we-line">Three straight stretches, each with its own direction — move, turn, move, turn, move. Plan each leg on its own first, then chain them together in order.</div>`
+<div class="we-line">Three straight stretches, each with its own direction — move, turn, move, turn, move. This example uses one move per stretch; plan each leg of your own route separately before chaining them together.</div>`
   },
   {
     title: "THE REPEAT",
@@ -447,33 +467,28 @@ moveForward();</pre>
     size: 5,
     start: {x:0,y:0,dir:'E'},
     target: {x:4,y:4},
-    walls: [],
+    walls: [{x:0,y:1},{x:0,y:2},{x:0,y:3},{x:0,y:4},{x:1,y:2},{x:1,y:3},{x:1,y:4},{x:2,y:0},{x:2,y:3},{x:2,y:4},{x:3,y:0},{x:3,y:1},{x:3,y:4},{x:4,y:0},{x:4,y:1},{x:4,y:2}],
     starter: `// The path staircases across the grid — it's not\n// a straight line this time. Get there however you like.\n\nmoveForward();`,
-    brief: "The exit isn't in a straight line this time — the path staircases diagonally across the grid. Get there however you like: one command at a time, or with a loop that repeats a whole pattern, not just a single move.",
+    brief: "The walls only leave room for a staircase path — a repeating pattern, not a straight line. Get there however you like: one command at a time, or with a loop that repeats a whole pattern, not just a single move.",
     hints: [
       "Look at the shape of the path rather than the distance — what repeats, and how many times does it repeat?",
       "The repeating part is four commands: move, turn, move, turn back — a loop's body can hold more than one line, not just a single moveForward().",
       "for (let i = 0; i < 4; i++) { moveForward(); turnRight(); moveForward(); turnLeft(); }"
     ],
-    worked: `<pre>// The manual way — sixteen lines:
-waterPlant();
+    worked: `<pre>// The manual way:
+moveForward();
 turnRight();
-waterPlant();
+moveForward();
 turnLeft();
-waterPlant();
-turnRight();
-waterPlant();
-turnLeft();
-// ...repeated two more times
 
-// The loop way — same result, four lines:
-for (let i = 0; i < 4; i++) {
-  waterPlant();
+// The loop way — same result, less to type:
+for (let i = 0; i < 2; i++) {
+  moveForward();
   turnRight();
-  waterPlant();
+  moveForward();
   turnLeft();
 }</pre>
-<div class="we-line">This time the repeating unit is four commands, not one — water, turn, water, turn back. The loop's body just holds all four lines instead of one, and repeats the whole block together. This is where a loop starts saving real effort, not just a line or two.</div>`
+<div class="we-line">Both blocks do exactly the same thing — this example repeats the four-command pattern twice. The loop's body holds all four lines and repeats the whole block together. Your task needs more repeats than this — count how many.</div>`
   }
 ];
 
@@ -498,6 +513,7 @@ const BONUS = {
 };
 
 let current = 0;
+let badgeShown = false;
 let runs = 0;
 let startTime = null;
 let timerInterval = null;
@@ -508,10 +524,7 @@ const TOTAL_SECONDS = 6*60;
 
 /* ---------------- Intro / start ---------------- */
 function startMission(){
-  const n = document.getElementById('cadetName').value.trim();
-  if(n) cadet = n;
-  document.getElementById('intro').style.display = 'none';
-  document.getElementById('game').style.display = 'block';
+  document.getElementById('levelTotal').textContent = LEVELS.length;
   startTime = Date.now();
   timerInterval = setInterval(updateTimer, 1000);
   buildDots();
@@ -583,6 +596,9 @@ function loadLevel(idx){
   document.getElementById('hintBtn').textContent = '💡 Hint';
   document.getElementById('errorBox').style.display = 'none';
   document.getElementById('helpDot').style.display = 'none';
+  document.getElementById('syntaxStatus').textContent = '';
+  document.getElementById('syntaxStatus').className = 'syntax-status';
+  clearTimeout(syntaxCheckTimer);
   refreshDots();
   buildGrid(lvl);
   clearLog();
@@ -595,6 +611,7 @@ function buildGrid(lvl){
   roverState = {x:lvl.start.x, y:lvl.start.y, dir:lvl.start.dir};
   const viz = document.getElementById('gridViz');
   viz.style.gridTemplateColumns = `repeat(${lvl.size}, 1fr)`;
+  viz.style.gridTemplateRows = `repeat(${lvl.size}, 1fr)`;
   viz.innerHTML = '';
   for(let y=0;y<lvl.size;y++){
     for(let x=0;x<lvl.size;x++){
@@ -691,14 +708,20 @@ function revealNextHint(){
   btn.textContent = hintTier >= lvl.hints.length ? '💡 That\u2019s the full hint' : '💡 Tell me more';
 }
 
+let pendingNudge = null;
 function maybeNudgeHint(){
   if(failCount >= 2){
     document.getElementById('helpDot').style.display = 'block';
   }
-  if(failCount >= 3 && !proactiveShown && !helpOpen){
+  if(failCount >= 3 && !proactiveShown){
     proactiveShown = true;
-    toggleHelp();
-    addHelpMsg("Hey — I noticed this one's putting up a fight. That's completely normal, not a sign you're doing anything wrong. Want to tell me what's happening, or ask me something specific about it?", 'bot');
+    document.getElementById('helpDot').classList.add('pulse');
+    const msg = "Hey — I noticed this one's putting up a fight. That's completely normal, not a sign you're doing anything wrong. Whenever you're ready, tell me what's happening or ask something specific about it.";
+    if(helpOpen){
+      addHelpMsg(msg, 'bot');
+    } else {
+      pendingNudge = msg;
+    }
   }
 }
 
@@ -710,6 +733,40 @@ function fireUplink(){
   if(!up) return;
   up.classList.add('firing');
   setTimeout(()=>up.classList.remove('firing'), 600);
+}
+
+let syntaxCheckTimer;
+function checkSyntaxLive(){
+  clearTimeout(syntaxCheckTimer);
+  syntaxCheckTimer = setTimeout(()=>{
+    const code = document.getElementById('codeInput').value;
+    const statusEl = document.getElementById('syntaxStatus');
+    if(!code.trim()){
+      statusEl.textContent = '';
+      statusEl.className = 'syntax-status';
+      statusEl.title = '';
+      return;
+    }
+    try{
+      new Function('moveForward','turnLeft','turnRight', code);
+      statusEl.textContent = '✓ syntax OK';
+      statusEl.className = 'syntax-status ok';
+      statusEl.title = '';
+    }catch(e){
+      statusEl.textContent = '⚠ ' + describeSyntaxError(e);
+      statusEl.className = 'syntax-status error';
+      statusEl.title = e.message;
+    }
+  }, 500);
+}
+function describeSyntaxError(e){
+  const msg = e.message;
+  if(/Unexpected end of input/.test(msg)) return "a bracket, brace, or parenthesis isn't closed";
+  if(/Unexpected token '\}'/.test(msg)) return "an extra } somewhere, or one closed too early";
+  if(/Unexpected token '\)'/.test(msg)) return "an extra ) somewhere";
+  if(/missing \) after argument list/.test(msg)) return "a function call is missing its closing )";
+  if(/Unexpected identifier/.test(msg)) return "check for a missing comma, operator, or semicolon nearby";
+  return "syntax error — hover for details";
 }
 
 function runCode(){
@@ -820,6 +877,11 @@ function showSuccess(){
     overlay.style.display = 'flex';
     return;
   }
+  if(current === 2 && !badgeShown){
+    badgeShown = true;
+    document.getElementById('badgeOverlay').style.display = 'flex';
+    return;
+  }
   const isLast = current === LEVELS.length - 1;
   document.getElementById('successTitle').textContent = isLast ? 'All Constructs Complete' : 'Construct Cleared';
   document.getElementById('successText').textContent = isLast
@@ -827,6 +889,11 @@ function showSuccess(){
     : `Construct ${current+1} complete. The next one adds a new command.`;
   document.getElementById('nextBtn').textContent = isLast ? 'View Results →' : 'Next Construct →';
   overlay.style.display = 'flex';
+}
+
+function keepGoingForGold(){
+  document.getElementById('badgeOverlay').style.display = 'none';
+  loadLevel(current + 1);
 }
 
 function nextLevel(){
@@ -862,6 +929,9 @@ function startBonus(){
   document.getElementById('hintBtn').textContent = '💡 Hint';
   document.getElementById('errorBox').style.display = 'none';
   document.getElementById('helpDot').style.display = 'none';
+  document.getElementById('syntaxStatus').textContent = '';
+  document.getElementById('syntaxStatus').className = 'syntax-status';
+  clearTimeout(syntaxCheckTimer);
   buildGrid(BONUS);
   clearLog();
   log('bonus construct loaded — find the bug and run', 'muted');
@@ -890,6 +960,7 @@ function finishGame(){
   const s = (elapsed%60).toString().padStart(2,'0');
   document.getElementById('certTime').textContent = `${m}:${s}`;
   document.getElementById('certRuns').textContent = runs;
+  document.getElementById('certCleared').textContent = `${LEVELS.length}/${LEVELS.length}`;
   document.getElementById('certName').textContent = cadet;
   launchConfetti();
 }
@@ -1063,51 +1134,91 @@ const HELP_DATA = {
     "goal": "exit"
   }
 };
-const HELP_FALLBACK = "I'm not totally sure about that one — no worries though. Try asking it a different way, tap 💡 Hint below, or wave down a facilitator. You're doing fine.";
-const HELP_GREETING = "Hi! I'm here to help — ask me anything, there's no question too basic, or tap 💡 Hint below for a step-by-step nudge on whatever you're working on right now.";
-const STUCK_PHRASES = ["im stuck", "i'm stuck", "help", "dont know what to do", "don't know what to do", "confused", "not sure what to write", "no idea", "how do i even start", "where do i begin", "how do i start", "just tell me", "give me the answer", "tell me the answer", "im really stuck", "really stuck", "super stuck", "please just tell me", "just give me the code", "i give up", "cant figure it out", "cant work it out", "just show me", "give up"];
+const HELP_GREETING = "Hi! Tap 💡 Hint for a step-by-step nudge on whatever you're working on, or ❓ Help for general syntax and troubleshooting — just click, no typing needed.";
 
 let helpOpen = false;
 let helpGreeted = false;
 
-function normalizeHelp(s){
-  return s.toLowerCase().replace(/[^\w\s]/g,' ').replace(/\s+/g,' ').trim();
-}
-const HELP_STOPWORDS = new Set(["what","does","do","is","are","the","a","an","to","of","in","on","for","and","or","i","my","how","this","that","it","me","you","your","did","doing","can","if","help","meaning","mean","means","explain","understand","understanding","know","knowing","work","working","works","use","using","used","need","needs","needed","want","wanted","wants","sure","right","correct","wrong","thing","things","stuff","way","ways","doesnt","dont","isnt","not","get","got","getting","should","would","could","will","with","when","where","why","which","who","from","have","has","had","about","some","any","just","really","actually","supposed","supposed","stuck"]);
-function scoreHelpEntry(msgNorm, msgWords, entry){
-  let best = 0;
-  entry.keywords.forEach(kw=>{
-    const kwNorm = normalizeHelp(kw);
-    let score = 0;
-    if(msgNorm.includes(kwNorm)) score += 4;
-    const kwWords = kwNorm.split(' ').filter(w=>w.length>2 && !HELP_STOPWORDS.has(w));
-    const overlap = kwWords.filter(w=>msgWords.includes(w)).length;
-    score += overlap;
-    if(score > best) best = score;
-  });
-  return best;
-}
-function isStuckPhrase(msgNorm){
-  return STUCK_PHRASES.some(p => msgNorm.includes(p));
-}
-function applySynonyms(msgNorm){
-  const syns = HELP_DATA.synonyms || {};
-  return msgNorm.split(' ').map(w => syns[w] || w).join(' ');
-}
-function findHelpResponse(userMsg){
-  let msgNorm = normalizeHelp(userMsg);
-  msgNorm = applySynonyms(msgNorm);
-  const msgWords = msgNorm.split(' ');
+function findHelpEntry(id){ return HELP_DATA.entries.find(e => e.id === id); }
 
-  let bestEntry = null, bestScore = 0;
-  HELP_DATA.entries.forEach(entry=>{
-    const s = scoreHelpEntry(msgNorm, msgWords, entry);
-    if(s > bestScore){ bestScore = s; bestEntry = entry; }
-  });
-  if(bestEntry && bestScore >= 1){
-    return bestEntry.response;
+const MENU = {
+  root: {
+    prompt: null,
+    options: [
+      { label: "Hint for this construct", icon: "💡", action: "hint" },
+      { label: "Help", icon: "❓", goto: "help" }
+    ]
+  },
+  help: {
+    prompt: "What kind of help?",
+    options: [
+      { label: "Syntax — how do I write this?", icon: "📖", goto: "syntax" },
+      { label: "Troubleshooting — why isn't this working?", icon: "🐛", goto: "trouble" },
+      { label: "Back", icon: "←", goto: "root", back: true }
+    ]
+  },
+  syntax: {
+    prompt: "Pick a topic:",
+    options: [
+      { label: "How do function calls work?", icon: "📖", entry: "what-is-function" },
+      { label: "How does a loop work?", icon: "📖", entry: "loop-syntax" },
+      { label: "What does turning actually do?", icon: "📖", entry: "turn-direction" },
+      { label: "Is this real code?", icon: "📖", entry: "whats-javascript" },
+      { label: "Back", icon: "←", goto: "help", back: true }
+    ]
+  },
+  trouble: {
+    prompt: "Pick what's happening:",
+    options: [
+      { label: "Error about brackets or semicolons", icon: "🐛", entry: "semicolon-brackets" },
+      { label: "How many moves do I need?", icon: "🐛", entry: "how-many-moves" },
+      { label: "My loop stops in the wrong place", icon: "🐛", entry: "loop-count-wrong" },
+      { label: "Nothing happens when I click Run", icon: "🐛", entry: "nothing-happens" },
+      { label: "Reset erased my code", icon: "🐛", entry: "reset-lost-code" },
+      { label: "The rover won't move — something blocking it?", icon: "🐛", entry: "rover-hit-wall" },
+      { label: "Bonus round: where's the bug?", icon: "🐛", entry: "bonus-glitch" },
+      { label: "Back", icon: "←", goto: "help", back: true }
+    ]
   }
-  return HELP_FALLBACK;
+};
+
+function renderMenu(state){
+  const area = document.getElementById('menuArea');
+  const menu = MENU[state];
+  area.innerHTML = '';
+  if(menu.prompt){
+    addHelpMsg(menu.prompt, 'bot');
+  }
+  menu.options.forEach(opt=>{
+    const btn = document.createElement('button');
+    btn.className = 'menu-btn' + (opt.back ? ' back' : '');
+    btn.innerHTML = `<span class="mi">${opt.icon}</span>${opt.label}`;
+    btn.onclick = () => selectMenuOption(opt);
+    area.appendChild(btn);
+  });
+}
+
+function selectMenuOption(opt){
+  if(!opt.back){
+    addHelpMsg(opt.label, 'user');
+  }
+  if(opt.goto){
+    renderMenu(opt.goto);
+    return;
+  }
+  if(opt.action === 'hint'){
+    setTimeout(()=>{
+      revealNextHint();
+      renderMenu('root');
+    }, 200);
+    return;
+  }
+  if(opt.entry){
+    setTimeout(()=>{
+      addHelpMsg(findHelpEntry(opt.entry).response, 'bot');
+      renderMenu('root');
+    }, 200);
+  }
 }
 
 function toggleHelp(){
@@ -1116,12 +1227,17 @@ function toggleHelp(){
   panel.classList.toggle('open', helpOpen);
   if(helpOpen){
     document.getElementById('helpDot').style.display = 'none';
+    document.getElementById('helpDot').classList.remove('pulse');
   }
   if(helpOpen && !helpGreeted){
     addHelpMsg(HELP_GREETING, 'bot');
     helpGreeted = true;
+    renderMenu('root');
   }
-  if(helpOpen) document.getElementById('helpInput').focus();
+  if(helpOpen && pendingNudge){
+    addHelpMsg(pendingNudge, 'bot');
+    pendingNudge = null;
+  }
 }
 function addHelpMsg(text, who){
   const log = document.getElementById('helpLog');
@@ -1131,21 +1247,8 @@ function addHelpMsg(text, who){
   log.appendChild(div);
   log.scrollTop = log.scrollHeight;
 }
-function sendHelp(){
-  const input = document.getElementById('helpInput');
-  const msg = input.value.trim();
-  if(!msg) return;
-  addHelpMsg(msg, 'user');
-  input.value = '';
-  setTimeout(()=>{
-    const msgNorm = applySynonyms(normalizeHelp(msg));
-    if(isStuckPhrase(msgNorm)){
-      revealNextHint();
-    } else {
-      addHelpMsg(findHelpResponse(msg), 'bot');
-    }
-  }, 220);
-}
+
+startMission();
 
 </script>
 </body>
