@@ -141,6 +141,8 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
 .help-msg.bot{background:var(--surface-alt);border:1px solid var(--border);color:var(--text);align-self:flex-start;}
 .help-msg.user{background:var(--accent);border:1px solid var(--accent);color:#fff;align-self:flex-end;}
 .help-inputrow{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--border);background:var(--surface-alt);}
+.freetext-area{padding:10px 12px;border-top:1px solid var(--border);background:var(--surface-alt);}
+.freetext-area .help-inputrow{padding:0;border-top:none;background:none;}
 .menu-area{padding:10px 12px;border-top:1px solid var(--border);background:var(--surface-alt);display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto;}
 .menu-btn{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid var(--border);color:var(--text);font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;padding:9px 12px;border-radius:8px;cursor:pointer;text-align:left;width:100%;}
 .menu-btn:hover{border-color:var(--accent-border);background:var(--accent-bg);}
@@ -510,6 +512,8 @@ function revealNextHint(){
       addHelpMsg(`${hintTier}. ${HINTS[hintTier-1]}`, 'bot hint');
     }
     hasRunSinceHint = false;
+  } else {
+    addHelpMsg('That\u2019s everything I\u2019ve got for this one — you\u2019ve already seen all the hints. Try running your code, or flag a facilitator if you\u2019re still stuck.', 'bot');
   }
   btn.textContent = hintTier >= HINTS.length ? '💡 That\u2019s the full hint' : '💡 Tell me more';
 }
@@ -648,6 +652,13 @@ resetAll();
   </div>
   <div class="help-log" id="helpLog"></div>
   <div class="menu-area" id="menuArea"></div>
+  <div class="freetext-area" id="freetextArea" style="display:none;">
+    <div class="help-inputrow">
+      <input type="text" id="helpInput" placeholder="Ask in your own words…" onkeydown="if(event.key==='Enter')sendFreeText()">
+      <button onclick="sendFreeText()">Send</button>
+    </div>
+    <button class="menu-btn back" onclick="renderMenu('root')" style="margin-top:8px;"><span class="mi">←</span>Back to menu</button>
+  </div>
 </div>
 
 
@@ -783,12 +794,67 @@ let helpGreeted = false;
 
 function findHelpEntry(id){ return HELP_DATA.entries.find(e => e.id === id); }
 
+const STUCK_PHRASES = ["im stuck", "i'm stuck", "help", "dont know what to do", "don't know what to do", "confused", "not sure what to write", "no idea", "how do i even start", "where do i begin", "how do i start", "just tell me", "give me the answer", "tell me the answer", "im really stuck", "really stuck", "super stuck", "please just tell me", "just give me the code", "i give up", "cant figure it out", "cant work it out", "just show me", "give up"];
+const HELP_FALLBACK = "I'm not totally sure about that one — try asking it a different way, or use the Help menu's Syntax and Troubleshooting topics instead. You're doing fine.";
+function normalizeHelp(s){
+  return s.toLowerCase().replace(/[^\w\s]/g,' ').replace(/\s+/g,' ').trim();
+}
+const HELP_STOPWORDS = new Set(["what","does","do","is","are","the","a","an","to","of","in","on","for","and","or","i","my","how","this","that","it","me","you","your","did","doing","can","if","help","meaning","mean","means","explain","understand","understanding","know","knowing","work","working","works","use","using","used","need","needs","needed","want","wanted","wants","sure","right","correct","wrong","thing","things","stuff","way","ways","doesnt","dont","isnt","not","get","got","getting","should","would","could","will","with","when","where","why","which","who","from","have","has","had","about","some","any","just","really","actually","supposed","stuck"]);
+function scoreHelpEntry(msgNorm, msgWords, entry){
+  let best = 0;
+  entry.keywords.forEach(kw=>{
+    const kwNorm = normalizeHelp(kw);
+    let score = 0;
+    if(msgNorm.includes(kwNorm)) score += 4;
+    const kwWords = kwNorm.split(' ').filter(w=>w.length>2 && !HELP_STOPWORDS.has(w));
+    const overlap = kwWords.filter(w=>msgWords.includes(w)).length;
+    score += overlap;
+    if(score > best) best = score;
+  });
+  return best;
+}
+function isStuckPhrase(msgNorm){
+  return STUCK_PHRASES.some(p => msgNorm.includes(p));
+}
+function applySynonyms(msgNorm){
+  const syns = HELP_DATA.synonyms || {};
+  return msgNorm.split(' ').map(w => syns[w] || w).join(' ');
+}
+function findHelpResponse(userMsg){
+  let msgNorm = normalizeHelp(userMsg);
+  msgNorm = applySynonyms(msgNorm);
+  const msgWords = msgNorm.split(' ');
+  let bestEntry = null, bestScore = 0;
+  HELP_DATA.entries.forEach(entry=>{
+    const s = scoreHelpEntry(msgNorm, msgWords, entry);
+    if(s > bestScore){ bestScore = s; bestEntry = entry; }
+  });
+  return (bestEntry && bestScore >= 1) ? bestEntry.response : null;
+}
+function sendFreeText(){
+  const input = document.getElementById('helpInput');
+  const msg = input.value.trim();
+  if(!msg) return;
+  addHelpMsg(msg, 'user');
+  input.value = '';
+  setTimeout(()=>{
+    const msgNorm = applySynonyms(normalizeHelp(msg));
+    if(isStuckPhrase(msgNorm)){
+      revealNextHint();
+    } else {
+      const response = findHelpResponse(msg);
+      addHelpMsg(response || HELP_FALLBACK, 'bot');
+    }
+  }, 220);
+}
+
 const MENU = {
   root: {
     prompt: null,
     options: [
       { label: "Hint for this page", icon: "💡", action: "hint" },
-      { label: "Help", icon: "❓", goto: "help" }
+      { label: "Help", icon: "❓", goto: "help" },
+      { label: "Write it yourself", icon: "✏️", action: "freetext" }
     ]
   },
   help: {
@@ -826,6 +892,8 @@ const MENU = {
 };
 
 function renderMenu(state){
+  document.getElementById('freetextArea').style.display = 'none';
+  document.getElementById('menuArea').style.display = 'flex';
   const area = document.getElementById('menuArea');
   const menu = MENU[state];
   area.innerHTML = '';
@@ -854,6 +922,12 @@ function selectMenuOption(opt){
       revealNextHint();
       renderMenu('root');
     }, 200);
+    return;
+  }
+  if(opt.action === 'freetext'){
+    document.getElementById('menuArea').style.display = 'none';
+    document.getElementById('freetextArea').style.display = 'block';
+    document.getElementById('helpInput').focus();
     return;
   }
   if(opt.entry){
