@@ -1139,17 +1139,27 @@ function findHelpEntry(id){ return HELP_DATA.entries.find(e => e.id === id); }
 const STUCK_PHRASES = ["im stuck", "i'm stuck", "help", "dont know what to do", "don't know what to do", "confused", "not sure what to write", "no idea", "how do i even start", "where do i begin", "how do i start", "just tell me", "give me the answer", "tell me the answer", "im really stuck", "really stuck", "super stuck", "please just tell me", "just give me the code", "i give up", "cant figure it out", "cant work it out", "just show me", "give up"];
 const HELP_FALLBACK = "I'm not totally sure about that one — try asking it a different way, or use the Help menu's Syntax and Troubleshooting topics instead. You're doing fine.";
 function normalizeHelp(s){
-  return s.toLowerCase().replace(/[^\w\s]/g,' ').replace(/\s+/g,' ').trim();
+  let out = s.toLowerCase();
+  out = out.replace(/>=/g, ' gte ').replace(/<=/g, ' lte ')
+           .replace(/===/g, ' strictequal ').replace(/!==/g, ' notequal ')
+           .replace(/&&/g, ' and ').replace(/\|\|/g, ' or ')
+           .replace(/>/g, ' gt ').replace(/</g, ' lt ');
+  return out.replace(/[^\w\s]/g,' ').replace(/\s+/g,' ').trim();
 }
-const HELP_STOPWORDS = new Set(["what","does","do","is","are","the","a","an","to","of","in","on","for","and","or","i","my","how","this","that","it","me","you","your","did","doing","can","if","help","meaning","mean","means","explain","understand","understanding","know","knowing","work","working","works","use","using","used","need","needs","needed","want","wanted","wants","sure","right","correct","wrong","thing","things","stuff","way","ways","doesnt","dont","isnt","not","get","got","getting","should","would","could","will","with","when","where","why","which","who","from","have","has","had","about","some","any","just","really","actually","supposed","stuck"]);
+const HELP_STOPWORDS = new Set(["what","does","do","is","are","the","a","an","to","of","in","on","for","and","or","i","my","how","this","that","it","me","you","your","did","doing","can","help","meaning","mean","means","explain","understand","understanding","know","knowing","work","working","works","use","using","used","need","needs","needed","want","wanted","wants","sure","right","correct","wrong","thing","things","stuff","way","ways","doesnt","dont","isnt","not","get","got","getting","should","would","could","will","with","when","where","why","which","who","from","have","has","had","about","some","any","just","really","actually","supposed","stuck"]);
+function stem(w){
+  if(w.length > 3 && w.endsWith('s') && !w.endsWith('ss')) return w.slice(0,-1);
+  return w;
+}
 function scoreHelpEntry(msgNorm, msgWords, entry){
   let best = 0;
+  const msgStems = msgWords.map(stem);
   entry.keywords.forEach(kw=>{
     const kwNorm = normalizeHelp(kw);
     let score = 0;
     if(msgNorm.includes(kwNorm)) score += 4;
-    const kwWords = kwNorm.split(' ').filter(w=>w.length>2 && !HELP_STOPWORDS.has(w));
-    const overlap = kwWords.filter(w=>msgWords.includes(w)).length;
+    const kwWords = kwNorm.split(' ').filter(w=>w.length>1 && !HELP_STOPWORDS.has(w));
+    const overlap = kwWords.filter(w=>msgStems.includes(stem(w))).length;
     score += overlap;
     if(score > best) best = score;
   });

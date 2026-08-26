@@ -346,10 +346,12 @@ function categoriseTransaction(amount) {
   {
     fnName: "applyLoyaltyDiscount",
     concept: "MULTIPLE PARAMETERS · BOOLEANS",
-    brief: "Premium customers get a 10% discount on the transaction total. Standard customers pay full price. Write applyLoyaltyDiscount(amount, isPremium) to return the correct charge.",
+    brief: "Premium customers get a 10% discount on the transaction total. Standard customers pay full price. Write applyLoyaltyDiscount(amount, isPremium) to return the correct charge. Regular if/else works fine here — there's just a shorter way too, if you want it.",
     starter: `// applyLoyaltyDiscount(amount, isPremium) should return:
 //   amount * 0.9   if isPremium is true
 //   amount         otherwise
+// Plain if/else works fine — no need to learn anything new
+// unless you want to.
 
 function applyLoyaltyDiscount(amount, isPremium) {
   // TODO
@@ -360,9 +362,9 @@ function applyLoyaltyDiscount(amount, isPremium) {
       {args:[50, true], expected:45}
     ],
     hints: [
-      "This one takes two inputs. Since isPremium is already true or false, you can use it directly to decide which calculation to run.",
-      "A ternary is a shorthand if/else in one line: condition ? valueIfTrue : valueIfFalse.",
-      "return isPremium ? amount * 0.9 : amount;"
+      "You already know how to do this with if/else — that works completely fine here: if (isPremium) { return amount * 0.9; } return amount;. If you'd rather try something new, keep reading.",
+      "A ternary is a shorthand for exactly that if/else, written in one line: condition ? valueIfTrue : valueIfFalse. Same logic, different shape — entirely optional.",
+      "Either of these passes: if (isPremium) { return amount * 0.9; } return amount;  —  or  —  return isPremium ? amount * 0.9 : amount;"
     ],
     workedFn: "applyMemberPrice",
     workedCode: `function applyMemberPrice(price, isMember) {
@@ -370,7 +372,7 @@ function applyLoyaltyDiscount(amount, isPremium) {
 }`,
     workedParams: [{name:"price", default:100}, {name:"isMember", default:true, type:"boolean"}],
     workedExplain: [
-      "<b>isMember ? price * 0.8 : price</b> — a shorthand if/else. If isMember is true, use the first value; otherwise use the second.",
+      "<b>isMember ? price * 0.8 : price</b> — a shorthand if/else. If isMember is true, use the first value; otherwise use the second. Writing this out as a full if/else instead works exactly the same — this is just a shorter way to say it, not a required one.",
       "Try ticking and unticking the checkbox below — watch the discount switch on and off."
     ]
   },
@@ -408,9 +410,10 @@ function calculateInterest(balance, rate) {
   {
     fnName: "flagSuspiciousActivity",
     concept: "COMPOUND LOGIC · AND",
-    brief: "Compliance flags a transaction as suspicious only when BOTH conditions are true: it's strictly over £5,000, AND it's from outside the UK. Write flagSuspiciousActivity(amount, country) to return true or false.",
+    brief: "Compliance flags a transaction as suspicious only when BOTH conditions are true: it's strictly over £5,000, AND it's from outside the UK. Write flagSuspiciousActivity(amount, country) to return true or false. Nested if statements work fine here too — && is just a shortcut, not a requirement.",
     starter: `// flagSuspiciousActivity(amount, country) should return true
 // only when amount is OVER 5000 AND country is NOT "UK".
+// Nested ifs work fine — && is just a shorter way to write it.
 
 function flagSuspiciousActivity(amount, country) {
   // TODO
@@ -422,9 +425,9 @@ function flagSuspiciousActivity(amount, country) {
       {args:[5000, "US"], expected:false}
     ],
     hints: [
-      "This needs both conditions true at the same time — think about which operator combines two conditions with AND.",
-      "&& only returns true when BOTH sides are true. Try: amount > 5000 && country !== 'UK'",
-      "return amount > 5000 && country !== 'UK';"
+      "You can nest an if inside another if — the inner one only runs when the outer one is already true, which is exactly \"both conditions at once.\" That works completely fine here.",
+      "&& is a shortcut for that same nesting, written on one line: it only returns true when BOTH sides are true. Try: amount > 5000 && country !== 'UK' — but nested ifs give the same result if you'd rather use those.",
+      "Either passes: if (amount > 5000) { if (country !== 'UK') { return true; } } return false;  —  or  —  return amount > 5000 && country !== 'UK';"
     ],
     workedFn: "needsApproval",
     workedCode: `function needsApproval(age, amount) {
@@ -739,7 +742,11 @@ const HELP_DATA = {
         "define a function",
         "function syntax",
         "writing a function",
-        "what does function mean"
+        "what does function mean",
+        "what is a parameter",
+        "what is an argument",
+        "function argument meaning",
+        "what goes in the brackets"
       ],
       "response": "function name(parameter) { return something; } \u2014 the name is what you call it by, the parameter is the input, and return sends a value back out. Nothing after return runs."
     },
@@ -772,7 +779,9 @@ const HELP_DATA = {
         "what does gte mean",
         ">= meaning",
         "over or equal",
-        "strictly over"
+        "strictly over",
+        "what does gte mean",
+        "gte meaning"
       ],
       "response": "> means strictly greater than (10000 itself doesn't count). >= means greater than or equal to (10000 itself does count). Read the brief's exact wording \u2014 'over' and 'or more' mean different things here."
     },
@@ -783,7 +792,11 @@ const HELP_DATA = {
         "how does if else work",
         "multiple conditions",
         "if else if",
-        "conditional chain"
+        "conditional chain",
+        "if statement",
+        "what is an if statement",
+        "how does if work",
+        "what is if"
       ],
       "response": "if (condition) { return x; } if (otherCondition) { return y; } return z; \u2014 checks run top to bottom, and the first one that matches wins. Put the most specific condition first."
     },
@@ -793,7 +806,9 @@ const HELP_DATA = {
         "what does the test console show",
         "how do tests work",
         "what is a test",
-        "pass fail meaning"
+        "pass fail meaning",
+        "why does my test fail",
+        "why is my test failing"
       ],
       "response": "Each row calls your function with specific input and checks whether what it actually returns matches what's expected. A red cross shows you exactly what your function returned, so compare that against what it should have been."
     },
@@ -812,7 +827,9 @@ const HELP_DATA = {
         "function not found",
         "isn't defined as a function",
         "wrong function name",
-        "typo in function name"
+        "typo in function name",
+        "why isnt my function found",
+        "function isnt working"
       ],
       "response": "The function name in your code has to match exactly what's expected \u2014 check for typos, and make sure you haven't accidentally renamed it while editing."
     }
@@ -835,17 +852,27 @@ function findHelpEntry(id){ return HELP_DATA.entries.find(e => e.id === id); }
 const STUCK_PHRASES = ["im stuck", "i'm stuck", "help", "dont know what to do", "don't know what to do", "confused", "not sure what to write", "no idea", "how do i even start", "where do i begin", "how do i start", "just tell me", "give me the answer", "tell me the answer", "im really stuck", "really stuck", "super stuck", "please just tell me", "just give me the code", "i give up", "cant figure it out", "cant work it out", "just show me", "give up"];
 const HELP_FALLBACK = "I'm not totally sure about that one — try asking it a different way, or use the Help menu's Syntax and Troubleshooting topics instead. You're doing fine.";
 function normalizeHelp(s){
-  return s.toLowerCase().replace(/[^\w\s]/g,' ').replace(/\s+/g,' ').trim();
+  let out = s.toLowerCase();
+  out = out.replace(/>=/g, ' gte ').replace(/<=/g, ' lte ')
+           .replace(/===/g, ' strictequal ').replace(/!==/g, ' notequal ')
+           .replace(/&&/g, ' and ').replace(/\|\|/g, ' or ')
+           .replace(/>/g, ' gt ').replace(/</g, ' lt ');
+  return out.replace(/[^\w\s]/g,' ').replace(/\s+/g,' ').trim();
 }
-const HELP_STOPWORDS = new Set(["what","does","do","is","are","the","a","an","to","of","in","on","for","and","or","i","my","how","this","that","it","me","you","your","did","doing","can","if","help","meaning","mean","means","explain","understand","understanding","know","knowing","work","working","works","use","using","used","need","needs","needed","want","wanted","wants","sure","right","correct","wrong","thing","things","stuff","way","ways","doesnt","dont","isnt","not","get","got","getting","should","would","could","will","with","when","where","why","which","who","from","have","has","had","about","some","any","just","really","actually","supposed","stuck"]);
+const HELP_STOPWORDS = new Set(["what","does","do","is","are","the","a","an","to","of","in","on","for","and","or","i","my","how","this","that","it","me","you","your","did","doing","can","help","meaning","mean","means","explain","understand","understanding","know","knowing","work","working","works","use","using","used","need","needs","needed","want","wanted","wants","sure","right","correct","wrong","thing","things","stuff","way","ways","doesnt","dont","isnt","not","get","got","getting","should","would","could","will","with","when","where","why","which","who","from","have","has","had","about","some","any","just","really","actually","supposed","stuck"]);
+function stem(w){
+  if(w.length > 3 && w.endsWith('s') && !w.endsWith('ss')) return w.slice(0,-1);
+  return w;
+}
 function scoreHelpEntry(msgNorm, msgWords, entry){
   let best = 0;
+  const msgStems = msgWords.map(stem);
   entry.keywords.forEach(kw=>{
     const kwNorm = normalizeHelp(kw);
     let score = 0;
     if(msgNorm.includes(kwNorm)) score += 4;
-    const kwWords = kwNorm.split(' ').filter(w=>w.length>2 && !HELP_STOPWORDS.has(w));
-    const overlap = kwWords.filter(w=>msgWords.includes(w)).length;
+    const kwWords = kwNorm.split(' ').filter(w=>w.length>1 && !HELP_STOPWORDS.has(w));
+    const overlap = kwWords.filter(w=>msgStems.includes(stem(w))).length;
     score += overlap;
     if(score > best) best = score;
   });

@@ -83,6 +83,7 @@ footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--border);font-
     <a href="#ledger">Ledger</a>
     <a href="#front">Front</a>
     <a href="#helpdesk">Helpdesk</a>
+    <a href="#copilot">CoPilot modules</a>
     <a href="#chat-capability">Help &amp; Hints — what works</a>
     <a href="#helpdesk-chat">Helpdesk chat — what works</a>
     <a href="#troubleshooting">Troubleshooting</a>
@@ -343,24 +344,40 @@ for (let i = 0; i < 4; i++) {
     <p style="margin-top:10px;"><b>There's no visible bug list.</b> The old version showed a checklist naming all 5 known issues, which made the activity pointless — you could just read the list. Now there's only a progress bar showing <i>how many</i> have been found, never <i>what they are</i>. Discovery has to come from actually playing with the app.</p>
   </div>
 
-  <h3>The 5 real bugs</h3>
-  <details><summary>Deposit overwrites instead of adding</summary><div class="answer-body">
-    <p>Symptom: depositing money resets the balance to the deposit amount instead of adding to it.</p>
+  <h3>The 5 real bugs — now randomised, two variants each</h3>
+  <div class="card">
+    <p><b>Each session, one of two genuinely different mistakes is picked at random per bug</b> — not just different wording, different actual code. A participant who compares notes with someone else may see a different broken line for the same symptom. Both variants below are real; recognise either.</p>
+  </div>
+  <details><summary>Deposit doesn't add up correctly</summary><div class="answer-body">
+    <p>Symptom: depositing money doesn't correctly increase the balance.</p>
+    <p style="margin-top:8px;"><b>Variant A</b> — overwrites instead of adding:</p>
     <pre>- balance = amt;
 + balance += amt;</pre>
+    <p style="margin-top:8px;"><b>Variant B</b> — silently adds zero instead of the real amount:</p>
+    <pre>- balance += 0;
++ balance += amt;</pre>
   </div></details>
-  <details><summary>Withdraw button does nothing</summary><div class="answer-body">
-    <p>Symptom: clicking Withdraw has no effect at all. The button calls <code>handleWithdraw()</code>, but the function is defined as <code>handelWithdraw()</code> — a typo.</p>
+  <details><summary>Withdraw does nothing at all</summary><div class="answer-body">
+    <p>Symptom: clicking Withdraw has no effect.</p>
+    <p style="margin-top:8px;"><b>Variant A</b> — the button calls <code>handleWithdraw()</code>, but the function is defined as <code>handelWithdraw()</code>, a typo:</p>
     <pre>- function handelWithdraw(){
 + function handleWithdraw(){</pre>
+    <p style="margin-top:8px;"><b>Variant B</b> — the function name is correct, but it reads the amount from the wrong input box:</p>
+    <pre>- const amt = Number(document.getElementById('depositAmt').value);
++ const amt = Number(document.getElementById('withdrawAmt').value);</pre>
   </div></details>
   <details><summary>Most recent transaction missing from the list</summary><div class="answer-body">
-    <p>Symptom: the transaction history is always one entry short — the newest action never appears.</p>
+    <p>Symptom: one transaction is always missing from the list.</p>
+    <p style="margin-top:8px;"><b>Variant A</b> — the loop stops one entry early, so the newest is missing:</p>
     <pre>- for (let i = 0; i < transactions.length - 1; i++) {
++ for (let i = 0; i < transactions.length; i++) {</pre>
+    <p style="margin-top:8px;"><b>Variant B</b> — the loop starts at position 1 instead of 0, so the oldest is missing:</p>
+    <pre>- for (let i = 1; i < transactions.length; i++) {
 + for (let i = 0; i < transactions.length; i++) {</pre>
   </div></details>
   <details><summary>Transfers can push the balance negative</summary><div class="answer-body">
-    <p>Symptom: entering a negative amount, or an amount larger than the balance, into Transfer goes through with no error.</p>
+    <p>Symptom: negative or oversized transfers go through with no error.</p>
+    <p style="margin-top:8px;"><b>Variant A</b> — no validation exists at all:</p>
     <pre>- const amt = Number(document.getElementById('transferAmt').value);
 -   balance -= amt;
 + const amt = Number(document.getElementById('transferAmt').value);
@@ -370,14 +387,30 @@ for (let i = 0; i < 4; i++) {
 +     alert('Enter a valid amount');
 +     return;
 +   }</pre>
+    <p style="margin-top:8px;"><b>Variant B</b> — a check exists but is ineffective, only blocking exactly zero:</p>
+    <pre>- const amt = Number(document.getElementById('transferAmt').value);
+-   if (amt !== 0) {
+-     balance -= amt;
+-   }
++ const amt = Number(document.getElementById('transferAmt').value);
++   if (amt > 0 && amt <= balance) {
++     balance -= amt;
++   } else {
++     alert('Enter a valid amount');
++     return;
++   }</pre>
   </div></details>
   <details><summary>Balance displays a long, broken-looking number</summary><div class="answer-body">
-    <p>Symptom: the balance sometimes shows something like <code>30.299999999999997</code> — genuine JavaScript floating-point behaviour, seeded deliberately into the starting balance so it's visible immediately on load, independent of the other four bugs.</p>
+    <p>Symptom: the balance sometimes shows something like <code>30.299999999999997</code> — genuine JavaScript floating-point behaviour, seeded deliberately into the starting balance.</p>
+    <p style="margin-top:8px;"><b>Variant A</b> — no rounding at all:</p>
     <pre>- document.getElementById('balance').textContent = balance;
++ document.getElementById('balance').textContent = balance.toFixed(2);</pre>
+    <p style="margin-top:8px;"><b>Variant B</b> — rounded to 10 decimal places instead of 2 (still messy, just differently):</p>
+    <pre>- document.getElementById('balance').textContent = balance.toFixed(10);
 + document.getElementById('balance').textContent = balance.toFixed(2);</pre>
   </div></details>
 
-  <h3>The 2 "improvements" (not bugs — reward noticing these too)</h3>
+  <h3>The 2 "improvements" (not bugs — reward noticing these too, not randomised)</h3>
   <details><summary>Deposit box doesn't clear after use</summary><div class="answer-body">
     <p>Not broken, just rough — the amount stays in the input after a successful deposit.</p>
     <pre>  transactions.push('Deposited £' + amt);
@@ -392,36 +425,32 @@ for (let i = 0; i < 4; i++) {
   <!-- ============ CHAT CAPABILITY ============ -->
   <h2 id="chat-capability">Help &amp; Hints — what works and what doesn't</h2>
   <div class="card">
-    <p>Construct, Vault, Ledger, and Front each used to have <b>two separate</b> support systems — a Hint button with its own box, and a completely separate chat with its own escalation logic that quietly duplicated what hints already gave. Feedback was blunt and correct: two places doing the same job is confusing, not more helpful. They're now genuinely one system.</p>
+    <p>This section has been rebuilt twice since it was first written — worth reading in full even if you've seen an earlier version. Construct, Vault, Ledger, and Front now share one menu-driven system: <b>💡 Hint</b>, <b>❓ Help</b>, and <b>✏️ Write it yourself</b>, all inside the same chat panel.</p>
   </div>
   <h3>How it works now</h3>
-  <div class="works"><b>One destination, two doors in:</b> clicking 💡 Hint (still in the main panel, same place as always) opens the chat panel and posts the hint there. Typing "I'm stuck" directly into the chat does the exact same thing — same counter, same progression, same gating. There's no second copy of the answer living anywhere else.</div>
-  <div class="works"><b>Gating still holds:</b> after the first hint, the next tier is blocked with a clear amber message until a genuine Run attempt happens — whether that next hint was requested by clicking the button or by typing "I'm stuck" again.</div>
-  <div class="works"><b>General concept questions</b> ("what's a function", "what does return do") are still answered directly and immediately in the same chat — these teach general syntax, not a specific answer, so there's no reason to hold them back or route them through hints.</div>
-  <div class="works"><b>Everyday word choices are understood too:</b> "cash"/"money" instead of "amount", "spin" instead of "turn", "colour" either spelling, "tally" instead of "total" — a small synonym table normalizes these before matching.</div>
-  <div class="trouble"><b>What it still can't do:</b> understand a genuinely novel phrasing that doesn't overlap with any known keyword, synonym, or stuck-phrase. That still gets the generic fallback — point them at 💡 Hint directly, or step in yourself.</div>
+  <div class="works"><b>💡 Hint</b> posts the same tiered, gated hint sequence as before — clicking repeatedly (with a genuine Run between tiers) walks through hint 1, 2, 3.</div>
+  <div class="works"><b>❓ Help</b> opens two categories, <b>Syntax</b> (how do I write this) and <b>Troubleshooting</b> (why isn't this working), each listing that module's real reference topics — clicking one shows the answer directly, no typing needed.</div>
+  <div class="works"><b>✏️ Write it yourself</b> is a genuine free-text box — this was removed at one point in favour of pure menus, then restored after feedback that the pure-menu version answered far too little. Typing "I'm stuck" here still drives the exact same hint progression as the button.</div>
+  <div class="trouble"><b>What it still can't do:</b> understand a genuinely novel phrasing that doesn't overlap with any known keyword. That gets an honest fallback pointing back at the Help menu — not silence, but not magic either.</div>
 
-  <h3>Example exchange (Vault) — same hint state, two different doors in</h3>
-  <div class="chatline"><span class="q">clicks 💡 Hint</span><span class="a">→ chat opens, posts hint 1 (conceptual nudge)</span></div>
-  <div class="chatline"><span class="q">clicks 💡 Hint again (no run yet)</span><span class="a">→ blocked: "try running your code first"</span></div>
-  <div class="chatline"><span class="q">runs code, types "im really stuck"</span><span class="a">→ posts hint 2 — the SAME progression, triggered from chat instead of the button</span></div>
-  <div class="chatline"><span class="q">"whats a function"</span><span class="a">→ answered directly, doesn't touch hint progress at all</span></div>
+  <h3>A real, measured comprehension bug — found and fixed</h3>
+  <div class="snag"><b>Free text was matching far less than it should have, and there was a provable reason:</b> a stress test of 20 realistic phrasings failed 30% of the time before investigation. Three separate causes, all fixed: (1) the normaliser was silently deleting <code>&gt;=</code>, <code>&lt;</code>, and other symbols before matching — asking "what does &gt;= mean" became "what does mean", losing the entire question; (2) the word "if" was both hard-coded into the stopword list <i>and</i> filtered out again by a length rule, so no if/else question could ever match; (3) plurals didn't match singulars at all — "explain booleans" failed against a keyword list that only had "boolean". All three fixed (symbols are translated to words first, "if" is no longer blocked, and a lightweight stemmer now treats "booleans"/"boolean" as the same word) and re-verified with the same battery plus a second, broader one — 100% on both afterward, with off-topic nonsense still correctly falling back rather than false-matching.</div>
 
-  <div class="snag"><b>Rebuilding this surfaced real bugs, not just a UI tidy-up:</b> Vault Extended and both Construct files had never actually received the hint-gating fix from an earlier pass at all — hints could be spammed straight to the full answer with no gating, in those three files specifically, until this rebuild. Ledger's taster also had a second stale <code>root@ledger:~$</code> terminal-prompt leftover, caught while going file by file. All fixed and re-verified; the bonus-round paths in Construct and Front (which resolve hints through a separate active-challenge reference rather than the normal array) were specifically tested through the merge rather than assumed to still work.</div>
-
-  <div class="works" style="margin-top:16px;"><b>The earlier synonym-layer work still applies</b> — a 22-query before/after comparison found 5 queries that used to hit the fallback now get a genuine answer, with zero regressions, and two coincidental false-matches it surfaced were fixed at the content level. That measurement and those fixes carried over unchanged into this rebuild.</div>
+  <h3>Vault and Ledger's hardest extension challenges — the actual cause, not a vague "make it easier"</h3>
+  <div class="snag"><b>Both modules quietly introduced a brand new syntax element for the first time in an extension challenge, cold, with no warmup:</b> Vault's <code>applyLoyaltyDiscount</code> suddenly needed a ternary; <code>flagSuspiciousActivity</code> suddenly needed <code>&amp;&amp;</code>; Ledger's <code>sumByCategories</code> suddenly needed <code>.includes()</code>. None of these had appeared anywhere in the taster. For Vault, the tests never actually required the new syntax at all — they only check output values — so the hints now explicitly say "you already know how to do this with if/else, that works fine" before presenting the shortcut as optional, not required. Both approaches were verified through the real test-running code, not just reasoned about. Ledger's <code>.includes()</code> had no such familiar fallback, so instead the brief now introduces it in total isolation, with a standalone true/false example, before the real task ever appears.</div>
 
   <!-- ============ HELPDESK CHAT ============ -->
   <h2 id="helpdesk-chat">Helpdesk chat — what works and what doesn't</h2>
   <div class="card">
-    <p>This is a genuinely different system from the other four — it doesn't give hints, it <b>applies real fixes automatically</b>. Describing a problem gets you: a one-line summary of what's wrong, the fix applied directly into the code editor, and a red/green diff showing exactly what changed. The live app rebuilds and re-checks itself immediately after.</p>
+    <p><b>This is now free-text only — there is no menu at all.</b> An earlier version added a clickable button menu (pick an area, then pick the symptom you'd observed) to make blind clicking less trivial, but feedback was that a 10-year-old still blitzed through it just by clicking. The whole menu was removed entirely, not just hidden — opening the chat shows a text box and nothing else. Describing a problem gets: a one-line summary, the fix applied directly into the code editor, and a red/green diff.</p>
   </div>
   <h3>How it behaves</h3>
-  <div class="works"><b>Recognised problems and improvements (7 total, see the answer key above):</b> each has roughly 7-12 different phrasings it recognises — "the deposit doesn't add up right", "my balance just becomes whatever I deposit", "adding money isn't working" all correctly match the same deposit bug.</div>
-  <div class="works"><b>Fixes stack correctly:</b> describing a second problem after the first applies its fix on top of the first, without undoing it — participants can work through issues in any order.</div>
-  <div class="trouble"><b>What it can't do — genuinely open-ended interpretation:</b> despite feeling conversational, this is still keyword matching underneath, just with a much wider net and a much better payoff (an applied fix, not just text) than the other four chats. It cannot diagnose a problem it wasn't built to recognise.</div>
-  <div class="trouble"><b>"I can't find that exact spot right now":</b> this appears in two real situations, both fine — either that line has already been changed (by chat or by hand), or (for the thousands-separator improvement specifically) an earlier fix hasn't landed yet. Tested and confirmed this fails gracefully rather than corrupting the code.</div>
-  <div class="trouble"><b>Manual editing still works alongside chat:</b> participants can type directly into the code window instead of using chat at all — "Check My Fixes" runs the same checks either way. Worth mentioning this explicitly if someone wants to experiment by hand.</div>
+  <div class="works"><b>Recognised problems and improvements (7 total, see the answer key above):</b> each has roughly 7-12 different phrasings it recognises, across whichever of the two random variants is actually active that session.</div>
+  <div class="works"><b>"I'm stuck" is the only way to reach the progress-aware nudge now</b> — there's no dedicated button for it anymore, so the phrase list was deliberately widened ("what am I missing", "what's left", "not sure what else") since this is the sole door into that feature.</div>
+  <div class="works"><b>Fixes stack correctly:</b> describing a second problem after the first applies its fix on top, without undoing it.</div>
+  <div class="trouble"><b>What it can't do — genuinely open-ended interpretation:</b> still keyword matching underneath, just with a wide net. It cannot diagnose a problem it wasn't built to recognise.</div>
+  <div class="trouble"><b>Manual editing still works alongside chat:</b> participants can type directly into the code window instead of using chat at all — "Check My Fixes" runs the same checks either way.</div>
+  <div class="works" style="margin-top:12px;"><b>Badges now exist here too:</b> finding and fixing all 5 real bugs shows a gold badge and an explicit Return Home button, matching every other module — this was missing for a while and has been added.</div>
 
   <h3>Example exchanges</h3>
   <div class="chatline"><span class="q">"clicking withdraw does nothing at all"</span><span class="a">→ diagnoses the handelWithdraw typo, fixes it, shows diff</span></div>
@@ -439,7 +468,41 @@ for (let i = 0; i < 4; i++) {
   <div class="chatline"><span class="q">"help" (all 5 fixed)</span><span class="a">→ "you've actually found everything I know about"</span></div>
 
   <!-- ============ TROUBLESHOOTING ============ -->
+  <h2 id="copilot">The two CoPilot modules</h2>
+  <div class="card">
+    <p><b>These are genuinely different from the other seven</b> — no code, no tests, no hint system. The point is direct, hands-on proof that prompt quality changes output quality, using the same spreadsheet or inbox every time regardless of what's typed.</p>
+  </div>
+
+  <h3>Effective CoPilot Prompts (reference guide)</h3>
+  <p>A static guide, no interactivity beyond copy buttons — five techniques (specificity, context, format, breaking into steps, iterating), each with a genuine bad-vs-good prompt pair and a "why it works" note. Nothing to troubleshoot here; if a participant asks a question about it, the content is self-contained enough to read together on screen.</p>
+
+  <h3>Effective CoPilot — Excel &amp; Outlook (live exercise)</h3>
+  <div class="card">
+    <p><b>Important to understand before running this:</b> there is no real AI call happening. A prompt is scored against a keyword list — enough distinct signal categories present (chart/dashboard words, a breakdown dimension, a trend reference, a comparison word) triggers a genuinely computed dashboard with real SVG charts built from the actual data; too few triggers a deliberately weak, generic response. If a participant asks "is this really CoPilot," the honest answer is no — it's a simulation built to demonstrate the <i>relationship</i> between prompt quality and output quality, not a live model.</p>
+  </div>
+
+  <h4>Excel exercise — what makes a prompt "good enough"</h4>
+  <p>The scoring needs <b>2 or more</b> of these four signal categories present to produce the full dashboard; 0 or 1 gets the generic fallback:</p>
+  <table style="width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0;">
+    <tr><th style="text-align:left;padding:6px 10px;border-bottom:1px solid #E4E7EC;">Category</th><th style="text-align:left;padding:6px 10px;border-bottom:1px solid #E4E7EC;">Trigger words</th></tr>
+    <tr><td style="padding:6px 10px;border-bottom:1px solid #F1F3F6;">Chart/visual</td><td style="padding:6px 10px;border-bottom:1px solid #F1F3F6;">chart, graph, visual, dashboard, plot</td></tr>
+    <tr><td style="padding:6px 10px;border-bottom:1px solid #F1F3F6;">Breakdown</td><td style="padding:6px 10px;border-bottom:1px solid #F1F3F6;">region, north, south, east, west</td></tr>
+    <tr><td style="padding:6px 10px;border-bottom:1px solid #F1F3F6;">Trend</td><td style="padding:6px 10px;border-bottom:1px solid #F1F3F6;">trend, quarter, over time, growth</td></tr>
+    <tr><td style="padding:6px 10px;border-bottom:1px solid #F1F3F6;">Comparison</td><td style="padding:6px 10px;border-bottom:1px solid #F1F3F6;">compare, highest, lowest, best, worst, biggest, top, performer</td></tr>
+  </table>
+  <div class="chatline"><span class="q">"Summarise this data."</span><span class="a">→ score 0 — generic paragraph, no chart</span></div>
+  <div class="chatline"><span class="q">"Build a dashboard with a chart of sales by region and the quarterly trend, and call out the best performer."</span><span class="a">→ score 4 — full dashboard: two real charts, three stat callouts</span></div>
+  <div class="works"><b>The numbers are genuinely computed, not decorative:</b> West is the real top region at £246,000 total; Q4 is the real strongest quarter at £209,000; the grand total is £731,000. Worth spot-checking with a calculator once if you want to verify it yourself before a session.</div>
+
+  <h4>Outlook exercise — find vs summarise</h4>
+  <p>Intent is detected from the word "summar-" appearing anywhere in the prompt; everything else is treated as a find request. The inbox has 7 emails, 3 of which form one real conversation thread (subject: "Marketing campaign feedback", growing "Re:" prefixes) — this is the one worth summarising. The one worth finding is the Legal Team's contract renewal, tagged against words like contract, signature, sign, renewal, and Friday.</p>
+  <div class="chatline"><span class="q">"Find something important."</span><span class="a">→ no match at all — "important" isn't a real distinguishing word, correctly returns nothing</span></div>
+  <div class="chatline"><span class="q">"Find the email that needs a signature before Friday."</span><span class="a">→ uniquely matches the Legal Team email, shown in full</span></div>
+  <div class="chatline"><span class="q">"Summarise the marketing campaign feedback thread."</span><span class="a">→ correctly recognises all 3 thread emails together, produces one merged summary</span></div>
+  <div class="snag"><b>A real confidence bug was found and fixed before this shipped:</b> a prompt that scored a genuine match against several <i>different</i> emails at once (not a thread — separate, unrelated messages that happened to tie) was originally still shown as a single confident "Found it," silently picking whichever came first in the list. That's the opposite of the lesson this exercise is trying to teach. Fixed so a single confident match now requires being <i>uniquely</i> the strongest, not just tied for the lead — a tie correctly falls back to "a few possible matches, be more specific."</div>
+
   <h2 id="troubleshooting">Troubleshooting — user error, not the build</h2>
+
   <p>Every one of these has come up in testing and is a person doing something reasonable, not a bug in the files.</p>
 
   <div class="trouble"><b>"I clicked Run and nothing happened."</b><span class="fix">Check the Error box beneath the buttons — a syntax error (missing bracket, missing semicolon) stops the code from running at all, and the message is usually specific enough to spot the line. If the Error box is empty too, check they actually edited the function body — an empty <code>// TODO</code> with nothing added runs fine and just does nothing.</span></div>
@@ -462,12 +525,14 @@ for (let i = 0; i < 4; i++) {
       <a href="mission-control-taster.html">mission-control-taster.html</a> <span>— Construct, live taster (5 tasks + bonus)</span>
       <a href="mission-control.html">mission-control.html</a> <span>— Construct, full/take-home (Agents + its own Loop, not Relay/Repeat)</span>
       <a href="the-vault.html">the-vault.html</a> <span>— Vault, live taster (5 challenges)</span>
-      <a href="the-vault-extended.html">the-vault-extended.html</a> <span>— Vault, take-home (8 challenges)</span>
+      <a href="the-vault-extended.html">the-vault-extended.html</a> <span>— Vault, take-home (6 challenges)</span>
       <a href="the-ledger.html">the-ledger.html</a> <span>— Ledger, live taster</span>
       <a href="the-ledger-extended.html">the-ledger-extended.html</a> <span>— Ledger, take-home</span>
       <a href="the-front.html">the-front.html</a> <span>— Front, live taster (colour picker, extensions)</span>
       <a href="the-front-extended.html">the-front-extended.html</a> <span>— Front, take-home</span>
-      <a href="the-helpdesk.html">the-helpdesk.html</a> <span>— Helpdesk, chat-driven auto-fix</span>
+      <a href="the-helpdesk.html">the-helpdesk.html</a> <span>— Helpdesk, chat-driven auto-fix, randomised bugs</span>
+      <a href="copilot-prompts-guide.html">copilot-prompts-guide.html</a> <span>— CoPilot prompting reference guide, no code</span>
+      <a href="copilot-excel-outlook.html">copilot-excel-outlook.html</a> <span>— CoPilot live exercise, Excel dashboard + Outlook find/summarise</span>
       <a href="construct-guide.html">construct-guide.html</a> <span>— participant reference</span>
       <a href="vault-guide.html">vault-guide.html</a> <span>— participant reference</span>
       <a href="ledger-guide.html">ledger-guide.html</a> <span>— participant reference</span>

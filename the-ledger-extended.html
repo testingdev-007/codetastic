@@ -524,11 +524,15 @@ function averageTransaction(transactions) {
   {
     fnName: "sumByCategories",
     concept: "COMPOUND LOGIC · ARRAYS OF STRINGS",
-    brief: "sumByCategories(transactions, categories) should add up every transaction whose category is IN the given list of categories — not just one category this time, several at once.",
-    starter: `// sumByCategories(transactions, categories) should total up
+    brief: "New tool for this one: .includes() checks whether something is anywhere in a list. ['rent','food'].includes('rent') is true. ['rent','food'].includes('petrol') is false. sumByCategories(transactions, categories) should add up every transaction whose category is anywhere in the categories list — not just one category this time, several at once.",
+    starter: `// New tool: .includes() checks if something is anywhere in a
+// list. Try it in your head first:
+//   ["rent","food"].includes("rent")   -> true
+//   ["rent","food"].includes("petrol") -> false
+//
+// sumByCategories(transactions, categories) should total up
 // every transaction whose category appears anywhere in the
-// categories array. categories.includes(x) returns true if
-// x is in the array.
+// categories array.
 
 function sumByCategories(transactions, categories) {
   let total = 0;
@@ -543,8 +547,8 @@ function sumByCategories(transactions, categories) {
       { args:[LEDGER, ["bonuses"]], expected: 0, display: 'sumByCategories(ledger, ["bonuses"])' }
     ],
     hints: [
-      "This time you're checking against a whole list of categories, not just one — .includes() checks if something is anywhere in an array.",
-      "categories.includes(transactions[i].category) is true if that transaction's category is anywhere in your list.",
+      "Picture categories as a plain list, like [\"rent\",\"food\"]. .includes(x) just asks \"is x anywhere in this list?\" and answers true or false — nothing more complicated than that.",
+      "categories.includes(transactions[i].category) is true if that transaction's category is anywhere in your list. Use it exactly like you'd use === inside an if, just checking against a list instead of one fixed value.",
       "for (let i = 0; i < transactions.length; i++) {\n  if (categories.includes(transactions[i].category)) {\n    total += transactions[i].amount;\n  }\n}"
     ],
     workedFn: "sumWeekendHours",
@@ -882,7 +886,10 @@ const HELP_DATA = {
         "what is an array",
         "what does array mean",
         "square brackets",
-        "array syntax"
+        "array syntax",
+        "what is an index",
+        "what does index mean",
+        "array index"
       ],
       "response": "An array is a list of values in order. transactions[0] gets the first item, transactions.length tells you how many items there are in total."
     },
@@ -980,17 +987,27 @@ function findHelpEntry(id){ return HELP_DATA.entries.find(e => e.id === id); }
 const STUCK_PHRASES = ["im stuck", "i'm stuck", "help", "dont know what to do", "don't know what to do", "confused", "not sure what to write", "no idea", "how do i even start", "where do i begin", "how do i start", "just tell me", "give me the answer", "tell me the answer", "im really stuck", "really stuck", "super stuck", "please just tell me", "just give me the code", "i give up", "cant figure it out", "cant work it out", "just show me", "give up"];
 const HELP_FALLBACK = "I'm not totally sure about that one — try asking it a different way, or use the Help menu's Syntax and Troubleshooting topics instead. You're doing fine.";
 function normalizeHelp(s){
-  return s.toLowerCase().replace(/[^\w\s]/g,' ').replace(/\s+/g,' ').trim();
+  let out = s.toLowerCase();
+  out = out.replace(/>=/g, ' gte ').replace(/<=/g, ' lte ')
+           .replace(/===/g, ' strictequal ').replace(/!==/g, ' notequal ')
+           .replace(/&&/g, ' and ').replace(/\|\|/g, ' or ')
+           .replace(/>/g, ' gt ').replace(/</g, ' lt ');
+  return out.replace(/[^\w\s]/g,' ').replace(/\s+/g,' ').trim();
 }
-const HELP_STOPWORDS = new Set(["what","does","do","is","are","the","a","an","to","of","in","on","for","and","or","i","my","how","this","that","it","me","you","your","did","doing","can","if","help","meaning","mean","means","explain","understand","understanding","know","knowing","work","working","works","use","using","used","need","needs","needed","want","wanted","wants","sure","right","correct","wrong","thing","things","stuff","way","ways","doesnt","dont","isnt","not","get","got","getting","should","would","could","will","with","when","where","why","which","who","from","have","has","had","about","some","any","just","really","actually","supposed","stuck","function","functions"]);
+const HELP_STOPWORDS = new Set(["what","does","do","is","are","the","a","an","to","of","in","on","for","and","or","i","my","how","this","that","it","me","you","your","did","doing","can","help","meaning","mean","means","explain","understand","understanding","know","knowing","work","working","works","use","using","used","need","needs","needed","want","wanted","wants","sure","right","correct","wrong","thing","things","stuff","way","ways","doesnt","dont","isnt","not","get","got","getting","should","would","could","will","with","when","where","why","which","who","from","have","has","had","about","some","any","just","really","actually","supposed","stuck","function","functions"]);
+function stem(w){
+  if(w.length > 3 && w.endsWith('s') && !w.endsWith('ss')) return w.slice(0,-1);
+  return w;
+}
 function scoreHelpEntry(msgNorm, msgWords, entry){
   let best = 0;
+  const msgStems = msgWords.map(stem);
   entry.keywords.forEach(kw=>{
     const kwNorm = normalizeHelp(kw);
     let score = 0;
     if(msgNorm.includes(kwNorm)) score += 4;
-    const kwWords = kwNorm.split(' ').filter(w=>w.length>2 && !HELP_STOPWORDS.has(w));
-    const overlap = kwWords.filter(w=>msgWords.includes(w)).length;
+    const kwWords = kwNorm.split(' ').filter(w=>w.length>1 && !HELP_STOPWORDS.has(w));
+    const overlap = kwWords.filter(w=>msgStems.includes(stem(w))).length;
     score += overlap;
     if(score > best) best = score;
   });

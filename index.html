@@ -38,7 +38,15 @@ h1{font-size:clamp(28px,4vw,38px);margin:0 0 10px;font-weight:800;letter-spacing
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:26px;}
 @media (max-width:760px){.grid{grid-template-columns:1fr;}}
 
-.tile{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;transition:box-shadow .15s ease;}
+.tile{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;transition:box-shadow .2s ease, opacity .2s ease, border-color .2s ease;}
+.tile.dimmed{opacity:0.4;}
+.tile.highlighted{border-color:var(--accent);box-shadow:0 0 0 2.5px var(--accent-border), 0 6px 18px rgba(79,70,229,0.18);}
+.interest-picker{background:linear-gradient(135deg,#F8F7FF,#EEF2FF);border:1px solid var(--accent-border);border-radius:16px;padding:22px 26px;margin:26px 0 6px;}
+.ip-label{font-size:14px;font-weight:800;color:var(--text);margin-bottom:13px;letter-spacing:-0.01em;}
+.ip-chips{display:flex;gap:10px;flex-wrap:wrap;}
+.ip-chip{background:#fff;border:1.5px solid var(--accent-border);border-radius:22px;padding:9px 18px;font-size:13px;font-weight:700;color:var(--text-secondary);cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s ease;}
+.ip-chip:hover{border-color:var(--accent);color:var(--accent);}
+.ip-chip.active{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 2px 8px rgba(79,70,229,0.35);}
 .tile:hover{box-shadow:var(--shadow-md);}
 .tile.soon{opacity:.6;}
 .tile-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:6px;}
@@ -75,19 +83,28 @@ footer a{color:var(--accent);font-weight:600;}
 <div class="wrap">
 
   <header>
-    <div class="eyebrow">Financial Systems · Training Hub</div>
+    <div class="eyebrow">Digital Skills · Training Hub</div>
     <h1>The Mainframe</h1>
-    <p class="lead">Five short pieces of a financial system, each broken in a different way. Four are live tasters with take-home extensions for anyone who wants to keep going; the fifth, The Helpdesk, is a standalone debugging exercise. All nine builds are ready.</p>
+    <p class="lead">Five short pieces of a financial system, each broken in a different way, plus a growing set of practical AI skills. Four of the financial modules are live tasters with take-home extensions; The Helpdesk is a standalone debugging exercise.</p>
     <div style="display:flex;gap:10px;margin-top:16px;">
       <a href="start-here.html" style="display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--accent);background:var(--accent-bg);border:1px solid var(--accent-border);padding:8px 16px;border-radius:20px;text-decoration:none;">← Session intro</a>
       <a href="facilitator-notes.html" style="display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--accent);background:var(--accent-bg);border:1px solid var(--accent-border);padding:8px 16px;border-radius:20px;text-decoration:none;">Facilitator notes →</a>
     </div>
   </header>
 
+  <div class="interest-picker">
+    <div class="ip-label">I'm interested in...</div>
+    <div class="ip-chips">
+      <button class="ip-chip" data-cat="coding" onclick="toggleInterest('coding')">💻 Coding</button>
+      <button class="ip-chip" data-cat="web-design" onclick="toggleInterest('web-design')">🎨 Web Design</button>
+      <button class="ip-chip" data-cat="ai-prompting" onclick="toggleInterest('ai-prompting')">🤖 AI Prompting</button>
+    </div>
+  </div>
+
   <div class="grid">
 
     <!-- CONSTRUCT -->
-    <div class="tile">
+    <div class="tile" data-category="coding">
       <div class="tile-head">
         <div>
           <div class="tile-num">01</div>
@@ -113,7 +130,7 @@ footer a{color:var(--accent);font-weight:600;}
     </div>
 
     <!-- VAULT -->
-    <div class="tile">
+    <div class="tile" data-category="coding">
       <div class="tile-head">
         <div>
           <div class="tile-num">02</div>
@@ -139,7 +156,7 @@ footer a{color:var(--accent);font-weight:600;}
     </div>
 
     <!-- LEDGER -->
-    <div class="tile">
+    <div class="tile" data-category="coding">
       <div class="tile-head">
         <div>
           <div class="tile-num">03</div>
@@ -165,7 +182,7 @@ footer a{color:var(--accent);font-weight:600;}
     </div>
 
     <!-- CSS SITE -->
-    <div class="tile">
+    <div class="tile" data-category="web-design">
       <div class="tile-head">
         <div>
           <div class="tile-num">04</div>
@@ -191,7 +208,7 @@ footer a{color:var(--accent);font-weight:600;}
     </div>
 
     <!-- HELPDESK -->
-    <div class="tile" style="grid-column: 1 / -1;">
+    <div class="tile" style="grid-column: 1 / -1;" data-category="coding">
       <div class="tile-head">
         <div>
           <div class="tile-num">05</div>
@@ -211,6 +228,48 @@ footer a{color:var(--accent);font-weight:600;}
       </div>
     </div>
 
+    <!-- COPILOT PROMPTS -->
+    <div class="tile" data-category="ai-prompting">
+      <div class="tile-head">
+        <div>
+          <div class="tile-num">06</div>
+          <h2>Effective CoPilot Prompts</h2>
+        </div>
+        <span class="status-pill ready">ready</span>
+      </div>
+      <p class="desc">The habits that separate a vague CoPilot answer from a genuinely useful one — every example is ready to copy, paste, and try for real.</p>
+      <div class="chips">
+        <span class="chip">specificity</span><span class="chip">context</span><span class="chip">format</span><span class="chip">iteration</span>
+      </div>
+      <div class="tile-actions">
+        <a class="action-row live" href="copilot-prompts-guide.html">
+          <span class="label">📖 Read the Guide</span>
+          <span class="time">~5 min · copyable examples</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- COPILOT EXCEL OUTLOOK -->
+    <div class="tile" data-category="ai-prompting">
+      <div class="tile-head">
+        <div>
+          <div class="tile-num">07</div>
+          <h2>Effective CoPilot — Excel &amp; Outlook</h2>
+        </div>
+        <span class="status-pill ready">ready</span>
+      </div>
+      <p class="desc">Same spreadsheet, same inbox — ask CoPilot something vague and get a generic answer, ask it well and get a real dashboard or the exact email you needed.</p>
+      <div class="chips">
+        <span class="chip">dashboards</span><span class="chip">charts</span><span class="chip">search</span><span class="chip">summarising</span>
+      </div>
+      <div class="tile-actions">
+        <a class="action-row live" href="copilot-excel-outlook.html">
+          <span class="label">▶ Live Exercise</span>
+          <span class="time">~8 min · Excel + Outlook</span>
+        </a>
+      </div>
+    </div>
+
   </div>
 
   <footer>
@@ -220,5 +279,23 @@ footer a{color:var(--accent);font-weight:600;}
 
 </div>
 
+<script>
+let activeInterests = new Set();
+function toggleInterest(cat){
+  if(activeInterests.has(cat)){ activeInterests.delete(cat); } else { activeInterests.add(cat); }
+  document.querySelectorAll('.ip-chip').forEach(chip => {
+    chip.classList.toggle('active', activeInterests.has(chip.dataset.cat));
+  });
+  document.querySelectorAll('.tile').forEach(tile => {
+    if(activeInterests.size === 0){
+      tile.classList.remove('dimmed', 'highlighted');
+      return;
+    }
+    const match = activeInterests.has(tile.dataset.category);
+    tile.classList.toggle('highlighted', match);
+    tile.classList.toggle('dimmed', !match);
+  });
+}
+</script>
 </body>
 </html>
