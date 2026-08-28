@@ -364,6 +364,7 @@ function applyLoyaltyDiscount(amount, isPremium) {
     hints: [
       "You already know how to do this with if/else — that works completely fine here: if (isPremium) { return amount * 0.9; } return amount;. If you'd rather try something new, keep reading.",
       "A ternary is a shorthand for exactly that if/else, written in one line: condition ? valueIfTrue : valueIfFalse. Same logic, different shape — entirely optional.",
+      "Worked through with real numbers: amount is 100, isPremium is true. You want 90 back — that's 100 * 0.9. If isPremium were false instead, you'd want the original 100 back, completely untouched. That's the exact shape to build, in either style.",
       "Either of these passes: if (isPremium) { return amount * 0.9; } return amount;  —  or  —  return isPremium ? amount * 0.9 : amount;"
     ],
     workedFn: "applyMemberPrice",
@@ -394,6 +395,7 @@ function calculateInterest(balance, rate) {
     hints: [
       "rate is given as a whole number like 5, meaning 5% — you need to turn that into a fraction first.",
       "Dividing by 100 turns a percentage like 5 into 0.05 — then multiply that by balance.",
+      "Worked through with the first test's real numbers: balance is 1000, rate is 5. First, 5 / 100 = 0.05. Then, 1000 * 0.05 = 50 — and 50 is exactly what that test expects back.",
       "return balance * (rate / 100);"
     ],
     workedFn: "calculateCommission",
@@ -427,6 +429,7 @@ function flagSuspiciousActivity(amount, country) {
     hints: [
       "You can nest an if inside another if — the inner one only runs when the outer one is already true, which is exactly \"both conditions at once.\" That works completely fine here.",
       "&& is a shortcut for that same nesting, written on one line: it only returns true when BOTH sides are true. Try: amount > 5000 && country !== 'UK' — but nested ifs give the same result if you'd rather use those.",
+      "Worked through with the first test's real numbers: amount is 6000, country is 'US'. Is 6000 > 5000? Yes. Is 'US' not equal to 'UK'? Yes. Both true, so the answer is true. Now check amount 6000, country 'UK': the first condition still holds, but the second one doesn't — so the answer flips to false.",
       "Either passes: if (amount > 5000) { if (country !== 'UK') { return true; } } return false;  —  or  —  return amount > 5000 && country !== 'UK';"
     ],
     workedFn: "needsApproval",

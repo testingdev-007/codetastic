@@ -90,6 +90,11 @@ footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--border);font-
     <a href="#files">All files</a>
   </div>
 
+  <h2>The dashboard's "I'm interested in..." picker</h2>
+  <div class="card">
+    <p>A small feature on <code>index.html</code> — five toggleable chips (Coding, Web Design, AI Prompting, Data &amp; Dashboards, Debugging) that highlight matching module cards and dim the rest when clicked, multi-select. Several modules genuinely belong to more than one category: Ledger is tagged both Coding and Data (it's the array/query module, and directly connects to the Excel dashboard exercise); Helpdesk is tagged both Coding and Debugging (it's the one module that's purely about fixing rather than writing); the Excel/Outlook exercise is tagged both AI Prompting and Data. This is genuinely useful mainly once there are enough modules that browsing all of them at once feels like a lot — point newcomers at it if they seem unsure where to start.</p>
+  </div>
+
   <h2 id="timing">The 25-minute slot</h2>
   <p>Five stations, roughly 5 minutes each, with a short buffer for moving between them. The Construct taster has a visible on-screen countdown set to 6 minutes — the other four don't enforce a timer, so you'll need to call time yourself.</p>
   <div class="timing-bar">
@@ -112,8 +117,12 @@ footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--border);font-
       <tr><td>3</td><td>The Turn</td><td>move, turn, move again — combining direction changes</td></tr>
       <tr><td>4</td><td>The Relay</td><td>two turns — three straight stretches chained together</td></tr>
       <tr><td>5</td><td>The Repeat</td><td>a diagonal staircase — solvable manually or with a loop, deliberately</td></tr>
+      <tr><td colspan="3" style="color:var(--text-muted);font-size:11px;">— take-home extension diverges from level 4 onward, see below —</td></tr>
       <tr><td>Bonus</td><td>The Glitch</td><td>fix a loop that runs one time too few (debugging, not new syntax)</td></tr>
     </table>
+    <div class="card" style="margin-top:10px;background:var(--warning-bg,#FFFAEB);border-color:#FEDF89;">
+      <p><b>Important — the take-home is not "the same plus one task":</b> levels 1–3 (Wake Up, The Path, The Turn) are byte-identical between the taster and the take-home. Levels 4 and 5 genuinely diverge — the taster has The Relay and The Repeat; the take-home has Agents and The Loop instead. A participant doing both will redo 60% of the content before hitting anything new, which is exactly why it can feel like barely an extension even though two levels do differ, not one. A brand new 6th level, The Rectangle, was added specifically to address this — see the take-home table below.</p>
+    </div>
     <p style="margin-top:10px;"><b>The Repeat is worth knowing about specifically:</b> the path staircases diagonally rather than running in a straight line — deliberately, after feedback that a straight run didn't feel meaningfully harder than earlier tasks, just longer. The repeating unit is four commands (move, turn, move, turn back), not one, so the manual solution is genuinely long (16 lines) while the loop version stays at 4 — a much more dramatic and honest demonstration of why loops matter. The checking logic still only ever looks at where the rover ends up, never at what code got it there, so both the 16-line manual solution and the 4-line loop genuinely pass.</p>
   </div>
 
@@ -155,6 +164,44 @@ for (let i = 0; i < 4; i++) {
 
 // Manual: the same 4-line block repeated 4 times (16 lines) — also passes.</pre></div></details>
   <details><summary>Bonus — The Glitch</summary><div class="answer-body"><p>Change the loop condition from <code>i &lt; 3</code> to <code>i &lt; 4</code> — the exit is 4 cells away, the loop only ran 3 times.</p></div></details>
+
+  <h3>Take-home extension — levels 4 onward differ entirely</h3>
+  <div class="card">
+    <table>
+      <tr><th>#</th><th>Task</th><th>Asks for</th></tr>
+      <tr><td>1–3</td><td>Wake Up, The Path, The Turn</td><td>identical to the taster — not new content</td></tr>
+      <tr><td>4</td><td>Agents</td><td>plan a route around obstacles blocking the direct path — logic/planning, not a new command</td></tr>
+      <tr><td>5</td><td>The Loop</td><td>a staircase requiring a loop body with more than one command inside it</td></tr>
+      <tr><td>6</td><td>The Rectangle</td><td><b>new</b> — an L-shaped route: one straight stretch, a turn, then a second straight stretch of a different length. Requires two separate loops run back to back, each with its own count — the natural next step after a single repeating loop.</td></tr>
+    </table>
+  </div>
+  <details><summary>Agents</summary><div class="answer-body"><pre>turnRight();
+moveForward();
+moveForward();
+moveForward();
+moveForward();
+turnLeft();
+moveForward();
+moveForward();
+moveForward();
+moveForward();</pre><p>Several valid routes exist — the walls only need to be routed around, not solved one specific way. This is one that works.</p></div></details>
+  <details><summary>The Loop</summary><div class="answer-body"><pre>for (let i = 0; i < 5; i++) {
+  moveForward();
+  turnRight();
+  moveForward();
+  turnLeft();
+}</pre></div></details>
+  <details><summary>The Rectangle (new)</summary><div class="answer-body">
+    <p>Start (0,0) facing East, target (5,3). Walls block turning south anywhere before x=5, so the only route is: straight east to x=5, turn, then straight south to y=3.</p>
+    <pre>for (let i = 0; i < 5; i++) {
+  moveForward();
+}
+turnRight();
+for (let i = 0; i < 3; i++) {
+  moveForward();
+}</pre>
+    <p style="margin-top:8px;"><b>Wall placement was mathematically verified, not eyeballed:</b> walls sit at every point along y=0 for x=0 through x=4 specifically to block turning south early — confirmed by simulating the intended solution end to end before this shipped, and separately confirming every early turn-south point is genuinely blocked while x=5 (the only valid turning point) is genuinely open.</p>
+  </div></details>
 
   <!-- ============ VAULT ============ -->
   <h2 id="vault">The Vault</h2>
@@ -438,6 +485,7 @@ for (let i = 0; i < 4; i++) {
 
   <h3>Vault and Ledger's hardest extension challenges — the actual cause, not a vague "make it easier"</h3>
   <div class="snag"><b>Both modules quietly introduced a brand new syntax element for the first time in an extension challenge, cold, with no warmup:</b> Vault's <code>applyLoyaltyDiscount</code> suddenly needed a ternary; <code>flagSuspiciousActivity</code> suddenly needed <code>&amp;&amp;</code>; Ledger's <code>sumByCategories</code> suddenly needed <code>.includes()</code>. None of these had appeared anywhere in the taster. For Vault, the tests never actually required the new syntax at all — they only check output values — so the hints now explicitly say "you already know how to do this with if/else, that works fine" before presenting the shortcut as optional, not required. Both approaches were verified through the real test-running code, not just reasoned about. Ledger's <code>.includes()</code> had no such familiar fallback, so instead the brief now introduces it in total isolation, with a standalone true/false example, before the real task ever appears.</div>
+  <div class="works"><b>Follow-up after continued difficulty reports on these same challenges:</b> all 6 of the hardest extension challenges (Vault's last 3, Ledger's last 3) now have a 4th hint tier, inserted just before the final full-answer hint — a completely worked example using real plugged-in numbers (e.g. flagSuspiciousActivity walks through amount=6000, country='US' step by step, arriving at true, then re-checks with country='UK' to show why it flips to false). This sits between "here's the concept" and "here's the code," rather than jumping straight from one to the other. All four tiers were confirmed to deliver correctly in sequence through the real hint-gating mechanism, not just read for accuracy.</div>
 
   <!-- ============ HELPDESK CHAT ============ -->
   <h2 id="helpdesk-chat">Helpdesk chat — what works and what doesn't</h2>
@@ -448,6 +496,7 @@ for (let i = 0; i < 4; i++) {
   <div class="works"><b>Recognised problems and improvements (7 total, see the answer key above):</b> each has roughly 7-12 different phrasings it recognises, across whichever of the two random variants is actually active that session.</div>
   <div class="works"><b>"I'm stuck" is the only way to reach the progress-aware nudge now</b> — there's no dedicated button for it anymore, so the phrase list was deliberately widened ("what am I missing", "what's left", "not sure what else") since this is the sole door into that feature.</div>
   <div class="works"><b>Fixes stack correctly:</b> describing a second problem after the first applies its fix on top, without undoing it.</div>
+  <div class="works"><b>General debugging questions are now answered too, not just bug descriptions:</b> "what is a bug", "what does the diff mean", "what does Check My Fixes do", "what is a function/variable" all get direct answers — added after feedback that this chat should "help like the others" do with general concepts. Checked in this order: stuck-phrase → bug/improvement match → general concept → honest fallback, so a real bug description is never mistaken for a concept question.</div>
   <div class="trouble"><b>What it can't do — genuinely open-ended interpretation:</b> still keyword matching underneath, just with a wide net. It cannot diagnose a problem it wasn't built to recognise.</div>
   <div class="trouble"><b>Manual editing still works alongside chat:</b> participants can type directly into the code window instead of using chat at all — "Check My Fixes" runs the same checks either way.</div>
   <div class="works" style="margin-top:12px;"><b>Badges now exist here too:</b> finding and fixing all 5 real bugs shows a gold badge and an explicit Return Home button, matching every other module — this was missing for a while and has been added.</div>
@@ -523,7 +572,7 @@ for (let i = 0; i < 4; i++) {
       <a href="start-here.html">start-here.html</a> <span>— session intro, show this first</span>
       <a href="index.html">index.html</a> <span>— the dashboard</span>
       <a href="mission-control-taster.html">mission-control-taster.html</a> <span>— Construct, live taster (5 tasks + bonus)</span>
-      <a href="mission-control.html">mission-control.html</a> <span>— Construct, full/take-home (Agents + its own Loop, not Relay/Repeat)</span>
+      <a href="mission-control.html">mission-control.html</a> <span>— Construct, full/take-home (6 levels: shares 1–3 with the taster, diverges at Agents/The Loop, plus new 6th level The Rectangle)</span>
       <a href="the-vault.html">the-vault.html</a> <span>— Vault, live taster (5 challenges)</span>
       <a href="the-vault-extended.html">the-vault-extended.html</a> <span>— Vault, take-home (6 challenges)</span>
       <a href="the-ledger.html">the-ledger.html</a> <span>— Ledger, live taster</span>
@@ -533,6 +582,7 @@ for (let i = 0; i < 4; i++) {
       <a href="the-helpdesk.html">the-helpdesk.html</a> <span>— Helpdesk, chat-driven auto-fix, randomised bugs</span>
       <a href="copilot-prompts-guide.html">copilot-prompts-guide.html</a> <span>— CoPilot prompting reference guide, no code</span>
       <a href="copilot-excel-outlook.html">copilot-excel-outlook.html</a> <span>— CoPilot live exercise, Excel dashboard + Outlook find/summarise</span>
+      <a href="intro-slides.html">intro-slides.html</a> <span>— interactive intro slide deck for presenting the session live, linked from the dashboard header</span>
       <a href="construct-guide.html">construct-guide.html</a> <span>— participant reference</span>
       <a href="vault-guide.html">vault-guide.html</a> <span>— participant reference</span>
       <a href="ledger-guide.html">ledger-guide.html</a> <span>— participant reference</span>

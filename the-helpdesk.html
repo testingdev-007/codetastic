@@ -517,6 +517,29 @@ function findFix(userMsg){
   });
   return (bestEntry && bestScore >= 1) ? bestEntry : null;
 }
+const CONCEPT_ENTRIES = [
+  { keywords: ["what is a bug", "whats a bug", "what does bug mean", "what counts as a bug"],
+    response: "A bug is just a place where the code doesn't do what it's actually supposed to — the computer isn't confused, it's doing exactly what's written, it's just that what's written is wrong. Finding one means noticing a gap between what SHOULD happen and what DOES happen when you use the app." },
+  { keywords: ["what does the diff mean", "red and green lines", "what do the colours mean", "what does red and green mean", "what is a diff"],
+    response: "Red with a minus is the old, broken line being removed. Green with a plus is the new line replacing it. Reading top to bottom shows you exactly what changed and why — this is the same way real developers review code changes." },
+  { keywords: ["how do i check if its fixed", "how do i know if i fixed it", "what does check my fixes do", "how does check my fixes work"],
+    response: "Check My Fixes actually runs the live app in the background — clicking Deposit, Withdraw, and Transfer for you — and checks whether the real behaviour now matches what's expected. It's not just reading your code, it's testing it." },
+  { keywords: ["what is a function", "whats a function", "what does function mean"],
+    response: "A function is a named block of code that runs when it's called — handleDeposit() is the block of code that runs specifically when the Deposit button is clicked. Giving it a name means it can be reused and referred to, instead of writing the same steps out every time." },
+  { keywords: ["what is a variable", "whats a variable", "what does balance mean in the code"],
+    response: "A variable is just a named box holding a value that can change — balance holds whatever the current account balance is right now, and every part of the code that touches money reads from or writes to that same box." },
+  { keywords: ["how do i describe the problem", "what should i type", "how specific do i need to be", "what do i say"],
+    response: "Say exactly what you saw, in plain English — which button, what happened (or didn't), and what you expected instead. \"The balance goes negative when I transfer too much\" works better than \"transfer is broken\" — the more specific the symptom, the easier it is to match to the actual cause." }
+];
+function findConceptMatch(prompt){
+  const p = prompt.toLowerCase();
+  let best = null, bestScore = 0;
+  CONCEPT_ENTRIES.forEach(entry => {
+    const score = entry.keywords.filter(k => p.includes(k)).length;
+    if(score > bestScore){ bestScore = score; best = entry; }
+  });
+  return best;
+}
 function sendFreeText(){
   const input = document.getElementById('freetextInput');
   const msg = input.value.trim();
@@ -531,12 +554,17 @@ function sendFreeText(){
     const match = findFix(msg);
     if(match){
       applyMatchedFix(match);
-    } else {
-      addChatMsg(escapeHtml(CHAT_FALLBACK), 'bot');
+      return;
     }
+    const concept = findConceptMatch(msg);
+    if(concept){
+      addChatMsg(escapeHtml(concept.response), 'bot');
+      return;
+    }
+    addChatMsg(escapeHtml(CHAT_FALLBACK), 'bot');
   }, 220);
 }
-const CHAT_GREETING = "Hi! I'm the support helper for this app. Try the buttons on the right, then tell me exactly what you noticed in your own words — including things you'd just improve, not only things that are broken. If you're not sure what to check next, just say so.";
+const CHAT_GREETING = "Hi! I'm the support helper for this app. Try the buttons on the right, then tell me exactly what you noticed in your own words — including things you'd just improve, not only things that are broken. You can also ask general questions here too, like what a bug actually is or what the red/green diff means. If you're not sure what to check next, just say so.";
 function addChatMsg(html, who){
   const log = document.getElementById('chatLog');
   const div = document.createElement('div');

@@ -86,8 +86,9 @@ footer a{color:var(--accent);font-weight:600;}
     <div class="eyebrow">Digital Skills · Training Hub</div>
     <h1>The Mainframe</h1>
     <p class="lead">Five short pieces of a financial system, each broken in a different way, plus a growing set of practical AI skills. Four of the financial modules are live tasters with take-home extensions; The Helpdesk is a standalone debugging exercise.</p>
-    <div style="display:flex;gap:10px;margin-top:16px;">
+    <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
       <a href="start-here.html" style="display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--accent);background:var(--accent-bg);border:1px solid var(--accent-border);padding:8px 16px;border-radius:20px;text-decoration:none;">← Session intro</a>
+      <a href="intro-slides.html" style="display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--accent);background:var(--accent-bg);border:1px solid var(--accent-border);padding:8px 16px;border-radius:20px;text-decoration:none;">🖥️ Intro slides</a>
       <a href="facilitator-notes.html" style="display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--accent);background:var(--accent-bg);border:1px solid var(--accent-border);padding:8px 16px;border-radius:20px;text-decoration:none;">Facilitator notes →</a>
     </div>
   </header>
@@ -98,6 +99,8 @@ footer a{color:var(--accent);font-weight:600;}
       <button class="ip-chip" data-cat="coding" onclick="toggleInterest('coding')">💻 Coding</button>
       <button class="ip-chip" data-cat="web-design" onclick="toggleInterest('web-design')">🎨 Web Design</button>
       <button class="ip-chip" data-cat="ai-prompting" onclick="toggleInterest('ai-prompting')">🤖 AI Prompting</button>
+      <button class="ip-chip" data-cat="data" onclick="toggleInterest('data')">📊 Data &amp; Dashboards</button>
+      <button class="ip-chip" data-cat="debugging" onclick="toggleInterest('debugging')">🐛 Debugging</button>
     </div>
   </div>
 
@@ -156,7 +159,7 @@ footer a{color:var(--accent);font-weight:600;}
     </div>
 
     <!-- LEDGER -->
-    <div class="tile" data-category="coding">
+    <div class="tile" data-category="coding data">
       <div class="tile-head">
         <div>
           <div class="tile-num">03</div>
@@ -208,7 +211,7 @@ footer a{color:var(--accent);font-weight:600;}
     </div>
 
     <!-- HELPDESK -->
-    <div class="tile" style="grid-column: 1 / -1;" data-category="coding">
+    <div class="tile" style="grid-column: 1 / -1;" data-category="coding debugging">
       <div class="tile-head">
         <div>
           <div class="tile-num">05</div>
@@ -250,7 +253,7 @@ footer a{color:var(--accent);font-weight:600;}
     </div>
 
     <!-- COPILOT EXCEL OUTLOOK -->
-    <div class="tile" data-category="ai-prompting">
+    <div class="tile" data-category="ai-prompting data">
       <div class="tile-head">
         <div>
           <div class="tile-num">07</div>
@@ -291,7 +294,8 @@ function toggleInterest(cat){
       tile.classList.remove('dimmed', 'highlighted');
       return;
     }
-    const match = activeInterests.has(tile.dataset.category);
+    const tileCats = (tile.dataset.category || '').split(' ').filter(Boolean);
+    const match = tileCats.some(c => activeInterests.has(c));
     tile.classList.toggle('highlighted', match);
     tile.classList.toggle('dimmed', !match);
   });

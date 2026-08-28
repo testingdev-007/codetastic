@@ -439,6 +439,35 @@ for (let i = 0; i < 2; i++) {
   turnLeft();
 }</pre>
 <div class="we-line">Both blocks do exactly the same thing — this example repeats the four-command pattern twice. The loop's body holds all four lines and repeats the whole block together. Your task needs more repeats than this — count how many.</div>`
+  },
+  {
+    title: "THE RECTANGLE",
+    concept: "MULTIPLE LOOPS",
+    size: 6,
+    start: {x:0,y:0,dir:'E'},
+    target: {x:5,y:3},
+    walls: [{x:0,y:1},{x:1,y:1},{x:2,y:1},{x:3,y:1},{x:4,y:1}],
+    starter: `// The wall only leaves an L-shaped path — one straight\\n// run, a single turn, then a second straight run of a\\n// different length. Two separate loops, back to back.\\n\\nmoveForward();`,
+    brief: "The exit is around a corner, not a straight line or a repeating staircase this time — one straight stretch, a single turn, then another straight stretch of a different length. Two loops, one after another, each with its own count.",
+    hints: [
+      "This isn't one repeating pattern like the last level — it's two separate straight stretches with a single turn between them, each stretch its own length.",
+      "A loop can run back to back with another loop — finish the first loop completely, turn, then start a brand new loop with its own count for the second stretch.",
+      "for (let i = 0; i < 5; i++) { moveForward(); }\\nturnRight();\\nfor (let i = 0; i < 3; i++) { moveForward(); }"
+    ],
+    worked: `<pre>// First stretch — however long it needs to be:
+for (let i = 0; i < 3; i++) {
+  moveForward();
+}
+
+// Turn the corner
+turnRight();
+
+// Second stretch — a completely separate loop,
+// with its own count:
+for (let i = 0; i < 2; i++) {
+  moveForward();
+}</pre>
+<div class="we-line">Two loops here, not one — the first finishes completely, including the turn, before the second one even starts. Each loop's count only needs to match its own stretch, not the whole journey.</div>`
   }
 ];
 
