@@ -7,64 +7,95 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 :root{
-  --bg:#0B0D14; --surface:#12141F; --surface-alt:#1A1D2B;
+  --bg:#080911; --surface:#12141F; --surface-alt:#1A1D2B;
   --border:#262A3D; --text:#F4F5F7; --text-secondary:#A6ACC2; --text-muted:#6B7190;
   --accent:#818CF8; --accent-bright:#A5B4FC; --accent-bg:rgba(129,140,248,0.12); --accent-border:rgba(129,140,248,0.35);
+  --accent2:#34D9C4; --accent2-bright:#5EEAD4; --accent2-bg:rgba(52,217,196,0.12); --accent2-border:rgba(52,217,196,0.35);
   --success:#34D399; --warning:#FBBF24;
 }
 *{box-sizing:border-box;}
 html,body{height:100%;margin:0;}
-body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;overflow:hidden;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;overflow:hidden;position:relative;}
+
+.bg-orb{position:fixed;border-radius:50%;filter:blur(90px);opacity:0.35;pointer-events:none;z-index:0;}
+.bg-orb.one{width:520px;height:520px;top:-160px;left:-140px;background:radial-gradient(circle,var(--accent),transparent 70%);animation:float1 16s ease-in-out infinite;}
+.bg-orb.two{width:460px;height:460px;bottom:-180px;right:-120px;background:radial-gradient(circle,var(--accent2),transparent 70%);animation:float2 19s ease-in-out infinite;}
+@keyframes float1{0%,100%{transform:translate(0,0);}50%{transform:translate(60px,40px);}}
+@keyframes float2{0%,100%{transform:translate(0,0);}50%{transform:translate(-50px,-30px);}}
+.bg-grid{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.35;
+  background-image:linear-gradient(rgba(129,140,248,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(129,140,248,0.06) 1px,transparent 1px);
+  background-size:44px 44px;mask-image:radial-gradient(ellipse at center,black 0%,transparent 75%);}
+
+.progress-track{position:fixed;top:0;left:0;right:0;height:3px;background:rgba(255,255,255,0.06);z-index:60;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .35s ease;}
+
 .home-btn{position:fixed;top:16px;left:16px;z-index:100;width:40px;height:40px;border-radius:10px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;text-decoration:none;color:var(--text-secondary);}
 .home-btn:hover{border-color:var(--accent-border);color:var(--accent-bright);}
 
-.deck{position:relative;width:100%;height:100vh;}
-.slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 40px;opacity:0;pointer-events:none;transform:translateX(40px);transition:opacity .35s ease, transform .35s ease;text-align:center;}
-.slide.active{opacity:1;pointer-events:auto;transform:translateX(0);}
-.slide.prev{transform:translateX(-40px);}
+.deck{position:relative;width:100%;height:100vh;z-index:1;}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 40px;opacity:0;pointer-events:none;transform:translateX(40px) scale(0.98);transition:opacity .4s ease, transform .4s ease;text-align:center;}
+.slide.active{opacity:1;pointer-events:auto;transform:translateX(0) scale(1);}
+.slide.prev{transform:translateX(-40px) scale(0.98);}
 
-.eyebrow{font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-bright);font-weight:700;margin-bottom:18px;}
-.slide h1{font-size:clamp(32px,5vw,56px);font-weight:900;letter-spacing:-0.02em;margin:0 0 20px;line-height:1.1;}
-.slide h2{font-size:clamp(24px,3.5vw,38px);font-weight:800;letter-spacing:-0.01em;margin:0 0 20px;}
-.slide p.lead{font-size:clamp(15px,1.8vw,19px);color:var(--text-secondary);max-width:640px;line-height:1.6;margin:0 auto;}
-.big-emoji{font-size:56px;margin-bottom:22px;}
+.eyebrow{font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-bright);font-weight:700;margin-bottom:18px;display:inline-flex;align-items:center;gap:8px;}
+.eyebrow::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--accent-bright);box-shadow:0 0 12px var(--accent-bright);}
+.eyebrow.alt{color:var(--accent2-bright);}
+.eyebrow.alt::before{background:var(--accent2-bright);box-shadow:0 0 12px var(--accent2-bright);}
+.slide h1{font-size:clamp(34px,5.5vw,60px);font-weight:900;letter-spacing:-0.02em;margin:0 0 20px;line-height:1.08;background:linear-gradient(135deg,#fff,var(--accent-bright));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.slide h2{font-size:clamp(25px,3.6vw,40px);font-weight:800;letter-spacing:-0.01em;margin:0 0 20px;}
+.slide p.lead{font-size:clamp(15px,1.8vw,19px);color:var(--text-secondary);max-width:660px;line-height:1.65;margin:0 auto;}
+.big-emoji{font-size:60px;margin-bottom:22px;filter:drop-shadow(0 8px 24px rgba(129,140,248,0.4));}
 
-.station-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;max-width:760px;margin-top:30px;width:100%;}
-.station-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 16px;text-align:left;}
+.station-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;max-width:800px;margin-top:28px;width:100%;}
+.station-card{background:linear-gradient(160deg,var(--surface),var(--surface-alt));border:1px solid var(--border);border-radius:14px;padding:20px 16px;text-align:left;position:relative;overflow:hidden;transition:border-color .2s ease, transform .2s ease;}
+.station-card:hover{border-color:var(--accent-border);transform:translateY(-3px);}
 .station-card .snum{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent-bright);font-weight:700;margin-bottom:8px;}
 .station-card h3{font-size:15px;font-weight:700;margin:0 0 6px;}
 .station-card p{font-size:12.5px;color:var(--text-muted);margin:0;line-height:1.5;}
+.more-teaser{margin-top:22px;display:inline-flex;align-items:center;gap:10px;background:var(--accent2-bg);border:1px solid var(--accent2-border);border-radius:30px;padding:10px 22px;font-size:13px;font-weight:700;color:var(--accent2-bright);}
 
-.support-row{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;max-width:680px;margin-top:26px;}
-.support-pill{background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:12px;padding:16px 20px;font-size:13.5px;color:var(--text);max-width:200px;text-align:left;}
-.support-pill b{color:var(--accent-bright);display:block;margin-bottom:5px;font-size:13.5px;}
+.copilot-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;max-width:700px;margin-top:26px;width:100%;}
+.copilot-card{background:linear-gradient(160deg,var(--surface),var(--surface-alt));border:1px solid var(--accent2-border);border-radius:16px;padding:24px 22px;text-align:left;}
+.copilot-card .cnum{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent2-bright);font-weight:700;margin-bottom:10px;}
+.copilot-card h3{font-size:16px;font-weight:800;margin:0 0 8px;}
+.copilot-card p{font-size:13px;color:var(--text-muted);margin:0;line-height:1.55;}
+.copilot-card .cicon{font-size:26px;margin-bottom:12px;}
+
+.support-row{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;max-width:700px;margin-top:26px;}
+.support-pill{background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:14px;padding:18px 22px;font-size:13.5px;color:var(--text);max-width:210px;text-align:left;transition:transform .2s ease;}
+.support-pill:hover{transform:translateY(-3px);}
+.support-pill b{color:var(--accent-bright);display:block;margin-bottom:6px;font-size:14px;}
 
 .fact-row{display:flex;gap:22px;flex-wrap:wrap;justify-content:center;margin-top:28px;}
-.fact{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 26px;min-width:140px;}
-.fact .fv{font-size:26px;font-weight:800;color:var(--accent-bright);}
+.fact{background:linear-gradient(160deg,var(--surface),var(--surface-alt));border:1px solid var(--border);border-radius:16px;padding:20px 28px;min-width:150px;}
+.fact .fv{font-size:28px;font-weight:800;background:linear-gradient(135deg,var(--accent-bright),var(--accent2-bright));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
 .fact .fl{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);font-weight:700;margin-top:4px;}
 
-.cta-btn{display:inline-flex;align-items:center;gap:10px;background:var(--accent);color:#12141F;font-weight:800;font-size:16px;padding:16px 34px;border-radius:12px;text-decoration:none;margin-top:32px;transition:transform .15s ease, background .15s ease;}
-.cta-btn:hover{background:var(--accent-bright);transform:translateY(-2px);}
+.cta-btn{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#080911;font-weight:800;font-size:16px;padding:17px 36px;border-radius:14px;text-decoration:none;margin-top:32px;transition:transform .15s ease, box-shadow .15s ease;box-shadow:0 8px 24px rgba(129,140,248,0.25);}
+.cta-btn:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(129,140,248,0.4);}
 
-/* nav chrome */
 .nav-chrome{position:fixed;bottom:0;left:0;right:0;padding:22px 32px;display:flex;align-items:center;justify-content:space-between;z-index:50;}
 .nav-btn{background:var(--surface);border:1px solid var(--border);color:var(--text);width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;transition:border-color .15s ease, background .15s ease;}
 .nav-btn:hover:not(:disabled){border-color:var(--accent-border);background:var(--accent-bg);}
 .nav-btn:disabled{opacity:0.3;cursor:default;}
 .dots{display:flex;gap:9px;}
 .dot{width:9px;height:9px;border-radius:50%;background:var(--border);cursor:pointer;transition:all .2s ease;border:none;padding:0;}
-.dot.active{background:var(--accent);width:26px;border-radius:5px;}
+.dot.active{background:linear-gradient(90deg,var(--accent),var(--accent2));width:26px;border-radius:5px;}
 .slide-count{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-muted);}
 
 @media (max-width:640px){
   .nav-chrome{padding:16px 18px;}
   .support-row{gap:10px;}
   .support-pill{max-width:150px;padding:12px 14px;}
+  .bg-orb{filter:blur(60px);}
 }
 </style>
 </head>
 <body>
+<div class="bg-grid"></div>
+<div class="bg-orb one"></div>
+<div class="bg-orb two"></div>
+<div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
 <a href="index.html" class="home-btn" title="Back to dashboard">🏠</a>
 
 <div class="deck" id="deck">
@@ -91,12 +122,27 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;overf
       <div class="station-card"><div class="snum">04</div><h3>The Front</h3><p>Style a real account card with real CSS.</p></div>
       <div class="station-card"><div class="snum">05</div><h3>The Helpdesk</h3><p>Describe what's broken — in your own words.</p></div>
     </div>
+    <div class="more-teaser">✨ Plus 2 more on AI skills — next</div>
   </div>
 
   <div class="slide" data-slide="3">
-    <div class="eyebrow">Plus: two AI skills exercises</div>
+    <div class="eyebrow alt">Modules 06 &amp; 07 · AI Prompting</div>
     <h2>Getting more out of CoPilot</h2>
-    <p class="lead">No code this time — just direct proof that how you ask changes what you get back. A reference guide of good vs vague prompts, and a live exercise where a vague ask gets a shrug and a good one builds you a real dashboard.</p>
+    <p class="lead" style="margin-bottom:8px;">No code this time — just direct proof that how you ask changes what you get back.</p>
+    <div class="copilot-grid">
+      <div class="copilot-card">
+        <div class="cicon">📖</div>
+        <div class="cnum">06 · Reference Guide</div>
+        <h3>Effective CoPilot Prompts</h3>
+        <p>The habits that turn a vague answer into a genuinely useful one — every example ready to copy and try.</p>
+      </div>
+      <div class="copilot-card">
+        <div class="cicon">📊</div>
+        <div class="cnum">07 · Live Exercise</div>
+        <h3>Excel &amp; Outlook</h3>
+        <p>The exact same data and inbox every time — a bad prompt gets a shrug, a great one builds a real dashboard or finds the exact email.</p>
+      </div>
+    </div>
   </div>
 
   <div class="slide" data-slide="4">
@@ -163,6 +209,7 @@ function render(){
   document.getElementById('slideCount').textContent = (current + 1) + ' / ' + totalSlides;
   document.getElementById('prevBtn').disabled = current === 0;
   document.getElementById('nextBtn').disabled = current === totalSlides - 1;
+  document.getElementById('progressFill').style.width = ((current + 1) / totalSlides * 100) + '%';
 }
 
 function nextSlide(){

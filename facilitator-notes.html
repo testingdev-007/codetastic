@@ -84,6 +84,7 @@ footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--border);font-
     <a href="#front">Front</a>
     <a href="#helpdesk">Helpdesk</a>
     <a href="#copilot">CoPilot modules</a>
+    <a href="#slides">Intro slides</a>
     <a href="#chat-capability">Help &amp; Hints — what works</a>
     <a href="#helpdesk-chat">Helpdesk chat — what works</a>
     <a href="#troubleshooting">Troubleshooting</a>
@@ -395,6 +396,7 @@ for (let i = 0; i < 3; i++) {
   <div class="card">
     <p><b>Each session, one of two genuinely different mistakes is picked at random per bug</b> — not just different wording, different actual code. A participant who compares notes with someone else may see a different broken line for the same symptom. Both variants below are real; recognise either.</p>
   </div>
+  <div class="snag"><b>A real, disruptive bug was found and fixed in the transfer validation fix specifically:</b> the fix originally rejected bad amounts with a real, blocking browser <code>alert('Enter a valid amount')</code>. Helpdesk's own "Check My Fixes" verification actually simulates entering a negative and an oversized transfer to test that validation works — so once that fix was applied, running the verification would genuinely pop up that alert, interrupting the person mid-check with no warning. The <code>alert()</code> has been removed entirely from both variants of the validation fix; it now rejects silently, and the underlying logic is unchanged and still correctly blocks bad transfers.</div>
   <details><summary>Deposit doesn't add up correctly</summary><div class="answer-body">
     <p>Symptom: depositing money doesn't correctly increase the balance.</p>
     <p style="margin-top:8px;"><b>Variant A</b> — overwrites instead of adding:</p>
@@ -527,28 +529,42 @@ for (let i = 0; i < 3; i++) {
 
   <h3>Effective CoPilot — Excel &amp; Outlook (live exercise)</h3>
   <div class="card">
-    <p><b>Important to understand before running this:</b> there is no real AI call happening. A prompt is scored against a keyword list — enough distinct signal categories present (chart/dashboard words, a breakdown dimension, a trend reference, a comparison word) triggers a genuinely computed dashboard with real SVG charts built from the actual data; too few triggers a deliberately weak, generic response. If a participant asks "is this really CoPilot," the honest answer is no — it's a simulation built to demonstrate the <i>relationship</i> between prompt quality and output quality, not a live model.</p>
+    <p><b>Redesigned since the original version — no typing anywhere now.</b> The original free-text version (where a participant typed their own prompt) was replaced after feedback that typing shouldn't be an option here. Every interaction is now a fixed, large, colour-coded choice card — 😕 Bad / 😐 Average / 😃 Great — showing the exact prompt text before you click it. There is still no real AI call happening: each button is wired to a specific, pre-verified response. If a participant asks "is this really CoPilot," the honest answer is no — it's a simulation built to demonstrate the <i>relationship</i> between prompt quality and output quality, not a live model.</p>
   </div>
 
-  <h4>Excel exercise — what makes a prompt "good enough"</h4>
-  <p>The scoring needs <b>2 or more</b> of these four signal categories present to produce the full dashboard; 0 or 1 gets the generic fallback:</p>
-  <table style="width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0;">
-    <tr><th style="text-align:left;padding:6px 10px;border-bottom:1px solid #E4E7EC;">Category</th><th style="text-align:left;padding:6px 10px;border-bottom:1px solid #E4E7EC;">Trigger words</th></tr>
-    <tr><td style="padding:6px 10px;border-bottom:1px solid #F1F3F6;">Chart/visual</td><td style="padding:6px 10px;border-bottom:1px solid #F1F3F6;">chart, graph, visual, dashboard, plot</td></tr>
-    <tr><td style="padding:6px 10px;border-bottom:1px solid #F1F3F6;">Breakdown</td><td style="padding:6px 10px;border-bottom:1px solid #F1F3F6;">region, north, south, east, west</td></tr>
-    <tr><td style="padding:6px 10px;border-bottom:1px solid #F1F3F6;">Trend</td><td style="padding:6px 10px;border-bottom:1px solid #F1F3F6;">trend, quarter, over time, growth</td></tr>
-    <tr><td style="padding:6px 10px;border-bottom:1px solid #F1F3F6;">Comparison</td><td style="padding:6px 10px;border-bottom:1px solid #F1F3F6;">compare, highest, lowest, best, worst, biggest, top, performer</td></tr>
+  <h4>Excel exercise — three fixed tiers</h4>
+  <table>
+    <tr><th>Tier</th><th>Prompt shown</th><th>Response</th></tr>
+    <tr><td>😕 Bad</td><td>"Do something with this."</td><td>A confused, "what would you like me to do?" response — not just weak, genuinely stuck</td></tr>
+    <tr><td>😐 Average</td><td>"Summarise this data."</td><td>A generic text summary, no chart</td></tr>
+    <tr><td>😃 Great</td><td>"Build a dashboard with a chart of sales by region and the quarterly trend, and call out the best performer."</td><td>A full dashboard: two real SVG charts plus three stat callouts</td></tr>
   </table>
-  <div class="chatline"><span class="q">"Summarise this data."</span><span class="a">→ score 0 — generic paragraph, no chart</span></div>
-  <div class="chatline"><span class="q">"Build a dashboard with a chart of sales by region and the quarterly trend, and call out the best performer."</span><span class="a">→ score 4 — full dashboard: two real charts, three stat callouts</span></div>
-  <div class="works"><b>The numbers are genuinely computed, not decorative:</b> West is the real top region at £246,000 total; Q4 is the real strongest quarter at £209,000; the grand total is £731,000. Worth spot-checking with a calculator once if you want to verify it yourself before a session.</div>
+  <div class="works"><b>The numbers are genuinely computed, not decorative:</b> West is the real top region at £246,000 total; Q4 is the real strongest quarter at £209,000; the grand total is £731,000.</div>
 
-  <h4>Outlook exercise — find vs summarise</h4>
-  <p>Intent is detected from the word "summar-" appearing anywhere in the prompt; everything else is treated as a find request. The inbox has 7 emails, 3 of which form one real conversation thread (subject: "Marketing campaign feedback", growing "Re:" prefixes) — this is the one worth summarising. The one worth finding is the Legal Team's contract renewal, tagged against words like contract, signature, sign, renewal, and Friday.</p>
-  <div class="chatline"><span class="q">"Find something important."</span><span class="a">→ no match at all — "important" isn't a real distinguishing word, correctly returns nothing</span></div>
-  <div class="chatline"><span class="q">"Find the email that needs a signature before Friday."</span><span class="a">→ uniquely matches the Legal Team email, shown in full</span></div>
-  <div class="chatline"><span class="q">"Summarise the marketing campaign feedback thread."</span><span class="a">→ correctly recognises all 3 thread emails together, produces one merged summary</span></div>
-  <div class="snag"><b>A real confidence bug was found and fixed before this shipped:</b> a prompt that scored a genuine match against several <i>different</i> emails at once (not a thread — separate, unrelated messages that happened to tie) was originally still shown as a single confident "Found it," silently picking whichever came first in the list. That's the opposite of the lesson this exercise is trying to teach. Fixed so a single confident match now requires being <i>uniquely</i> the strongest, not just tied for the lead — a tie correctly falls back to "a few possible matches, be more specific."</div>
+  <h4>Outlook exercise — two separate three-tier groups</h4>
+  <p>Find and Summarise are now two visually distinct groups of three cards each, not one combined box guessing at intent from wording.</p>
+  <table>
+    <tr><th>Group</th><th>Tier</th><th>Prompt</th><th>Response</th></tr>
+    <tr><td rowspan="3">Find</td><td>😕 Bad</td><td>"Find something."</td><td>Confused — nothing to search for</td></tr>
+    <tr><td>😐 Average</td><td>"Find the marketing email."</td><td>3 possible matches shown — genuinely ambiguous, there are 3 marketing emails</td></tr>
+    <tr><td>😃 Great</td><td>"Find the email that needs a signature before Friday."</td><td>Uniquely finds the Legal Team contract email</td></tr>
+    <tr><td rowspan="3">Summarise</td><td>😕 Bad</td><td>"Tell me what's going on."</td><td>Confused — no conversation named</td></tr>
+    <tr><td>😐 Average</td><td>"Summarise my emails."</td><td>"Too broad" response naming the separate conversations that exist, but summarising none of them</td></tr>
+    <tr><td>😃 Great</td><td>"Summarise the marketing campaign feedback thread."</td><td>Correctly merges all 3 thread messages into one summary</td></tr>
+  </table>
+  <div class="snag"><b>The confidence bug from the free-text version is fully retired along with that version</b> — since every response is now a fixed, individually-verified mapping rather than live scoring, the class of bug where an ambiguous prompt could be shown as a false single confident match can no longer occur here. Worth knowing the history if this comes up, but nothing to check for in this version.</div>
+
+  <h4>Two new closing sections, added after feedback</h4>
+  <div class="works"><b>"Prompts worth keeping"</b> — four copyable, reusable prompt templates a participant can take into real Excel or Outlook, not just this exercise.</div>
+  <div class="works"><b>A real downloadable file — RegionalSales.xlsx</b> — the exact same figures as the on-screen exercise, built as a genuine spreadsheet with live <code>SUM</code> formulas (not hardcoded totals), so it recalculates if someone edits it. Verified with LibreOffice's recalculation check (zero formula errors) and the computed totals independently confirmed to match the browser exercise exactly. Meant for participants to open in real Excel and try prompting on their own data afterward.</div>
+  <div class="works"><b>"Finding old chats and files" section</b> — five example prompts for searching Teams and Outlook history specifically (a person + topic + rough date; a half-remembered file name; searching both apps at once; summarising a dormant channel; checking your own history before re-asking a colleague). This was requested content, not an interactive exercise — read it together if it comes up, no verification mechanics involved.</div>
+
+  <h2 id="slides">The intro slide deck</h2>
+  <div class="card">
+    <p><code>intro-slides.html</code>, linked from the dashboard header — a 7-slide presentation for opening a session live, distinct from <code>start-here.html</code> (which participants read at their own pace). Dark theme, arrow-key and click navigation, a progress bar, and clickable dot navigation to jump to any slide directly.</p>
+  </div>
+  <div class="snag"><b>The financial-stations slide originally never mentioned the CoPilot modules at all</b> — someone glancing at just that slide would reasonably think there were only 5 things on offer. Fixed with an explicit "✨ Plus 2 more on AI skills — next" teaser at the bottom of that slide, and the CoPilot slide itself was expanded from a single paragraph into two proper cards naming both modules directly.</div>
+  <div class="works"><b>Navigation logic is unchanged and re-verified, not just visually restyled:</b> the whole deck was rebuilt for a richer look (animated background, gradient text, a progress bar), but the actual slide-advancing code was deliberately left untouched since it was already tested — and re-run through the same boundary tests afterward (can't overshoot the last slide, can't undershoot the first, dots and progress bar stay in sync) to confirm the visual rebuild didn't break it.</div>
 
   <h2 id="troubleshooting">Troubleshooting — user error, not the build</h2>
 

@@ -46,13 +46,24 @@ table.data td{padding:9px 14px;text-align:right;border:1px solid var(--border);c
 table.data td:first-child{text-align:left;font-weight:600;background:#FAFBFC;}
 
 .prompt-tools{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 10px;}
-.try-btn{background:var(--surface-alt);border:1px solid var(--border);border-radius:18px;padding:6px 13px;font-size:12px;font-weight:600;color:var(--text-secondary);cursor:pointer;font-family:'Inter',sans-serif;}
-.try-btn:hover{border-color:var(--accent-border);color:var(--accent);background:var(--accent-bg);}
-.prompt-inputrow{display:flex;gap:8px;}
-.prompt-inputrow input{flex:1;padding:11px 14px;border-radius:8px;border:1px solid var(--border-strong);font-family:'Inter',sans-serif;font-size:13.5px;}
-.prompt-inputrow input:focus{outline:2px solid var(--accent);outline-offset:-1px;}
-.ask-btn{background:var(--accent);color:#fff;border:none;padding:11px 20px;border-radius:8px;font-weight:700;font-size:13.5px;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;}
-.ask-btn:hover{background:var(--accent-hover);}
+.choice-group{margin:16px 0;}
+.choice-group h4{font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);font-weight:700;margin:0 0 10px;}
+.choice-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;}
+.choice-card{border-radius:12px;padding:18px 20px;text-align:left;cursor:pointer;font-family:'Inter',sans-serif;transition:transform .12s ease, box-shadow .12s ease;border-width:2px;border-style:solid;}
+.choice-card:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(16,24,40,0.1);}
+.choice-card .cc-label{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;display:flex;align-items:center;gap:6px;margin-bottom:10px;}
+.choice-card .cc-prompt{font-size:14.5px;color:var(--text);line-height:1.5;font-weight:500;}
+.choice-card.bad{background:var(--danger-bg);border-color:#FECDCA;}
+.choice-card.bad .cc-label{color:#B42318;}
+.choice-card.average{background:var(--warning-bg);border-color:#FEDF89;}
+.choice-card.average .cc-label{color:#B54708;}
+.choice-card.great{background:var(--success-bg,#ECFDF3);border-color:#A6F4C5;}
+.choice-card.great .cc-label{color:#067647;}
+.ref-prompt{position:relative;background:var(--surface-alt);border:1px solid var(--border);border-radius:9px;padding:14px 44px 14px 16px;margin-bottom:12px;font-size:13.5px;color:var(--text);line-height:1.5;}
+.ref-prompt:last-child{margin-bottom:0;}
+.ref-copy{position:absolute;top:10px;right:10px;font-size:10.5px;font-weight:700;background:#fff;border:1px solid var(--border);padding:4px 9px;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;color:var(--text-secondary);}
+.ref-copy:hover{border-color:var(--accent-border);color:var(--accent);}
+.ref-why{font-size:12px;color:var(--text-muted);margin-top:6px;}
 
 .response-area{margin-top:18px;}
 .weak-response{background:var(--warning-bg);border:1px solid #FEDF89;border-radius:10px;padding:16px 18px;}
@@ -103,11 +114,14 @@ table.data td:first-child{text-align:left;font-weight:600;background:#FAFBFC;}
 <div class="wrap">
   <div class="eyebrow">AI Prompting · Live Exercise</div>
   <h1>Effective CoPilot</h1>
-  <p class="lead">Same underlying data, same underlying inbox — the only thing that changes between a generic response and a genuinely useful one is what you actually ask for. Try both.</p>
+  <p class="lead">Same underlying data, same underlying inbox, every time — the only thing that changes between a generic response and a genuinely useful one is which prompt you pick. Try all three tiers.</p>
 
   <div class="toc">
     <a href="#excel">1. Excel — build a dashboard</a>
     <a href="#outlook">2. Outlook — find &amp; summarise</a>
+    <a href="#prompts-reference">3. Prompts worth keeping</a>
+    <a href="#download">4. Try it yourself</a>
+    <a href="#teams-outlook">5. Finding old chats &amp; files</a>
   </div>
 
   <section id="excel">
@@ -119,13 +133,22 @@ table.data td:first-child{text-align:left;font-weight:600;background:#FAFBFC;}
         <table class="data" id="salesTable"></table>
       </div>
 
-      <div class="prompt-tools">
-        <button class="try-btn" onclick="fillExcelPrompt('Summarise this data.')">Try: "Summarise this data."</button>
-        <button class="try-btn" onclick="fillExcelPrompt('Build a dashboard with a chart of sales by region and the quarterly trend, and call out the best performer.')">Try: a specific dashboard prompt</button>
-      </div>
-      <div class="prompt-inputrow">
-        <input type="text" id="excelPrompt" placeholder="Ask CoPilot about this data…" onkeydown="if(event.key==='Enter')askExcel()">
-        <button class="ask-btn" onclick="askExcel()">✨ Ask CoPilot</button>
+      <div class="choice-group">
+        <h4>Pick a prompt to try</h4>
+        <div class="choice-cards">
+          <div class="choice-card bad" onclick="askExcel('bad')">
+            <div class="cc-label">😕 Bad</div>
+            <div class="cc-prompt">"Do something with this."</div>
+          </div>
+          <div class="choice-card average" onclick="askExcel('average')">
+            <div class="cc-label">😐 Average</div>
+            <div class="cc-prompt">"Summarise this data."</div>
+          </div>
+          <div class="choice-card great" onclick="askExcel('great')">
+            <div class="cc-label">😃 Great</div>
+            <div class="cc-prompt">"Build a dashboard with a chart of sales by region and the quarterly trend, and call out the best performer."</div>
+          </div>
+        </div>
       </div>
       <div class="response-area" id="excelResponse"></div>
     </div>
@@ -137,16 +160,115 @@ table.data td:first-child{text-align:left;font-weight:600;background:#FAFBFC;}
     <div class="panel">
       <div class="inbox" id="inboxList"></div>
 
-      <div class="prompt-tools">
-        <button class="try-btn" onclick="fillOutlookPrompt('Find something important.')">Try: "Find something important."</button>
-        <button class="try-btn" onclick="fillOutlookPrompt('Find the email that needs a signature before Friday.')">Try: a specific find prompt</button>
-        <button class="try-btn" onclick="fillOutlookPrompt('Summarise the marketing campaign feedback thread.')">Try: a summarise prompt</button>
+      <div class="choice-group">
+        <h4>Find a specific email</h4>
+        <div class="choice-cards">
+          <div class="choice-card bad" onclick="askOutlook('find-bad')">
+            <div class="cc-label">😕 Bad</div>
+            <div class="cc-prompt">"Find something."</div>
+          </div>
+          <div class="choice-card average" onclick="askOutlook('find-average')">
+            <div class="cc-label">😐 Average</div>
+            <div class="cc-prompt">"Find the marketing email."</div>
+          </div>
+          <div class="choice-card great" onclick="askOutlook('find-great')">
+            <div class="cc-label">😃 Great</div>
+            <div class="cc-prompt">"Find the email that needs a signature before Friday."</div>
+          </div>
+        </div>
       </div>
-      <div class="prompt-inputrow">
-        <input type="text" id="outlookPrompt" placeholder="Ask CoPilot to find or summarise something…" onkeydown="if(event.key==='Enter')askOutlook()">
-        <button class="ask-btn" onclick="askOutlook()">✨ Ask CoPilot</button>
+
+      <div class="choice-group">
+        <h4>Summarise a conversation</h4>
+        <div class="choice-cards">
+          <div class="choice-card bad" onclick="askOutlook('sum-bad')">
+            <div class="cc-label">😕 Bad</div>
+            <div class="cc-prompt">"Tell me what's going on."</div>
+          </div>
+          <div class="choice-card average" onclick="askOutlook('sum-average')">
+            <div class="cc-label">😐 Average</div>
+            <div class="cc-prompt">"Summarise my emails."</div>
+          </div>
+          <div class="choice-card great" onclick="askOutlook('sum-great')">
+            <div class="cc-label">😃 Great</div>
+            <div class="cc-prompt">"Summarise the marketing campaign feedback thread."</div>
+          </div>
+        </div>
       </div>
       <div class="response-area" id="outlookResponse"></div>
+    </div>
+  </section>
+
+  <section id="prompts-reference">
+    <h2><span class="snum">3</span>Prompts worth keeping</h2>
+    <p class="section-sub">Take these into real Excel or Outlook CoPilot and adapt them to your own data or inbox.</p>
+    <div class="panel" id="promptRefPanel">
+      <div class="ref-prompt">
+        <button class="ref-copy" onclick="copyPromptText(this)">Copy</button>
+        <span class="ref-ptext">Build a dashboard from this data with a chart of [metric] by [category], and call out the highest and lowest performers.</span>
+        <div class="ref-why">The template behind the "great" Excel prompt above — swap in your own metric and category.</div>
+      </div>
+      <div class="ref-prompt">
+        <button class="ref-copy" onclick="copyPromptText(this)">Copy</button>
+        <span class="ref-ptext">Find the email from [name] about [topic] — I think it mentioned a deadline.</span>
+        <div class="ref-why">Naming a sender AND a topic together narrows a search fast, even with no exact keyword.</div>
+      </div>
+      <div class="ref-prompt">
+        <button class="ref-copy" onclick="copyPromptText(this)">Copy</button>
+        <span class="ref-ptext">Summarise this thread into three bullet points: what was decided, what's still open, and who owns the next step.</span>
+        <div class="ref-why">Naming the exact shape of the summary gets something usable immediately, not a generic paragraph.</div>
+      </div>
+      <div class="ref-prompt">
+        <button class="ref-copy" onclick="copyPromptText(this)">Copy</button>
+        <span class="ref-ptext">Compare [this month] to [last month] in this data and tell me the single biggest change.</span>
+        <div class="ref-why">Asking for one specific insight, not "analyse this", gets a direct, checkable answer.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="download">
+    <h2><span class="snum">4</span>Try it on the real thing</h2>
+    <p class="section-sub">The exact same data from the exercise above, as a real spreadsheet — open it with CoPilot in Excel and try your own prompts on it.</p>
+    <div class="panel" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+      <div style="font-size:32px;">📊</div>
+      <div style="flex:1;min-width:200px;">
+        <div style="font-weight:700;font-size:14px;color:var(--text);">RegionalSales.xlsx</div>
+        <div style="font-size:12.5px;color:var(--text-muted);">Same figures as above — 4 regions, 4 quarters, real SUM formulas.</div>
+      </div>
+      <a href="RegionalSales.xlsx" download class="ask-btn" style="text-decoration:none;">⬇ Download the file</a>
+    </div>
+  </section>
+
+  <section id="teams-outlook">
+    <h2><span class="snum">5</span>Finding old chats and files</h2>
+    <p class="section-sub">CoPilot can search across your own history in Teams and Outlook — including things from months or years ago that would take forever to scroll back to manually.</p>
+    <div class="panel" id="teamsOutlookPanel">
+      <p style="font-size:13.5px;color:var(--text-secondary);margin:0 0 16px;">CoPilot in Teams and Outlook can search across everything you have access to — chats, channels, and emails — going back as far as your history exists, not just what you can remember scrolling to. The trick is the same one from the whole exercise above: name something specific, not "that thing from before."</p>
+      <div class="ref-prompt">
+        <button class="ref-copy" onclick="copyPromptText(this)">Copy</button>
+        <span class="ref-ptext">What did Priya say about the Q2 budget in our Teams chat back in March?</span>
+        <div class="ref-why">A person, a topic, and a rough time period — enough to find one specific message in months of chat history.</div>
+      </div>
+      <div class="ref-prompt">
+        <button class="ref-copy" onclick="copyPromptText(this)">Copy</button>
+        <span class="ref-ptext">Find the pricing spreadsheet Mike shared with me last year — I think it was called something like "Q4 pricing."</span>
+        <div class="ref-why">Works even with a half-remembered file name — CoPilot searches content and context, not just exact titles.</div>
+      </div>
+      <div class="ref-prompt">
+        <button class="ref-copy" onclick="copyPromptText(this)">Copy</button>
+        <span class="ref-ptext">Did anyone ever send me the signed contract for the Cornwall project? Check both my email and Teams.</span>
+        <div class="ref-why">CoPilot can search across BOTH Outlook and Teams in one go — useful when you're not sure which one something landed in.</div>
+      </div>
+      <div class="ref-prompt">
+        <button class="ref-copy" onclick="copyPromptText(this)">Copy</button>
+        <span class="ref-ptext">Summarise every decision made in the #onboarding channel before the summer, even the older messages.</span>
+        <div class="ref-why">Turns a channel nobody's opened in months into a quick, readable catch-up — without you scrolling through all of it yourself.</div>
+      </div>
+      <div class="ref-prompt">
+        <button class="ref-copy" onclick="copyPromptText(this)">Copy</button>
+        <span class="ref-ptext">Has this exact question come up before in any of my chats or emails? If so, what was the answer?</span>
+        <div class="ref-why">Genuinely useful before asking a colleague something twice — CoPilot checks your own history first.</div>
+      </div>
     </div>
   </section>
 
@@ -172,24 +294,6 @@ function renderSalesTable(){
     html += `<tr><td>${r}</td>` + SALES_DATA.values[r].map(v=>`<td>£${v.toLocaleString()}</td>`).join('') + '</tr>';
   });
   document.getElementById('salesTable').innerHTML = html;
-}
-
-function fillExcelPrompt(text){
-  document.getElementById('excelPrompt').value = text;
-}
-
-function analyzeExcelPrompt(prompt){
-  const p = prompt.toLowerCase();
-  const CHART_WORDS = ['chart','graph','visual','dashboard','plot'];
-  const REGION_WORDS = ['region','north','south','east','west'];
-  const TREND_WORDS = ['trend','quarter','over time','growth'];
-  const COMPARE_WORDS = ['compare','highest','lowest','best','worst','biggest','top','performer'];
-  let score = 0;
-  if(CHART_WORDS.some(w => p.includes(w))) score++;
-  if(REGION_WORDS.some(w => p.includes(w))) score++;
-  if(TREND_WORDS.some(w => p.includes(w))) score++;
-  if(COMPARE_WORDS.some(w => p.includes(w))) score++;
-  return score;
 }
 
 function svgBarChart(labels, values, color){
@@ -236,16 +340,21 @@ function computeSalesStats(){
   return { byRegion, byQuarter, grandTotal, bestRegion, bestQuarter: SALES_DATA.quarters[bestQuarterIdx] };
 }
 
-function askExcel(){
-  const prompt = document.getElementById('excelPrompt').value.trim();
+function askExcel(tier){
   const out = document.getElementById('excelResponse');
-  if(!prompt){ out.innerHTML = ''; return; }
-  const score = analyzeExcelPrompt(prompt);
-  if(score < 2){
+  if(tier === 'bad'){
     out.innerHTML = `<div class="weak-response">
-      <div class="wr-label">⚠ Generic response</div>
+      <div class="wr-label">😕 Confused response</div>
+      <p>I'm not sure what you'd like me to do with this — could you tell me what you're trying to find out, or what you'd like it to look like?</p>
+      <div class="coach-tip">💡 "Do something with this" doesn't give CoPilot anything to act on — no task, no format, nothing to aim for.</div>
+    </div>`;
+    return;
+  }
+  if(tier === 'average'){
+    out.innerHTML = `<div class="weak-response">
+      <div class="wr-label">😐 Generic response</div>
       <p>Here's a general summary: the data covers 4 regions across 4 quarters, with figures ranging from around £29,000 to £71,000. Overall performance varies by both region and quarter.</p>
-      <div class="coach-tip">💡 That's genuinely all a vague prompt like this gets you — try naming a chart type, asking for a specific breakdown (by region? by quarter?), or asking it to call out the best or worst performer.</div>
+      <div class="coach-tip">💡 That's genuinely all this prompt gets you — try naming a chart type, asking for a specific breakdown (by region? by quarter?), or asking it to call out the best or worst performer.</div>
     </div>`;
     return;
   }
@@ -286,10 +395,6 @@ function renderInbox(){
   ).join('');
 }
 
-function fillOutlookPrompt(text){
-  document.getElementById('outlookPrompt').value = text;
-}
-
 function findEmailMatches(prompt){
   const p = prompt.toLowerCase();
   return INBOX.map(email => {
@@ -302,59 +407,73 @@ function baseSubject(subject){
   return subject.replace(/^(re:\s*)+/i, '').trim();
 }
 
-function askOutlook(){
-  const prompt = document.getElementById('outlookPrompt').value.trim();
+function askOutlook(choice){
   const out = document.getElementById('outlookResponse');
-  if(!prompt){ out.innerHTML = ''; return; }
-  const isSummarize = /summar/i.test(prompt);
-  const matches = findEmailMatches(prompt);
 
-  if(matches.length === 0){
+  if(choice === 'find-bad'){
     out.innerHTML = `<div class="weak-response">
-      <div class="wr-label">⚠ Nothing specific found</div>
-      <p>I couldn't match that to anything in particular — "important" or "urgent" doesn't point at one email over another.</p>
-      <div class="coach-tip">💡 Try mentioning who it's from, what it's about, or a specific word you'd expect in the subject line.</div>
+      <div class="wr-label">😕 Confused response</div>
+      <p>I'm not sure what you'd like me to find — could you tell me who it's from, what it's about, or something you'd expect to see in the subject line?</p>
+      <div class="coach-tip">💡 "Find something" doesn't give CoPilot anything to search for — there's no name, topic, or detail to match against.</div>
     </div>`;
     return;
   }
-
-  if(isSummarize){
-    const topScore = matches[0].score;
-    const thread = matches.filter(m => m.score === topScore && baseSubject(m.email.subject) === baseSubject(matches[0].email.subject));
-    if(thread.length >= 2){
-      const points = thread.map(m => m.email.body.split('\n\n')[0].split('\n').pop());
-      out.innerHTML = `<div class="summary-card">
-        <div class="sc-head">✓ Thread summary — ${baseSubject(thread[0].email.subject)} (${thread.length} messages)</div>
-        <ul>${points.map(p=>`<li>${p}</li>`).join('')}</ul>
-      </div>`;
-      return;
-    }
-    // summarize requested but only a single email matched — summarize that one
-    const e = matches[0].email;
-    out.innerHTML = `<div class="summary-card">
-      <div class="sc-head">✓ Summary — ${e.subject}</div>
-      <ul><li>${e.body.split('\n\n')[0].split('\n').pop()}</li></ul>
+  if(choice === 'find-average'){
+    const matches = findEmailMatches('marketing');
+    out.innerHTML = `<div class="multi-match">
+      <div class="mm-label">😐 A few possible matches</div>
+      ${matches.slice(0,3).map(m => `<div class="mm-item"><b>${m.email.from}:</b> ${m.email.subject}</div>`).join('')}
+      <div class="coach-tip" style="margin-top:8px;">💡 "The marketing email" isn't specific enough — there are three. Add a detail from just one of them to narrow it down.</div>
     </div>`;
     return;
   }
-
-  const isUniqueTop = matches.length === 1 || matches[0].score > matches[1].score;
-  if(matches.length === 1 || (matches[0].score >= 2 && isUniqueTop)){
+  if(choice === 'find-great'){
+    const matches = findEmailMatches('signature friday contract');
     const e = matches[0].email;
     out.innerHTML = `<div class="found-email">
-      <div class="fe-head">✓ Found it</div>
+      <div class="fe-head">😃 Found it</div>
       <div class="fe-from">${e.from}</div>
       <div class="fe-subj">${e.subject}</div>
       <div class="fe-body">${e.body}</div>
     </div>`;
     return;
   }
+  if(choice === 'sum-bad'){
+    out.innerHTML = `<div class="weak-response">
+      <div class="wr-label">😕 Confused response</div>
+      <p>I'm not sure which conversation you mean — could you tell me the topic, a sender, or something from the subject line?</p>
+      <div class="coach-tip">💡 "What's going on" doesn't name a conversation — CoPilot has no idea which of several emails you're asking about.</div>
+    </div>`;
+    return;
+  }
+  if(choice === 'sum-average'){
+    out.innerHTML = `<div class="weak-response">
+      <div class="wr-label">😐 Too broad to summarise well</div>
+      <p>There are several separate conversations in this inbox — a budget review, a contract renewal, a marketing thread, and more. I can summarise one of them properly, but not all of them at once in anything useful.</p>
+      <div class="coach-tip">💡 Name the actual conversation — a sender, a subject, or a topic — and this becomes a genuinely good summary instead of a shrug.</div>
+    </div>`;
+    return;
+  }
+  if(choice === 'sum-great'){
+    const matches = findEmailMatches('marketing campaign feedback');
+    const topScore = matches[0].score;
+    const thread = matches.filter(m => m.score === topScore && baseSubject(m.email.subject) === baseSubject(matches[0].email.subject));
+    const points = thread.map(m => m.email.body.split('\n\n')[0].split('\n').pop());
+    out.innerHTML = `<div class="summary-card">
+      <div class="sc-head">😃 Thread summary — ${baseSubject(thread[0].email.subject)} (${thread.length} messages)</div>
+      <ul>${points.map(p=>`<li>${p}</li>`).join('')}</ul>
+    </div>`;
+    return;
+  }
+}
 
-  out.innerHTML = `<div class="multi-match">
-    <div class="mm-label">⚠ A few possible matches</div>
-    ${matches.slice(0,4).map(m => `<div class="mm-item"><b>${m.email.from}:</b> ${m.email.subject}</div>`).join('')}
-    <div class="coach-tip" style="margin-top:8px;">💡 Try adding a specific detail — a name, a deadline, or a word you'd expect in the subject — to narrow it to one.</div>
-  </div>`;
+function copyPromptText(btn){
+  const text = btn.parentElement.querySelector('.ref-ptext').textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    const old = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(()=>{ btn.textContent = old; }, 1500);
+  }).catch(()=>{});
 }
 
 renderSalesTable();
