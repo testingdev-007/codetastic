@@ -47,6 +47,7 @@ h1{font-size:26px;margin:0 0 8px;font-weight:700;letter-spacing:-0.01em;color:va
 .panel h2{font-size:13px;margin:0;text-transform:uppercase;letter-spacing:.04em;color:var(--text-secondary);font-weight:700;}
 .tag{font-size:11px;letter-spacing:.03em;color:var(--accent);border:1px solid var(--accent-border);background:var(--accent-bg);padding:3px 10px;border-radius:20px;text-transform:uppercase;font-weight:600;}
 .brief{color:var(--text-secondary);font-size:13.5px;line-height:1.65;margin:0 0 16px;}
+#newContentBadge{background:linear-gradient(135deg,#FFF7ED,#FEF3C7);border:1.5px solid #FDBA74;border-radius:9px;padding:9px 14px;font-size:12.5px;font-weight:700;color:#9A3412;margin:0 0 14px;display:flex;align-items:center;gap:8px;}
 
 .worked-example{background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:10px;margin-bottom:16px;overflow:hidden;}
 .worked-example summary{padding:11px 14px;cursor:pointer;font-size:13px;color:var(--accent);font-weight:600;list-style:none;}
@@ -173,6 +174,7 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
           <h2 id="challengeTitle">calculateTotal</h2>
           <span class="tag" id="conceptTag">FUNCTIONS</span>
         </div>
+        <div id="newContentBadge" style="display:none;"></div>
         <p class="brief" id="briefText"></p>
         <details class="worked-example" id="workedExample" open>
           <summary>📎 See a worked example — then try it yourself</summary>
@@ -363,6 +365,7 @@ function applyLoyaltyDiscount(amount, isPremium) {
     ],
     hints: [
       "You already know how to do this with if/else — that works completely fine here: if (isPremium) { return amount * 0.9; } return amount;. If you'd rather try something new, keep reading.",
+      "A common slip on this one: writing isPremium == true instead of just isPremium — a boolean is already true or false, comparing it to true again doesn't do anything extra and can actually cause bugs.",
       "A ternary is a shorthand for exactly that if/else, written in one line: condition ? valueIfTrue : valueIfFalse. Same logic, different shape — entirely optional.",
       "Worked through with real numbers: amount is 100, isPremium is true. You want 90 back — that's 100 * 0.9. If isPremium were false instead, you'd want the original 100 back, completely untouched. That's the exact shape to build, in either style.",
       "Here's the shape with one blank left: return isPremium ? amount * ___ : amount; — what number goes in the blank to knock 10% off?",
@@ -395,6 +398,7 @@ function calculateInterest(balance, rate) {
     ],
     hints: [
       "rate is given as a whole number like 5, meaning 5% — you need to turn that into a fraction first.",
+      "A common slip on this one: dividing balance by rate instead of rate by 100 — double-check which number is on top and which is on the bottom before multiplying.",
       "Dividing by 100 turns a percentage like 5 into 0.05 — then multiply that by balance.",
       "Worked through with the first test's real numbers: balance is 1000, rate is 5. First, 5 / 100 = 0.05. Then, 1000 * 0.05 = 50 — and 50 is exactly what that test expects back.",
       "Here's the shape with one blank left: return balance * (rate / ___); — what number turns a whole-number percentage like 5 into a fraction?",
@@ -430,6 +434,7 @@ function flagSuspiciousActivity(amount, country) {
     ],
     hints: [
       "You can nest an if inside another if — the inner one only runs when the outer one is already true, which is exactly \"both conditions at once.\" That works completely fine here.",
+      "A common slip on this one: typing a single & instead of &&. A single & does something completely different in JavaScript — always use two.",
       "&& is a shortcut for that same nesting, written on one line: it only returns true when BOTH sides are true. Try: amount > 5000 && country !== 'UK' — but nested ifs give the same result if you'd rather use those.",
       "Worked through with the first test's real numbers: amount is 6000, country is 'US'. Is 6000 > 5000? Yes. Is 'US' not equal to 'UK'? Yes. Both true, so the answer is true. Now check amount 6000, country 'UK': the first condition still holds, but the second one doesn't — so the answer flips to false.",
       "Here's the shape with one blank left: return amount > 5000 ___ country !== 'UK'; — which operator means \"both sides have to be true\"?",
@@ -485,6 +490,13 @@ function loadChallenge(idx){
   hintTier = 0;
   proactiveShown = false;
   const c = CHALLENGES[idx];
+  const badge = document.getElementById('newContentBadge');
+  if(idx >= 3){
+    badge.style.display = 'flex';
+    badge.innerHTML = '🆕 New — this challenge isn\'t in the taster version';
+  } else {
+    badge.style.display = 'none';
+  }
   document.getElementById('challengeTitle').textContent = c.fnName;
   document.getElementById('conceptTag').textContent = c.concept;
   document.getElementById('briefText').textContent = c.brief;
