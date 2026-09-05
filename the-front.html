@@ -54,7 +54,10 @@ h1{font-size:26px;margin:0 0 8px;font-weight:700;letter-spacing:-0.01em;color:va
 .we-caveat{background:var(--warning-bg);border:1px solid #FEDF89;border-left:3px solid var(--warning);border-radius:0 8px 8px 0;padding:9px 12px;margin:0 14px 12px;font-size:12px;color:#B54708;font-weight:600;display:flex;align-items:center;gap:7px;}
 .worked-example summary{padding:11px 14px;cursor:pointer;font-size:13px;color:var(--accent);font-weight:600;list-style:none;}
 .worked-example summary::-webkit-details-marker{display:none;}
+.we-body-wrap{position:relative;}
 .we-body{padding:2px 14px 14px;}
+.we-body pre{position:relative;}
+.we-example-badge{position:absolute;top:8px;right:22px;background:#F79009;color:#1a1200;font-size:10px;font-weight:800;letter-spacing:.04em;padding:3px 8px;border-radius:5px;pointer-events:none;z-index:1;}
 .we-body pre{background:#0D1117;border:none;border-radius:8px;padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#E6EDF3;line-height:1.65;margin:0 0 10px;white-space:pre-wrap;}
 .we-body .we-line{font-size:12.5px;color:var(--text-secondary);line-height:1.6;margin-bottom:4px;}
 
@@ -127,6 +130,12 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
 
 #doneScreen{display:none;text-align:center;padding:50px 20px;}
 .done-card{max-width:520px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:44px 38px;box-shadow:var(--shadow-md);}
+.plenary{text-align:left;margin-top:22px;padding-top:20px;border-top:1px solid var(--border);}
+.plenary h4{font-size:12px;text-transform:uppercase;letter-spacing:.03em;color:var(--text-muted);font-weight:700;margin:0 0 12px;}
+.plenary ul{margin:0 0 16px;padding-left:20px;}
+.plenary li{font-size:13.5px;color:var(--text);margin-bottom:8px;line-height:1.5;}
+.plenary .job-note{background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:9px;padding:14px 16px;font-size:13.5px;color:var(--text);}
+.plenary .job-note b{color:var(--accent);}
 .learn-more{text-align:left;background:var(--surface-alt);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-top:20px;}
 .learn-more h4{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);font-weight:700;margin:0 0 10px;}
 .learn-more a{display:flex;align-items:center;gap:8px;color:var(--accent);font-weight:600;font-size:13px;text-decoration:none;padding:6px 0;}
@@ -221,7 +230,7 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
     <div>
       <div class="eyebrow">Financial Systems · Live Taster</div>
       <h1>The Front — Style the Interface</h1>
-      <p class="sub">You don't need any coding experience for this — genuinely none. The markup for an account card is already there, and each challenge shows you a worked example first, using a different element.</p>
+      <p class="sub">You don't need any coding experience for this — genuinely none. The basic structure of an account card is already there for you, and each challenge shows you a worked example first, using a different element.</p>
     </div>
     <div class="timeline" id="dots"></div>
   </div>
@@ -231,7 +240,7 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
       <div class="panel">
         <div class="panel-head">
           <h2 id="challengeTitle">The Panel</h2>
-          <span class="tag" id="conceptTag">BOX MODEL</span>
+          <span class="tag" id="conceptTag">COLOUR &amp; SPACING</span>
         </div>
         <p class="brief" id="briefText"></p>
         <div class="markup-ref">&lt;<span class="tagname">div</span> <span class="cls">class="account-card"</span>&gt;
@@ -242,7 +251,10 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
         <details class="worked-example" id="workedExample" open>
           <summary>📎 See a worked example first</summary>
           <div class="we-caveat">⚠️ Don't copy this exact code — the values here are deliberately off. Use it for the pattern, not the numbers.</div>
-          <div class="we-body" id="weBody"></div>
+          <div class="we-body-wrap">
+            <div class="we-example-badge">EXAMPLE — READ ONLY</div>
+            <div class="we-body" id="weBody"></div>
+          </div>
         </details>
         <div class="color-tool">
           <label for="colorPicker">🎨 Not sure what colour to use? Pick one:</label>
@@ -277,7 +289,7 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
         </div>
         <div class="editor-chrome">
           <div class="editor-titlebar">
-            <div><span>style.css</span> — updates as you type</div>
+            <div>✏️ <span>style.css</span> — <b>type here</b>, updates as you type</div>
             <span class="syntax-status" id="syntaxStatus"></span>
           </div>
           <textarea id="codeInput" spellcheck="false"></textarea>
@@ -309,7 +321,7 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
           </div>
         </div>
         <div class="panel">
-          <div class="panel-head"><h2>Test Console</h2></div>
+          <div class="panel-head"><h2>Your Checklist</h2></div>
           <div class="test-list" id="testList"></div>
           <div class="status-line" id="statusLine">awaiting check run</div>
         </div>
@@ -319,10 +331,28 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
 
   <div id="doneScreen">
     <div class="done-card">
+      <div style="width:64px;height:64px;border-radius:50%;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:30px;background:linear-gradient(135deg,#FFE066,#E8B923);box-shadow:0 6px 16px rgba(232,185,35,0.4);">🥇</div>
       <div class="eyebrow" style="justify-content:center;">The Front</div>
       <h2>Interface Deployed</h2>
       <p>Background and spacing, typography, and a real flex layout — the three things almost every interface leans on.</p>
-      <p style="color:var(--text-muted);font-size:12.5px;">The take-home Front builds one continuous page instead of resetting between challenges.</p>
+      <div class="cert-claim" style="background:var(--surface-alt);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-top:16px;text-align:left;">
+        <label for="certNameInput" style="font-size:12.5px;font-weight:700;color:var(--text);display:block;margin-bottom:8px;">Your name, for the certificate:</label>
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="certNameInput" placeholder="Type your name…" maxlength="40" style="flex:1;padding:10px 14px;border-radius:7px;border:1px solid var(--border);font-family:'Inter',sans-serif;font-size:13.5px;">
+          <button class="btn-primary" id="claimBtn" onclick="claimTrophy()" style="border:none;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-radius:8px;padding:11px 18px;">🏆 Claim Certificate</button>
+        </div>
+        <p id="claimNote" style="font-size:12.5px;color:var(--success,#12B76A);margin:8px 0 0;font-weight:600;"></p>
+      </div>
+      <p style="color:var(--text-muted);font-size:12.5px;margin-top:14px;">The take-home Front builds one continuous page instead of resetting between challenges.</p>
+      <div class="plenary">
+        <h4>💭 Before you go — what you just did</h4>
+        <ul>
+          <li>Set real <b>CSS properties</b> — colour, spacing, rounded corners.</li>
+          <li>Used <b>flexbox</b> to control how elements line up and space themselves out.</li>
+          <li>Saw your changes reflected <b>live</b>, the same way a real browser would show them.</li>
+        </ul>
+        <div class="job-note">🔧 <b>Where this shows up at work:</b> every website and app you've ever used had someone deciding exactly this — where things sit, what colour they are, how they line up. It's a genuinely in-demand, creative technical skill, not just "making things pretty."</div>
+      </div>
       <div class="actions" style="justify-content:center;margin-top:18px;">
         <button class="btn-ghost" onclick="resetAllChallenges()">↺ Try Again</button>
         <button class="btn-primary" onclick="startBonus()">⚡ Bonus Round</button>
@@ -371,7 +401,7 @@ function hasRealColor(colorStr){
 const CHALLENGES = [
   {
     title: "The Panel",
-    concept: "BOX MODEL",
+    concept: "COLOUR & SPACING",
     brief: "Give .account-card a real background, rounded corners, and generous padding so the content isn't jammed against the edges. Any colour and sizing you like — a colour name like navy or forestgreen works just as well as a hex code, and the checks just look for real values, not exact ones.",
     starter: `/* Style .account-card:
    - give it a background colour
@@ -726,10 +756,31 @@ function nextChallenge(){
   }
 }
 
+function claimTrophy(){
+  const nameInput = document.getElementById('certNameInput');
+  const name = (nameInput.value || '').trim() || 'Anonymous';
+  const existing = JSON.parse(localStorage.getItem('mainframe_trophies') || '[]');
+  existing.push({
+    module: 'The Front',
+    tier: 'Front Expert',
+    emoji: '🥇',
+    name: name,
+    date: new Date().toLocaleDateString()
+  });
+  localStorage.setItem('mainframe_trophies', JSON.stringify(existing));
+  document.getElementById('claimBtn').textContent = '✅ Saved!';
+  document.getElementById('claimBtn').disabled = true;
+  document.getElementById('claimNote').textContent = 'Saved — view it anytime from "My Trophies" on the dashboard.';
+}
+
 function resetAllChallenges(){
   document.getElementById('doneScreen').style.display = 'none';
   document.getElementById('bonusScreen').style.display = 'none';
   document.getElementById('game').style.display = 'block';
+  document.getElementById('certNameInput').value = '';
+  document.getElementById('claimBtn').textContent = '🏆 Claim Certificate';
+  document.getElementById('claimBtn').disabled = false;
+  document.getElementById('claimNote').textContent = '';
   buildDots();
   loadChallenge(0);
 }

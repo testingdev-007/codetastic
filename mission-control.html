@@ -47,12 +47,16 @@ h1{font-size:26px;margin:0 0 8px;font-weight:700;letter-spacing:-0.01em;color:va
 .panel h2{font-size:13px;margin:0;text-transform:uppercase;letter-spacing:.04em;color:var(--text-secondary);font-weight:700;}
 .tag{font-size:11px;letter-spacing:.03em;color:var(--accent);border:1px solid var(--accent-border);background:var(--accent-bg);padding:3px 10px;border-radius:20px;text-transform:uppercase;font-weight:600;}
 .brief{color:var(--text-secondary);font-size:13.5px;line-height:1.65;margin:0 0 16px;}
+.panel-subcaption{color:var(--text-muted);font-size:12px;margin:-8px 0 14px;font-style:italic;}
+.terminal-bridge{background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:8px;padding:9px 14px;font-size:12.5px;color:var(--text);margin:0 0 10px;}
 #newContentBadge{background:linear-gradient(135deg,#FFF7ED,#FEF3C7);border:1.5px solid #FDBA74;border-radius:9px;padding:9px 14px;font-size:12.5px;font-weight:700;color:#9A3412;margin:0 0 14px;display:flex;align-items:center;gap:8px;}
 
 .worked-example{background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:10px;margin-bottom:16px;overflow:hidden;}
 .worked-example summary{padding:11px 14px;cursor:pointer;font-size:13px;color:var(--accent);font-weight:600;list-style:none;}
 .worked-example summary::-webkit-details-marker{display:none;}
+.we-body-wrap{position:relative;}
 .we-body{padding:2px 14px 14px;}
+.we-example-badge{position:absolute;top:8px;right:22px;background:#F79009;color:#1a1200;font-size:10px;font-weight:800;letter-spacing:.04em;padding:3px 8px;border-radius:5px;pointer-events:none;z-index:1;}
 .we-body pre{background:#0D1117;border:none;border-radius:8px;padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#E6EDF3;line-height:1.65;margin:0 0 10px;white-space:pre-wrap;}
 .we-body .we-line{font-size:12.5px;color:var(--text-secondary);line-height:1.6;margin-bottom:4px;}
 
@@ -170,12 +174,16 @@ input[type=text]:focus{outline:none;border-color:var(--accent);}
 .timer-bar-fill.low{background:var(--danger);}
 
 .viz-frame{position:relative;border-radius:12px;background:var(--surface-alt);border:1px solid var(--border);padding:22px;margin-bottom:14px;overflow:hidden;}
+.goal-legend{background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:8px;padding:9px 14px;font-size:13px;color:var(--text);margin-bottom:12px;}
+.goal-legend b{color:var(--accent);}
 .viz-frame .sweep-bg{display:none;}
 #gridViz{position:relative;z-index:2;display:grid;gap:4px;margin:0 auto;width:100%;max-width:280px;aspect-ratio:1/1;}
 .cell{background:#fff;border:1px solid var(--border);border-radius:6px;position:relative;display:flex;align-items:center;justify-content:center;transition:background .2s ease;}
 .cell.wall{background:var(--danger-bg);border-color:var(--danger-border);}
 .cell.wall::after{content:'';width:34%;height:34%;background:var(--danger);opacity:.75;border-radius:3px;}
 .cell.target{background:var(--accent-bg);border-color:var(--accent-border);}
+.target-flag{font-size:1.3em;animation:targetbounce 1.4s ease-in-out infinite;filter:drop-shadow(0 2px 4px rgba(79,70,229,0.4));}
+@keyframes targetbounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-3px);}}
 .cell.target::after{content:'';position:absolute;width:36%;height:36%;border-radius:50%;border:2px solid var(--accent);animation:targetpulse 1.8s ease-in-out infinite;}
 @keyframes targetpulse{0%,100%{transform:scale(0.85);opacity:.6;}50%{transform:scale(1.05);opacity:1;}}
 .cell.target .lock{display:none;}
@@ -217,6 +225,8 @@ input[type=text]:focus{outline:none;border-color:var(--accent);}
 .concept-list li{font-size:13.5px;color:var(--text);margin-bottom:9px;line-height:1.55;}
 .concept-list li:last-child{margin-bottom:0;}
 .concept-list li b{color:var(--accent);}
+.job-note{text-align:left;background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:9px;padding:14px 16px;font-size:13.5px;color:var(--text);margin-top:14px;}
+.job-note b{color:var(--accent);}
 
 .confetti-piece{position:fixed;top:-20px;width:8px;height:8px;z-index:60;border-radius:2px;pointer-events:none;animation:fall linear forwards;}
 @keyframes fall{to{transform:translateY(105vh) rotate(360deg); opacity:0.2;}}
@@ -253,17 +263,21 @@ input[type=text]:focus{outline:none;border-color:var(--accent);}
           <h2><span class="idx">01</span> Transmission</h2>
           <span class="tag" id="conceptTag">FUNCTIONS</span>
         </div>
+        <p class="panel-subcaption">This is where you type your instructions for the rover.</p>
         <div id="newContentBadge" style="display:none;"></div>
         <p class="brief" id="briefText"></p>
         <div class="ref" id="refChips"></div>
         <details class="worked-example" id="workedExample" open>
           <summary>📎 See how this works first</summary>
-          <div class="we-body" id="weBody"></div>
+          <div class="we-body-wrap">
+            <div class="we-example-badge">EXAMPLE — READ ONLY</div>
+            <div class="we-body" id="weBody"></div>
+          </div>
         </details>
         <div class="editor-chrome">
           <div class="editor-titlebar">
-            <div><span class="tdot on"></span>
-            <span class="path">rover.js</span> — updates as you type</div>
+            <div>✏️ <span class="tdot on"></span>
+            <span class="path">rover.js</span> — <b>type here</b>, updates as you type</div>
             <span class="syntax-status" id="syntaxStatus"></span>
           </div>
           <textarea id="codeInput" spellcheck="false" oninput="checkSyntaxLive()"></textarea>
@@ -280,11 +294,14 @@ input[type=text]:focus{outline:none;border-color:var(--accent);}
         <div class="panel-head">
           <h2><span class="idx">02</span> Live Feed</h2>
         </div>
+        <p class="panel-subcaption">Watch what your instructions actually do, step by step.</p>
+        <div class="goal-legend">🏁 <b>Your goal:</b> get the rover to the flag</div>
         <div class="viz-frame">
           <div id="gridViz"></div>
           <div class="hud-readout"><span>pos <b id="hudPos">(0,0)</b></span><span>facing <b id="hudDir">E</b></span></div>
         </div>
-        <div class="terminal" id="terminal"><div class="muted line" style="opacity:.6">awaiting transmission<span class="cursor"></span></div></div>
+        <p class="terminal-bridge">👋 This works like the console from Hello, Computer — except now your code's own actions get logged here automatically.</p>
+        <div class="terminal" id="terminal"><div class="muted line" style="opacity:.6">a step-by-step log will appear here once you click Run<span class="cursor"></span></div></div>
       </div>
     </div>
   </div>
@@ -295,7 +312,14 @@ input[type=text]:focus{outline:none;border-color:var(--accent);}
       <div class="badge"><div class="b-inner">◉</div></div>
       <div class="eyebrow">The Construct</div>
       <h2>All Constructs Complete</h2>
-      <div class="cadet" id="certName">you</div>
+      <div class="cert-claim" style="background:var(--surface-alt);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin:14px auto 0;text-align:left;max-width:340px;">
+        <label for="certNameInput" style="font-size:12.5px;font-weight:700;color:var(--text);display:block;margin-bottom:8px;">Your name, for the certificate:</label>
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="certNameInput" placeholder="Type your name…" maxlength="40" style="flex:1;padding:10px 14px;border-radius:7px;border:1px solid var(--border);font-family:'Inter',sans-serif;font-size:13.5px;">
+          <button class="btn-primary" id="claimBtn" onclick="claimTrophy()" style="border:none;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-radius:8px;padding:11px 18px;">🏆 Claim</button>
+        </div>
+        <p id="claimNote" style="font-size:12.5px;color:var(--success,#12B76A);margin:8px 0 0;font-weight:600;"></p>
+      </div>
       <div class="stat-row">
         <div class="stat"><b id="certTime">--:--</b><span>Time in the construct</span></div>
         <div class="stat"><b id="certRuns">0</b><span>Compiles run</span></div>
@@ -307,7 +331,9 @@ input[type=text]:focus{outline:none;border-color:var(--accent);}
         <li><b>Turning &amp; state</b> — the program's direction changed based on your commands</li>
         <li><b>Logic</b> — you planned a route around obstacles before running anything</li>
         <li><b>Loops</b> — you repeated an action without writing it out by hand</li>
+        <li><b>Combining loops</b> — chaining two separate loops of different lengths into one route</li>
       </div>
+      <div class="job-note">🔧 <b>Where this shows up at work:</b> every app you've ever used is built from exactly this idea — named actions, run in a specific order, sometimes repeated. A website, a mobile app, an ATM — the code underneath is fundamentally lists of instructions like the ones you just wrote.</div>
       <div class="learn-more">
         <h4>Keep learning</h4>
         <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide" target="_blank" rel="noopener">MDN — JavaScript Guide <span class="lm-sub">the full reference on what you just practiced</span></a>
@@ -344,12 +370,12 @@ const LEVELS = [
     start: {x:0,y:2,dir:'E'},
     target: {x:1,y:2},
     walls: [],
-    starter: `// Call moveForward() to send the program\n// one step in the direction it's facing.\n\nmoveForward();`,
-    brief: "The program only does what you tell it, one command at a time. Call moveForward() once to close the gap and reach the exit node.",
+    starter: `// This line is already written for you — just click\n// ▶ Run Code below to see what it does.\n\nmoveForward();`,
+    brief: "The code to do this is already sitting in the box below — you don't need to type anything for this first one. Just click the ▶ Run Code button to send the rover to the flag.",
     hints: [
-      "Every function call has the same shape: a name, brackets, and a semicolon.",
-      "You've already got moveForward(); in the starter code as an example of the shape — you just need to actually call it.",
-      "moveForward();"
+      "Look inside the box below — there's already a line of code sitting there: moveForward();",
+      "You don't need to change or add anything for this first one. Just click the blue ▶ Run Code button above the box.",
+      "moveForward(); — that's already in the box. Click ▶ Run Code."
     ],
     worked: `<pre>moveForward();</pre>
 <div class="we-line">That's the whole pattern a function call needs: a name, then brackets (even with nothing inside), then a semicolon.</div>`
@@ -362,7 +388,7 @@ const LEVELS = [
     target: {x:4,y:2},
     walls: [],
     starter: `// The program reads your code top to bottom.\n// Add more moveForward() calls to travel further.\n\nmoveForward();`,
-    brief: "The exit is 4 cells away this time. Code runs in order — stack up multiple moveForward() calls to cover the distance.",
+    brief: "The flag is 4 cells away this time. Code runs in order — stack up multiple moveForward() calls to cover the distance.",
     hints: [
       "Count how many cells sit between the rover and the exit — that's how many times you need to call the function.",
       "You can call the same function more than once, one call per line, and each one runs in order.",
@@ -400,7 +426,7 @@ moveForward();</pre>
     target: {x:4,y:4},
     walls: [{x:1,y:0},{x:1,y:1},{x:2,y:2},{x:3,y:3},{x:4,y:1}],
     starter: `// Agents are blocking the direct path.\n// Plan a route around them before you run.\n\nturnRight();\nmoveForward();`,
-    brief: "Agents block the straight route. Read the field, then chain turns and moves to steer around them to the exit.",
+    brief: "Agents block the straight route. Read the field, then chain turns and moves to steer around them to the flag.",
     hints: [
       "There's no direct route here — you'll need at least one turn to get around what's blocking the path.",
       "Try heading a different direction first to get past the obstacle, then turn back toward the exit.",
@@ -450,7 +476,7 @@ for (let i = 0; i < 2; i++) {
     target: {x:5,y:3},
     walls: [{x:0,y:1},{x:1,y:1},{x:2,y:1},{x:3,y:1},{x:4,y:1}],
     starter: `// The wall only leaves an L-shaped path — one straight\\n// run, a single turn, then a second straight run of a\\n// different length. Two separate loops, back to back.\\n\\nmoveForward();`,
-    brief: "The exit is around a corner, not a straight line or a repeating staircase this time — one straight stretch, a single turn, then another straight stretch of a different length. Two loops, one after another, each with its own count.",
+    brief: "The flag is around a corner, not a straight line or a repeating staircase this time — one straight stretch, a single turn, then another straight stretch of a different length. Two loops, one after another, each with its own count.",
     hints: [
       "This isn't one repeating pattern like the last level — it's two separate straight stretches with a single turn between them, each stretch its own length.",
       "A loop can run back to back with another loop — finish the first loop completely, turn, then start a brand new loop with its own count for the second stretch.",
@@ -602,9 +628,7 @@ function buildGrid(lvl){
       if(lvl.walls.some(w=>w.x===x&&w.y===y)) cell.classList.add('wall');
       if(lvl.target.x===x && lvl.target.y===y){
         cell.classList.add('target');
-        const lock = document.createElement('div');
-        lock.className = 'lock';
-        cell.appendChild(lock);
+        cell.innerHTML = '<span class="target-flag">🏁</span>';
       }
       viz.appendChild(cell);
     }
@@ -841,12 +865,12 @@ function animateQueue(queue, lvl, i){
 function checkWin(lvl){
   if(roverState.x === lvl.target.x && roverState.y === lvl.target.y){
     failCount = 0;
-    log('exit node reached', 'ok');
+    log('flag reached', 'ok');
     if(roverEl) roverEl.classList.add('win');
     showSuccess();
   } else {
     failCount++;
-    log(`program halted at (${roverState.x},${roverState.y}) — exit at (${lvl.target.x},${lvl.target.y})`, 'muted');
+    log(`program halted at (${roverState.x},${roverState.y}) — flag is at (${lvl.target.x},${lvl.target.y})`, 'muted');
     maybeNudgeHint();
   }
 }
@@ -935,8 +959,24 @@ function finishGame(){
   document.getElementById('certTime').textContent = `${m}:${s}`;
   document.getElementById('certRuns').textContent = runs;
   document.getElementById('certCleared').textContent = `${LEVELS.length}/${LEVELS.length}`;
-  document.getElementById('certName').textContent = cadet;
   launchConfetti();
+}
+
+function claimTrophy(){
+  const nameInput = document.getElementById('certNameInput');
+  const name = (nameInput.value || '').trim() || 'Anonymous';
+  const existing = JSON.parse(localStorage.getItem('mainframe_trophies') || '[]');
+  existing.push({
+    module: 'The Construct (Take-Home)',
+    tier: 'Construct Expert',
+    emoji: '🥇',
+    name: name,
+    date: new Date().toLocaleDateString()
+  });
+  localStorage.setItem('mainframe_trophies', JSON.stringify(existing));
+  document.getElementById('claimBtn').textContent = '✅ Saved!';
+  document.getElementById('claimBtn').disabled = true;
+  document.getElementById('claimNote').textContent = 'Saved — view it anytime from "My Trophies" on the dashboard.';
 }
 </script>
 

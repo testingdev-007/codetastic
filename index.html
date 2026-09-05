@@ -36,6 +36,17 @@ h1{font-size:clamp(28px,4vw,38px);margin:0 0 10px;font-weight:800;letter-spacing
 .sw.soon{background:var(--border-strong);}
 
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:26px;}
+.dash-section{margin-top:38px;}
+.dash-section:first-of-type{margin-top:26px;}
+.section-head{margin-bottom:14px;}
+.section-head h2{font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);font-weight:800;margin:0 0 4px;}
+.section-head p{font-size:13px;color:var(--text-secondary);margin:0;}
+.grid-1col{display:grid;grid-template-columns:1fr;gap:18px;}
+.grid-2col{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.grid-3col{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+@media (max-width:900px){.grid-3col{grid-template-columns:1fr 1fr;}}
+@media (max-width:640px){.grid-2col,.grid-3col{grid-template-columns:1fr;}}
+.advanced-note{background:var(--warning-bg,#FFFAEB);border:1px solid #FEDF89;border-radius:10px;padding:12px 16px;font-size:13px;color:#B54708;margin-bottom:16px;}
 @media (max-width:760px){.grid{grid-template-columns:1fr;}}
 
 .tile{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;transition:box-shadow .2s ease, opacity .2s ease, border-color .2s ease;}
@@ -85,10 +96,11 @@ footer a{color:var(--accent);font-weight:600;}
   <header>
     <div class="eyebrow">Digital Skills · Training Hub</div>
     <h1>The Mainframe</h1>
-    <p class="lead">Five short pieces of a financial system, each broken in a different way, plus a growing set of practical AI skills. Four of the financial modules are live tasters with take-home extensions; The Helpdesk is a standalone debugging exercise.</p>
+    <p class="lead">Start with Hello, Computer if this is your first time — it takes three minutes and everything else builds on it. From there: three short taster activities to try in any order, two AI skills exercises, and two more involved coding challenges once you're ready for a bit more.</p>
     <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
       <a href="start-here.html" style="display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--accent);background:var(--accent-bg);border:1px solid var(--accent-border);padding:8px 16px;border-radius:20px;text-decoration:none;">← Session intro</a>
       <a href="intro-slides.html" style="display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--accent);background:var(--accent-bg);border:1px solid var(--accent-border);padding:8px 16px;border-radius:20px;text-decoration:none;">🖥️ Intro slides</a>
+      <a href="my-trophies.html" style="display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--accent);background:var(--accent-bg);border:1px solid var(--accent-border);padding:8px 16px;border-radius:20px;text-decoration:none;">🏆 My Trophies</a>
       <a href="facilitator-notes.html" style="display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--accent);background:var(--accent-bg);border:1px solid var(--accent-border);padding:8px 16px;border-radius:20px;text-decoration:none;">Facilitator notes →</a>
     </div>
   </header>
@@ -104,179 +116,230 @@ footer a{color:var(--accent);font-weight:600;}
     </div>
   </div>
 
-  <div class="grid">
-
-    <!-- CONSTRUCT -->
-    <div class="tile" data-category="coding">
-      <div class="tile-head">
-        <div>
-          <div class="tile-num">01</div>
-          <h2>The Construct</h2>
-        </div>
-        <span class="status-pill ready">ready</span>
-      </div>
-      <p class="desc">Navigate a hidden rover through a maze of real JavaScript — one command at a time, then with turns, then with loops.</p>
-      <div class="chips">
-        <span class="chip">functions</span><span class="chip">sequencing</span><span class="chip">parameters</span><span class="chip">logic</span><span class="chip">loops</span>
-      </div>
-      <div class="tile-actions">
-        <a class="action-row live" href="mission-control-taster.html">
-          <span class="label">▶ Live Taster</span>
-          <span class="time">~6 min · 3 constructs + bonus</span>
-        </a>
-        <a class="action-row live" href="mission-control.html">
-          <span class="label">📘 Take-Home Extension</span>
-          <span class="time">5 constructs + bonus round</span>
-        </a>
-      </div>
-      <a class="guide-link" href="construct-guide.html">📖 Reference guide →</a>
+  <div class="dash-section">
+    <div class="section-head">
+      <h2>Start here</h2>
+      <p>Never written any code before? This takes 3 minutes and everything else builds on it.</p>
     </div>
+    <div class="grid-1col">
 
-    <!-- VAULT -->
-    <div class="tile" data-category="coding">
-      <div class="tile-head">
-        <div>
-          <div class="tile-num">02</div>
-          <h2>The Vault</h2>
+      <!-- HELLO WORLD -->
+      <div class="tile" data-category="coding" style="background:linear-gradient(135deg,#EEF2FF,#fff);">
+        <div class="tile-head">
+          <div>
+            <div class="tile-num">00</div>
+            <h2>Hello, Computer</h2>
+          </div>
+          <span class="status-pill ready">ready</span>
         </div>
-        <span class="status-pill ready">ready</span>
-      </div>
-      <p class="desc">Patch broken logic in a bank's risk-checking system. Real business rules, real functions, real tests.</p>
-      <div class="chips">
-        <span class="chip">functions</span><span class="chip">booleans</span><span class="chip">conditionals</span><span class="chip">testing</span>
-      </div>
-      <div class="tile-actions">
-        <a class="action-row live" href="the-vault.html">
-          <span class="label">▶ Live Taster</span>
-          <span class="time">~6 min · 3 challenges</span>
-        </a>
-        <a class="action-row live" href="the-vault-extended.html">
-          <span class="label">📘 Take-Home Extension</span>
-          <span class="time">~15 min · 6 challenges</span>
-        </a>
-      </div>
-      <a class="guide-link" href="vault-guide.html">📖 Reference guide →</a>
-    </div>
-
-    <!-- LEDGER -->
-    <div class="tile" data-category="coding data">
-      <div class="tile-head">
-        <div>
-          <div class="tile-num">03</div>
-          <h2>The Ledger</h2>
+        <p class="desc">Type one instruction, press a button, and watch the computer respond straight away. Teaches what a "console" actually is and what your first ever line of code looks like — no experience assumed at all.</p>
+        <div class="chips">
+          <span class="chip">what is a console</span><span class="chip">your first instruction</span>
         </div>
-        <span class="status-pill ready">ready</span>
-      </div>
-      <p class="desc">Load a transaction dataset and answer real questions about it — filtering, totals, and basic analysis.</p>
-      <div class="chips">
-        <span class="chip">variables</span><span class="chip">arrays</span><span class="chip">loops</span><span class="chip">data</span>
-      </div>
-      <div class="tile-actions">
-        <a class="action-row live" href="the-ledger.html">
-          <span class="label">▶ Live Taster</span>
-          <span class="time">~6 min · 3 queries</span>
-        </a>
-        <a class="action-row live" href="the-ledger-extended.html">
-          <span class="label">📘 Take-Home Extension</span>
-          <span class="time">~15 min · 6 queries</span>
-        </a>
-      </div>
-      <a class="guide-link" href="ledger-guide.html">📖 Reference guide →</a>
-    </div>
-
-    <!-- CSS SITE -->
-    <div class="tile" data-category="web-design">
-      <div class="tile-head">
-        <div>
-          <div class="tile-num">04</div>
-          <h2>The Front</h2>
+        <div class="tile-actions">
+          <a class="action-row live" href="hello-world.html">
+            <span class="label">▶ Start Here</span>
+            <span class="time">~3 min · zero experience needed</span>
+          </a>
         </div>
-        <span class="status-pill ready">ready</span>
       </div>
-      <p class="desc">Take the bones of a real page and make it look like something you'd actually want to use.</p>
-      <div class="chips">
-        <span class="chip">html</span><span class="chip">css</span><span class="chip">layout</span><span class="chip">design</span>
-      </div>
-      <div class="tile-actions">
-        <a class="action-row live" href="the-front.html">
-          <span class="label">▶ Live Taster</span>
-          <span class="time">~6 min · 3 screens</span>
-        </a>
-        <a class="action-row live" href="the-front-extended.html">
-          <span class="label">📘 Take-Home Extension</span>
-          <span class="time">~15 min · 1 continuous page</span>
-        </a>
-      </div>
-      <a class="guide-link" href="front-guide.html">📖 Reference guide →</a>
-    </div>
 
-    <!-- HELPDESK -->
-    <div class="tile" style="grid-column: 1 / -1;" data-category="coding debugging">
-      <div class="tile-head">
-        <div>
-          <div class="tile-num">05</div>
-          <h2>The Helpdesk</h2>
+    </div>
+  </div>
+
+  <div class="dash-section">
+    <div class="section-head">
+      <h2>Core activities</h2>
+      <p>Pick any of these in any order — each is a short, self-contained taste of a real skill.</p>
+    </div>
+    <div class="grid-3col">
+
+      <!-- CONSTRUCT -->
+      <div class="tile" data-category="coding">
+        <div class="tile-head">
+          <div>
+            <div class="tile-num">01</div>
+            <h2>The Construct</h2>
+          </div>
+          <span class="status-pill ready">ready</span>
         </div>
-        <span class="status-pill ready">ready</span>
-      </div>
-      <p class="desc">A live banking app is broken in five ways. Describe what's wrong to the support chat, get the exact fix, paste it into the code window, and watch it apply live.</p>
-      <div class="chips">
-        <span class="chip">debugging</span><span class="chip">reading code</span><span class="chip">real fixes</span><span class="chip">support workflow</span>
-      </div>
-      <div class="tile-actions">
-        <a class="action-row live" href="the-helpdesk.html">
-          <span class="label">▶ Live Taster</span>
-          <span class="time">~6 min · 5 known issues</span>
-        </a>
-      </div>
-    </div>
-
-    <!-- COPILOT PROMPTS -->
-    <div class="tile" data-category="ai-prompting">
-      <div class="tile-head">
-        <div>
-          <div class="tile-num">06</div>
-          <h2>Effective CoPilot Prompts</h2>
+        <p class="desc">Give a rover simple instructions — move forward, turn — and watch it follow them exactly. Teaches that code is just a list of steps, followed one at a time, in order.</p>
+        <div class="chips">
+          <span class="chip">step-by-step instructions</span><span class="chip">repeating steps</span>
         </div>
-        <span class="status-pill ready">ready</span>
-      </div>
-      <p class="desc">The habits that separate a vague CoPilot answer from a genuinely useful one — every example is ready to copy, paste, and try for real.</p>
-      <div class="chips">
-        <span class="chip">specificity</span><span class="chip">context</span><span class="chip">format</span><span class="chip">iteration</span>
-      </div>
-      <div class="tile-actions">
-        <a class="action-row live" href="copilot-prompts-guide.html">
-          <span class="label">📖 Read the Guide</span>
-          <span class="time">~5 min · copyable examples</span>
-        </a>
-      </div>
-    </div>
-
-    <!-- COPILOT EXCEL OUTLOOK -->
-    <div class="tile" data-category="ai-prompting data">
-      <div class="tile-head">
-        <div>
-          <div class="tile-num">07</div>
-          <h2>Effective CoPilot — Excel &amp; Outlook</h2>
+        <div class="tile-actions">
+          <a class="action-row live" href="mission-control-taster.html">
+            <span class="label">▶ Live Taster</span>
+            <span class="time">~6 min · 3 constructs + bonus</span>
+          </a>
+          <a class="action-row live" href="mission-control.html">
+            <span class="label">📘 Take-Home Extension</span>
+            <span class="time">6 constructs + bonus round</span>
+          </a>
         </div>
-        <span class="status-pill ready">ready</span>
+        <a class="guide-link" href="construct-guide.html">📖 Reference guide →</a>
       </div>
-      <p class="desc">Same spreadsheet, same inbox — pick a bad prompt and get a generic guess, pick a great one and get a real dashboard or the exact email you needed.</p>
-      <div class="chips">
-        <span class="chip">dashboards</span><span class="chip">charts</span><span class="chip">search</span><span class="chip">summarising</span>
-      </div>
-      <div class="tile-actions">
-        <a class="action-row live" href="copilot-excel-outlook.html">
-          <span class="label">▶ Live Exercise</span>
-          <span class="time">~8 min · Excel + Outlook</span>
-        </a>
-      </div>
-    </div>
 
+      <!-- CSS SITE -->
+      <div class="tile" data-category="web-design">
+        <div class="tile-head">
+          <div>
+            <div class="tile-num">02</div>
+            <h2>The Front</h2>
+          </div>
+          <span class="status-pill ready">ready</span>
+        </div>
+        <p class="desc">Change how a plain webpage looks — colours, rounded corners, spacing. Teaches the basics of CSS, the part of a website that controls how it looks (not what it does).</p>
+        <div class="chips">
+          <span class="chip">colours &amp; spacing</span><span class="chip">making things line up</span>
+        </div>
+        <div class="tile-actions">
+          <a class="action-row live" href="the-front.html">
+            <span class="label">▶ Live Taster</span>
+            <span class="time">~6 min · 3 screens</span>
+          </a>
+          <a class="action-row live" href="the-front-extended.html">
+            <span class="label">📘 Take-Home Extension</span>
+            <span class="time">~15 min · 1 continuous page</span>
+          </a>
+        </div>
+        <a class="guide-link" href="front-guide.html">📖 Reference guide →</a>
+      </div>
+
+      <!-- HELPDESK -->
+      <div class="tile" data-category="coding debugging">
+        <div class="tile-head">
+          <div>
+            <div class="tile-num">03</div>
+            <h2>The Helpdesk</h2>
+          </div>
+          <span class="status-pill ready">ready</span>
+        </div>
+        <p class="desc">A working bank app has a few things wrong with it. Describe what you notice, in your own words, and watch the fix happen. Teaches how real developers actually find and fix problems.</p>
+        <div class="chips">
+          <span class="chip">spotting what's wrong</span><span class="chip">describing a problem clearly</span>
+        </div>
+        <div class="tile-actions">
+          <a class="action-row live" href="the-helpdesk.html">
+            <span class="label">▶ Live Taster</span>
+            <span class="time">~6 min · 5 known issues</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="dash-section">
+    <div class="section-head">
+      <h2>AI skills</h2>
+      <p>No code in this section — just how to get genuinely useful results out of tools like CoPilot.</p>
+    </div>
+    <div class="grid-2col">
+
+      <!-- COPILOT PROMPTS -->
+      <div class="tile" data-category="ai-prompting">
+        <div class="tile-head">
+          <div>
+            <div class="tile-num">04</div>
+            <h2>Effective CoPilot Prompts</h2>
+          </div>
+          <span class="status-pill ready">ready</span>
+        </div>
+        <p class="desc">A short read comparing a vague CoPilot question with a well-written one side by side. Teaches the handful of habits that make CoPilot's answers genuinely more useful.</p>
+        <div class="chips">
+          <span class="chip">being specific</span><span class="chip">giving it context</span>
+        </div>
+        <div class="tile-actions">
+          <a class="action-row live" href="copilot-prompts-guide.html">
+            <span class="label">📖 Read the Guide</span>
+            <span class="time">~5 min · copyable examples</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- COPILOT EXCEL OUTLOOK -->
+      <div class="tile" data-category="ai-prompting data">
+        <div class="tile-head">
+          <div>
+            <div class="tile-num">05</div>
+            <h2>Effective CoPilot — Excel &amp; Outlook</h2>
+          </div>
+          <span class="status-pill ready">ready</span>
+        </div>
+        <p class="desc">The exact same spreadsheet and inbox, every time — pick a weak prompt and get a vague guess, pick a strong one and get a real chart or the exact email you needed. Teaches this by letting you see it happen, not just reading about it.</p>
+        <div class="chips">
+          <span class="chip">getting a real dashboard</span><span class="chip">finding an old email</span>
+        </div>
+        <div class="tile-actions">
+          <a class="action-row live" href="copilot-excel-outlook.html">
+            <span class="label">▶ Live Exercise</span>
+            <span class="time">~8 min · Excel + Outlook</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="dash-section">
+    <div class="section-head">
+      <h2>Advanced extensions</h2>
+      <p>More involved than the activities above — a good next step once you're comfortable, not a place to start.</p>
+    </div>
+    <div class="grid-2col">
+
+      <!-- VAULT -->
+      <div class="tile" data-category="coding">
+        <div class="tile-head">
+          <div>
+            <div class="tile-num">06</div>
+            <h2>The Vault</h2>
+          </div>
+          <span class="status-pill ready">ready</span>
+        </div>
+        <div class="advanced-note">⚠️ More involved than the Core Activities above — try Construct or Front first if this is your first time today.</div>
+        <p class="desc">Write short pieces of code to fix a bank's rules for spotting risk. Teaches how to write your own simple logic, building on the "follow the steps" idea from The Construct.</p>
+        <div class="chips">
+          <span class="chip">writing your own logic</span><span class="chip">true / false decisions</span>
+        </div>
+        <div class="tile-actions">
+          <a class="action-row live" href="the-vault.html">
+            <span class="label">▶ Live Taster</span>
+            <span class="time">~6 min · 5 challenges</span>
+          </a>
+        </div>
+        <a class="guide-link" href="vault-guide.html">📖 Reference guide →</a>
+      </div>
+
+      <!-- LEDGER -->
+      <div class="tile" data-category="coding data">
+        <div class="tile-head">
+          <div>
+            <div class="tile-num">07</div>
+            <h2>The Ledger</h2>
+          </div>
+          <span class="status-pill ready">ready</span>
+        </div>
+        <div class="advanced-note">⚠️ Builds on ideas from The Vault — a good follow-on, not a starting point.</div>
+        <p class="desc">Write short pieces of code to answer real questions about a list of bank transactions. Teaches how to work with a whole list of information at once, not just one thing.</p>
+        <div class="chips">
+          <span class="chip">working with lists of data</span><span class="chip">totals &amp; filtering</span>
+        </div>
+        <div class="tile-actions">
+          <a class="action-row live" href="the-ledger.html">
+            <span class="label">▶ Live Taster</span>
+            <span class="time">~6 min · 4 queries</span>
+          </a>
+        </div>
+        <a class="guide-link" href="ledger-guide.html">📖 Reference guide →</a>
+      </div>
+
+    </div>
   </div>
 
   <footer>
-    <b>Deployment note:</b> all files sit flat in the same folder — the 9 activities (including The Helpdesk), 4 participant guides, and facilitator-notes.html — so this page just links between them, no server or build step required.
+    <b>Deployment note:</b> all files sit flat in the same folder — 10 activities (including Hello, Computer and The Helpdesk), 4 participant guides, and facilitator-notes.html — so this page just links between them, no server or build step required.
     <a href="start-here.html" style="color:var(--text-secondary);">← Back to session intro</a> · <a href="facilitator-notes.html" style="color:var(--text-secondary);">Facilitator notes →</a>
   </footer>
 

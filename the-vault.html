@@ -47,11 +47,14 @@ h1{font-size:26px;margin:0 0 8px;font-weight:700;letter-spacing:-0.01em;color:va
 .panel h2{font-size:13px;margin:0;text-transform:uppercase;letter-spacing:.04em;color:var(--text-secondary);font-weight:700;}
 .tag{font-size:11px;letter-spacing:.03em;color:var(--accent);border:1px solid var(--accent-border);background:var(--accent-bg);padding:3px 10px;border-radius:20px;text-transform:uppercase;font-weight:600;}
 .brief{color:var(--text-secondary);font-size:13.5px;line-height:1.65;margin:0 0 16px;}
+.fn-caption{color:var(--text-muted);font-size:12px;margin:2px 0 0;}
+.fn-caption code{background:var(--surface-alt);color:var(--accent);padding:1px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:11.5px;}
 
 .worked-example{background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:10px;margin-bottom:16px;overflow:hidden;}
 .worked-example summary{padding:11px 14px;cursor:pointer;font-size:13px;color:var(--accent);font-weight:600;list-style:none;}
 .worked-example summary::-webkit-details-marker{display:none;}
-.we-body{padding:2px 14px 14px;}
+.we-body{padding:2px 14px 14px;position:relative;}
+.we-example-badge{position:absolute;top:2px;right:8px;background:#F79009;color:#1a1200;font-size:10px;font-weight:800;letter-spacing:.04em;padding:3px 8px;border-radius:5px;pointer-events:none;z-index:1;}
 .we-body pre{background:#0D1117;border:none;border-radius:8px;padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#E6EDF3;line-height:1.65;margin:0 0 10px;white-space:pre-wrap;}
 .we-body .we-line{font-size:12.5px;color:var(--text-secondary);line-height:1.6;margin-bottom:4px;}
 .we-try{margin-top:12px;padding-top:12px;border-top:1px dashed var(--accent-border);display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
@@ -108,6 +111,12 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
 .badge-card p{color:var(--text-secondary);font-size:13.5px;line-height:1.6;margin:0 0 22px;}
 .badge-actions{display:flex;flex-direction:column;gap:9px;}
 .badge-earned-strip{display:inline-flex;align-items:center;gap:8px;background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:20px;padding:7px 16px;font-size:12px;font-weight:700;color:var(--accent);margin-top:14px;}
+.cert-claim{background:var(--surface-alt);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-top:16px;text-align:left;}
+.cert-claim label{font-size:12.5px;font-weight:700;color:var(--text);display:block;margin-bottom:8px;}
+.cert-claim-row{display:flex;gap:8px;}
+.cert-claim-row input{flex:1;padding:10px 14px;border-radius:7px;border:1px solid var(--border);font-family:'Inter',sans-serif;font-size:13.5px;}
+.cert-claim-row input:focus{outline:2px solid var(--accent);outline-offset:-1px;}
+.cert-claim-note{font-size:12.5px;color:var(--success,#12B76A);margin:8px 0 0;font-weight:600;}
 .success-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:36px 32px;max-width:380px;text-align:center;box-shadow:var(--shadow-md);}
 .ping{width:56px;height:56px;border-radius:50%;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;background:var(--success-bg);border:1px solid var(--success-border);}
 .ping-dot{width:14px;height:14px;border-radius:50%;background:var(--success);}
@@ -117,6 +126,12 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
 #doneScreen{display:none;text-align:center;padding:50px 20px;}
 .done-card{max-width:520px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:44px 38px;box-shadow:var(--shadow-md);}
 .learn-more{text-align:left;background:var(--surface-alt);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-top:20px;}
+.plenary{text-align:left;margin-top:22px;padding-top:20px;border-top:1px solid var(--border);}
+.plenary h4{font-size:12px;text-transform:uppercase;letter-spacing:.03em;color:var(--text-muted);font-weight:700;margin:0 0 12px;}
+.plenary ul{margin:0 0 16px;padding-left:20px;}
+.plenary li{font-size:13.5px;color:var(--text);margin-bottom:8px;line-height:1.5;}
+.plenary .job-note{background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:9px;padding:14px 16px;font-size:13.5px;color:var(--text);}
+.plenary .job-note b{color:var(--accent);}
 .learn-more h4{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);font-weight:700;margin:0 0 10px;}
 .learn-more a{display:flex;align-items:center;gap:8px;color:var(--accent);font-weight:600;font-size:13px;text-decoration:none;padding:6px 0;}
 .learn-more a:hover{text-decoration:underline;}
@@ -196,13 +211,17 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
     <div class="cols">
       <div class="panel">
         <div class="panel-head">
-          <h2 id="challengeTitle">calculateTotal</h2>
+          <div>
+            <h2 id="challengeTitle">Add a Service Charge</h2>
+            <p class="fn-caption">You'll write a function called <code id="fnNameCaption">calculateTotal</code></p>
+          </div>
           <span class="tag" id="conceptTag">FUNCTIONS</span>
         </div>
         <p class="brief" id="briefText"></p>
         <details class="worked-example" id="workedExample" open>
           <summary>📎 See a worked example — then try it yourself</summary>
           <div class="we-body">
+            <div class="we-example-badge">EXAMPLE — READ ONLY</div>
             <pre id="weCode"></pre>
             <div id="weExplain"></div>
             <div class="we-try">
@@ -214,7 +233,7 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
         </details>
         <div class="editor-chrome">
           <div class="editor-titlebar">
-            <div><span>risk.js</span> — updates as you type</div>
+            <div>✏️ <span>risk.js</span> — <b>type here</b>, updates as you type</div>
             <span class="syntax-status" id="syntaxStatus"></span>
           </div>
           <textarea id="codeInput" spellcheck="false" oninput="checkSyntaxLive()"></textarea>
@@ -229,7 +248,7 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
 
       <div class="panel">
         <div class="panel-head">
-          <h2>Test Console</h2>
+          <h2>Your Checklist</h2>
         </div>
         <div class="test-list" id="testList"></div>
         <div class="status-line" id="statusLine">awaiting test run</div>
@@ -244,11 +263,28 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
       <h2>All Patched</h2>
       <p>Every function passed its tests. That's the actual day-to-day loop for a lot of dev roles — read a rule, write the logic, run the tests, fix what fails.</p>
       <div class="badge-earned-strip">🥇 Advanced Badge — Vault Expert</div>
+      <div class="cert-claim">
+        <label for="certNameInput">Your name, for the certificate:</label>
+        <div class="cert-claim-row">
+          <input type="text" id="certNameInput" placeholder="Type your name…" maxlength="40">
+          <button class="btn-primary" id="claimBtn" onclick="claimTrophy()" style="border:none;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-radius:8px;padding:11px 18px;">🏆 Claim Certificate</button>
+        </div>
+        <p class="cert-claim-note" id="claimNote"></p>
+      </div>
       <p style="color:var(--text-muted);margin-top:14px;">The take-home Vault has more scenarios waiting, with trickier edge cases.</p>
       <div class="learn-more">
         <h4>Keep learning</h4>
         <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Functions" target="_blank" rel="noopener">MDN — Functions <span class="lm-sub">the full reference on what you just practiced</span></a>
         <a href="https://javascript.info/" target="_blank" rel="noopener">javascript.info <span class="lm-sub">a free, beginner-friendly full course</span></a>
+      </div>
+      <div class="plenary">
+        <h4>💭 Before you go — what you just did</h4>
+        <ul>
+          <li>Wrote real <b>functions</b> — named blocks of logic that take an input and give back an answer.</li>
+          <li>Used <b>true/false decisions</b> to make code respond differently depending on the situation.</li>
+          <li>Ran real <b>tests</b> to prove your code actually worked, instead of just hoping it did.</li>
+        </ul>
+        <div class="job-note">🔧 <b>Where this shows up at work:</b> "read a rule, write the logic, run the tests, fix what fails" is genuinely the day-to-day rhythm of a huge number of developer roles — not a simplified version of the job, the actual job.</div>
       </div>
       <div class="actions" style="justify-content:center;margin-top:18px;">
         <a href="index.html" class="btn-primary" style="text-decoration:none;display:inline-flex;align-items:center;font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-radius:8px;cursor:pointer;padding:11px 20px;">🏠 Return Home</a>
@@ -286,6 +322,7 @@ button{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border-ra
 /* ---------------- Challenges ---------------- */
 const CHALLENGES = [
   {
+    title: "Add a Service Charge",
     fnName: "calculateTotal",
     concept: "FUNCTIONS · RETURN VALUES",
     brief: "Every transfer carries a flat £5 processing fee. Write calculateTotal(amount) so it returns the transaction amount plus that fee.",
@@ -302,7 +339,10 @@ function calculateTotal(amount) {
     ],
     hints: [
       "Think about what the function needs to give back — the amount, plus something extra.",
+      "A common slip here: writing return amount, 5; with a comma instead of return amount + 5; — you need the + operator to actually add the two numbers together.",
+      "Worked through with a real number: if amount is 20, you want 25 back — that's 20 + 5. The fee is always exactly 5, no matter what the amount is.",
       "You need a return statement. The shape is: return amount + ___;",
+      "The blank is just the fee itself — a plain number, not a word or a calculation.",
       "return amount + 5;"
     ],
     workedFn: "addServiceCharge",
@@ -317,6 +357,7 @@ function calculateTotal(amount) {
     ]
   },
   {
+    title: "Spot a High-Risk Transaction",
     fnName: "isHighRisk",
     concept: "BOOLEANS · COMPARISON",
     brief: "Compliance flags any transaction strictly over £10,000 for manual review. Write isHighRisk(amount) so it returns true or false.",
@@ -333,7 +374,10 @@ function isHighRisk(amount) {
     ],
     hints: [
       "This is really a yes/no question — is the amount over 10000?",
+      "A common slip here: writing amount > 10000 as a plain condition inside an if, then trying to return true or false separately — you don't need the if at all, the comparison itself already IS true or false.",
+      "Worked through with a real number: amount is 15000. Is 15000 > 10000? Yes — so the answer is true. Now try amount 5000: is 5000 > 10000? No — so the answer is false.",
       "A comparison like amount > 10000 already gives you true or false directly — you can return it as-is.",
+      "Here's the shape with one blank: return amount ___ 10000; — which symbol means 'greater than'?",
       "return amount > 10000;"
     ],
     workedFn: "isAdult",
@@ -348,8 +392,9 @@ function isHighRisk(amount) {
     ]
   },
   {
+    title: "Sort a Transaction by Size",
     fnName: "categoriseTransaction",
-    concept: "CONDITIONALS · MULTIPLE BRANCHES",
+    concept: "CONDITIONALS · MULTIPLE OUTCOMES",
     brief: "The risk system sorts every transaction into one of three bands: 'flagged' if over £10,000, 'review' if £1,000 or more, otherwise 'standard'. Write categoriseTransaction(amount) to return the right band.",
     starter: `// categoriseTransaction(amount) should return:
 //   'flagged'  if amount > 10000
@@ -367,7 +412,10 @@ function categoriseTransaction(amount) {
     ],
     hints: [
       "Check the most extreme case first, then work your way down to the least extreme.",
+      "A common slip here: checking amount >= 1000 first — since 15000 is also >= 1000, it would wrongly get labelled 'review' before ever reaching the 'flagged' check. Order matters.",
+      "Worked through with a real number: amount is 5000. Is it over 10000? No. Is it 1000 or more? Yes — so it's 'review'. Now try 500: not over 10000, not 1000 or more either, so it falls through to 'standard'.",
       "Start with: if (amount > 10000) return 'flagged'; then add another if for the next band.",
+      "Each check only runs if the ones above it didn't already return — that's why checking biggest-first works without needing else.",
       "if (amount > 10000) return 'flagged';\nif (amount >= 1000) return 'review';\nreturn 'standard';"
     ],
     workedFn: "gradeScore",
@@ -385,6 +433,7 @@ function categoriseTransaction(amount) {
     ]
   },
   {
+    title: "Add On a Late Fee",
     fnName: "applyLateFee",
     concept: "MULTIPLE PARAMETERS · CONDITIONAL",
     brief: "Late payments incur a flat £10 fee. Write applyLateFee(amount, daysLate) so it adds £10 to the amount only when daysLate is greater than 0 — otherwise the amount is unchanged.",
@@ -402,7 +451,10 @@ function applyLateFee(amount, daysLate) {
     ],
     hints: [
       "Think of it as two possible outcomes — with a fee, or without one — depending on whether daysLate is greater than zero.",
+      "A common slip here: writing daysLate > 0 as the whole answer, forgetting it needs to be inside an if to actually decide which return runs.",
+      "Worked through with real numbers: amount is 100, daysLate is 5. Since 5 > 0, add the fee: 100 + 10 = 110. Now try daysLate 0: since 0 is not > 0, nothing changes — the answer is just 100.",
       "if (daysLate > 0) { return amount + 10; } then return amount unchanged afterwards.",
+      "The second return only runs at all if the if above it didn't already return — no else needed.",
       "if (daysLate > 0) return amount + 10;\nreturn amount;"
     ],
     workedFn: "chargeLateFee",
@@ -418,6 +470,7 @@ function applyLateFee(amount, daysLate) {
     ]
   },
   {
+    title: "Round to the Nearest Pound",
     fnName: "roundToNearestPound",
     concept: "BUILT-IN FUNCTIONS · ROUNDING",
     brief: "Statements always show whole pounds — no pence. Write roundToNearestPound(amount) so it rounds the amount to the nearest whole number.",
@@ -434,7 +487,10 @@ function roundToNearestPound(amount) {
     ],
     hints: [
       "You need a built-in function that rounds a number to the nearest whole number — you don't have to write the rounding logic yourself.",
+      "A common slip here: writing amount.round() — rounding isn't something a number can do to itself, it's a separate tool called Math.round(), which you give the number to.",
+      "Worked through with a real number: amount is 19.6. Math.round(19.6) looks at the .6 — that's over halfway, so it rounds up to 20. Amount 19.4 would round down to 19 instead.",
       "Math.round() takes a number and rounds it. Math.round(4.6) gives 5. Math.round(4.2) gives 4.",
+      "Here's the shape with one blank: return Math.round(___); — what goes inside the brackets?",
       "return Math.round(amount);"
     ],
     workedFn: "roundToNearestKg",
@@ -489,7 +545,8 @@ function loadChallenge(idx){
   pendingNudge = null;
   document.getElementById('helpDot').classList.remove('pulse');
   const c = CHALLENGES[idx];
-  document.getElementById('challengeTitle').textContent = c.fnName;
+  document.getElementById('challengeTitle').textContent = c.title;
+  document.getElementById('fnNameCaption').textContent = c.fnName;
   document.getElementById('conceptTag').textContent = c.concept;
   document.getElementById('briefText').textContent = c.brief;
   document.getElementById('codeInput').value = c.starter;
@@ -722,6 +779,23 @@ function nextChallenge(){
   }
 }
 
+function claimTrophy(){
+  const nameInput = document.getElementById('certNameInput');
+  const name = (nameInput.value || '').trim() || 'Anonymous';
+  const existing = JSON.parse(localStorage.getItem('mainframe_trophies') || '[]');
+  existing.push({
+    module: 'The Vault',
+    tier: 'Vault Expert',
+    emoji: '🥇',
+    name: name,
+    date: new Date().toLocaleDateString()
+  });
+  localStorage.setItem('mainframe_trophies', JSON.stringify(existing));
+  document.getElementById('claimBtn').textContent = '✅ Saved!';
+  document.getElementById('claimBtn').disabled = true;
+  document.getElementById('claimNote').textContent = 'Saved — view it anytime from "My Trophies" on the dashboard.';
+}
+
 buildDots();
 loadChallenge(0);
 </script>
@@ -799,8 +873,9 @@ const HELP_DATA = {
       "response": "if (condition) { return x; } if (otherCondition) { return y; } return z; \u2014 checks run top to bottom, and the first one that matches wins. Put the most specific condition first."
     },
     {
-      "id": "test-console-explain",
+      "id": "checklist-explain",
       "keywords": [
+        "what does the checklist show",
         "what does the test console show",
         "how do tests work",
         "what is a test",
@@ -942,7 +1017,7 @@ const MENU = {
     prompt: "Pick what's happening:",
     options: [
       { label: "My function says \"undefined\"", icon: "🐛", entry: "missing-return" },
-      { label: "What does the test console show me?", icon: "🐛", entry: "test-console-explain" },
+      { label: "What does the checklist show me?", icon: "🐛", entry: "checklist-explain" },
       { label: "My exact match isn't working", icon: "🐛", entry: "case-sensitive" },
       { label: "My function isn't being found", icon: "🐛", entry: "function-name-typo" },
       { label: "Back", icon: "←", goto: "help", back: true }
